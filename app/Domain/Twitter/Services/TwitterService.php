@@ -2,6 +2,7 @@
 
 namespace App\Domain\Twitter\Services;
 
+use App\Domain\Twitter\Actions\ImportTweetAction;
 use App\Domain\Twitter\DTO\TweetCollectionDTO;
 use Exception;
 use App\Domain\Twitter\DTO\UserDTO;
@@ -34,6 +35,13 @@ class TwitterService
         }
 
         fclose($handle);
+    }
+
+    public function importTweets(TweetCollectionDTO $tweets): void
+    {
+        foreach ($tweets as $tweet) {
+            ImportTweetAction::make()->execute($tweet);
+        }
     }
 
     public function getUserByScreenName(string $screenName): UserDTO

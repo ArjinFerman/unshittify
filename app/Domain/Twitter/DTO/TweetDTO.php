@@ -42,7 +42,7 @@ class TweetDTO
             rest_id: $data['result']['rest_id'],
             conversation_id_str: $data['result']['legacy']['conversation_id_str'],
             created_at: Carbon::parse($data['result']['legacy']['created_at']),
-            full_text: $data['result']['legacy']['full_text'],
+            full_text: $data['result']['note_tweet']['note_tweet_results']['result']['text'] ?? $data['result']['legacy']['full_text'],
             is_quote_status: $data['result']['legacy']['is_quote_status'],
             quoted_status_id_str: $data['result']['legacy']['quoted_status_id_str'] ?? null,
             user_id_str: $data['result']['legacy']['user_id_str'],

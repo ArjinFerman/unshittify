@@ -1,0 +1,96 @@
+<?php
+
+use App\Domain\Core\Enums\ReferenceType;
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::create('core_authors', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->longText('description')->nullable();
+            $table->timestamps();
+
+            $table->index('name');
+        });
+
+        Schema::create('core_feeds', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('author_id');
+
+            $table->string('name');
+            $table->string('type');
+            $table->string('url');
+
+            $table->timestamps();
+
+            $table->foreign('author_id')->references('id')->on('core_authors');
+        });
+
+        Schema::create('core_entries', function (Blueprint $table) {
+            $table->id();
+            $table->unsignedBigInteger('author_id');
+            $table->unsignedBigInteger('feed_id')->nullable();
+            $table->unsignedBigInteger('entryable_id');
+            $table->string('entryable_type');
+            $table->string('url');
+            $table->string('title');
+            $table->longText('content')->nullable();
+
+            $table->timestamps();
+
+            $table->foreign('author_id')->references('id')->on('core_authors');
+            $table->foreign('feed_id')->references('id')->on('core_feeds');
+            $table->index('entryable_id');
+            $table->index('entryable_type');
+        });
+
+        Schema::create('core_entry_references', function (Blueprint $table) {
+            $table->primary(['entry_id', 'ref_entry_id']);
+            $table->unsignedBigInteger('entry_id');
+            $table->unsignedBigInteger('ref_entry_id');
+            $table->enum('ref_type', array_column(ReferenceType::cases(), 'value'));
+
+            $table->foreign('entry_id')->references('id')->on('core_entries');
+            $table->foreign('ref_entry_id')->references('id')->on('core_entries');
+        });
+
+        Schema::create('core_tags', function (Blueprint $table) {
+            $table->id();
+            $table->string('name');
+            $table->timestamps();
+
+            $table->index('name');
+        });
+
+        Schema::create('core_taggables', function (Blueprint $table) {
+            $table->primary(['tag_id', 'taggable_id', 'taggable_type']);
+            $table->unsignedBigInteger('tag_id');
+            $table->unsignedBigInteger('taggable_id');
+            $table->string('taggable_type');
+            $table->timestamps();
+
+            $table->foreign('tag_id')->references('id')->on('core_tags');
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('core_authors');
+        Schema::dropIfExists('core_feeds');
+        Schema::dropIfExists('core_entries');
+        Schema::dropIfExists('core_entryable');
+        Schema::dropIfExists('core_tags');
+        Schema::dropIfExists('core_taggables');
+    }
+};

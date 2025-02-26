@@ -2,17 +2,13 @@
 
 namespace App\Domain\Twitter\DTO;
 
-use Carbon\Carbon;
+use Illuminate\Support\Collection;
 
-class TweetCollectionDTO
+/**
+ * @implements Collection<TweetDTO>
+ */
+class TweetCollectionDTO extends Collection
 {
-    public function __construct(
-        /** @var list<TweetDTO> */
-        public array $items,
-    )
-    {
-    }
-
     public static function fromTimelineResult(array $data): self
     {
         $items = [];
