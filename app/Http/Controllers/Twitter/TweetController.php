@@ -22,8 +22,8 @@ class TweetController extends Controller
     public function user(string $screenName): View
     {
         $tweets = $this->twitterService->getLatestUserTweets($screenName);
-        $this->twitterService->importTweets($tweets);
+        $entries = $this->twitterService->importTweets($tweets);
 
-        return view('tweets', ['tweets' => $tweets]);
+        return view('entries', ['entries' => $entries]);
     }
 }

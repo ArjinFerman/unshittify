@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
@@ -71,5 +72,10 @@ class Entry extends Model
     {
         return $this->belongsToMany(Entry::class, 'core_entry_references', 'ref_entry_id', 'entry_id')
             ->withPivot('ref_type');
+    }
+
+    public function media(): HasMany
+    {
+        return $this->hasMany(Media::class);
     }
 }

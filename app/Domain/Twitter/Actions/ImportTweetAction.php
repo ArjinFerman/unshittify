@@ -4,6 +4,7 @@ namespace App\Domain\Twitter\Actions;
 
 use App\Domain\Core\Actions\BaseAction;
 use App\Domain\Core\Actions\FindOrCreateAuthorAction;
+use App\Domain\Core\DTO\MediaDTO;
 use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Models\Entry;
 use App\Domain\Twitter\DTO\TweetDTO;
@@ -47,6 +48,19 @@ class ImportTweetAction extends BaseAction
                     'title' => $title,
                     'content' => $content,
                 ]);
+
+                /** @var MediaDTO $mediaItem */
+                foreach ($tweetData->media as $mediaItem) {
+                    $entry->media()->create([
+                        'entry_id' => $entry->id,
+                        'remote_id' => $mediaItem->remote_id,
+                        'type' => $mediaItem->type,
+                        'url' => $mediaItem->url,
+                        'content_type' => $mediaItem->content_type,
+                        'quality' => $mediaItem->quality,
+                        'properties' => $mediaItem->properties,
+                    ]);
+                }
 
                 if ($reference) {
                     $entry->references()->attach($reference->id, ['ref_type' => $referenceType]);

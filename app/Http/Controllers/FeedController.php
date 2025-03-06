@@ -16,6 +16,6 @@ class FeedController extends Controller
             ->limit(20)
             ->get();
 
-        return view('latest', ['entries' => $entries]);
+        return view('entries', ['entries' => $entries]);
     }
 }

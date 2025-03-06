@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\FeedController;
+use App\Http\Controllers\ProxyController;
 use App\Http\Controllers\Twitter\TweetController;
 use Illuminate\Support\Facades\Route;
 
@@ -11,4 +12,5 @@ Route::name('twitter.')->prefix('twitter')->group(function () {
 
 Route::name('core.')->group(function () {
     Route::get('/', [FeedController::class, 'index'])->name('latest');
+    Route::get('/proxy/{url}', [ProxyController::class, 'index'])->name('proxy');
 });

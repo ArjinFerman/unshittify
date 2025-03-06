@@ -1,14 +1,13 @@
 <?php
 
-namespace App\View\Components;
+namespace App\View\Components\Entry;
 
 use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Models\Entry as EntryModel;
 use Closure;
 use Illuminate\Contracts\View\View;
-use Illuminate\View\Component;
 
-class Tweet extends Component
+class Tweet extends BaseEntry
 {
     /**
      * Create a new component instance.
@@ -24,9 +23,11 @@ class Tweet extends Component
     {
         $reference = $this->entry->references()->first();
         $isRetweeted = ($reference?->pivot?->ref_type == ReferenceType::REPOST);
+        $mainEntry = ($isRetweeted ? $reference : $this->entry);
 
         return view('components.entry.tweet', [
             'mainEntry' => ($isRetweeted ? $reference : $this->entry),
+            'mainContent' => $this->renderMedia($mainEntry),
             'isRetweeted' => $isRetweeted,
         ]);
     }

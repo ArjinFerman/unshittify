@@ -2,8 +2,10 @@
 
 namespace App\Domain\Twitter\Services;
 
+use App\Domain\Core\Models\Entry;
 use App\Domain\Twitter\Actions\ImportTweetAction;
 use App\Domain\Twitter\DTO\TweetCollectionDTO;
+use Illuminate\Support\Collection;
 use Exception;
 use App\Domain\Twitter\DTO\UserDTO;
 use App\Support\OAuth\OAuth1Client;
@@ -37,11 +39,19 @@ class TwitterService
         fclose($handle);
     }
 
-    public function importTweets(TweetCollectionDTO $tweets): void
+    /**
+     * @param TweetCollectionDTO $tweets
+     * @return Collection<Entry>
+     * @throws \Throwable
+     */
+    public function importTweets(TweetCollectionDTO $tweets): Collection
     {
+        $entries = new Collection();
         foreach ($tweets as $tweet) {
-            ImportTweetAction::make()->execute($tweet);
+            $entries->add(ImportTweetAction::make()->execute($tweet));
         }
+
+        return $entries;
     }
 
     public function getUserByScreenName(string $screenName): UserDTO

@@ -22,11 +22,11 @@
         </div>
 
         <div class="mt-4 mb-4 text-sm/relaxed">
-            {!! nl2br($mainEntry->content) !!}
+            {!! nl2br($mainContent) !!}
         </div>
 
         @if ($mainEntry->entryable->quoted_tweet_id)
-        <x-dynamic-component :component="$mainEntry->getEntryType()" :entry="$mainEntry->entryable->quotedTweet->entry" />
+        <x-dynamic-component :component="'entry.'.$mainEntry->getEntryType()" :entry="$mainEntry->entryable->quotedTweet->entry" />
         @endif
     </div>
 </div>

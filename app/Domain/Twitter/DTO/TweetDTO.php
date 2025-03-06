@@ -2,7 +2,10 @@
 
 namespace App\Domain\Twitter\DTO;
 
+use App\Domain\Core\DTO\MediaCollectionDTO;
+use App\Domain\Twitter\Support\DTO\MediaParser;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class TweetDTO
 {
@@ -17,6 +20,7 @@ class TweetDTO
         public ?TweetDTO $quoted_tweet,
         public ?TweetDTO $retweet,
         public ?UserDTO $author,
+        public ?MediaCollectionDTO $media,
     )
     {
     }
@@ -38,17 +42,29 @@ class TweetDTO
             $author = UserDTO::fromUserResult($data['result']['core']['user_result']);
         }
 
+        $content = e($data['result']['note_tweet']['note_tweet_results']['result']['text'] ?? $data['result']['legacy']['full_text']);
+
+        $mediaCollection = new MediaCollectionDTO;
+        foreach ($data['result']['legacy']['extended_entities']['media'] ?? [] as $media) {
+            $type = MediaParser::getMediaType($media);
+            if ($type) {
+                $mediaCollection = $mediaCollection->merge(MediaParser::mediaDTOCollectionFromTwitter($media));
+                $content = Str::replace($media['url'], "<x-media.$type->value :remote_id=\"{$media['id_str']}\"/>", $content);
+            }
+        }
+
         return new self(
             rest_id: $data['result']['rest_id'],
             conversation_id_str: $data['result']['legacy']['conversation_id_str'],
             created_at: Carbon::parse($data['result']['legacy']['created_at']),
-            full_text: $data['result']['note_tweet']['note_tweet_results']['result']['text'] ?? $data['result']['legacy']['full_text'],
+            full_text: $content,
             is_quote_status: $data['result']['legacy']['is_quote_status'],
             quoted_status_id_str: $data['result']['legacy']['quoted_status_id_str'] ?? null,
             user_id_str: $data['result']['legacy']['user_id_str'],
             quoted_tweet: $quoted_tweet,
             retweet: $retweet,
             author: $author,
+            media: $mediaCollection,
         );
     }
 
