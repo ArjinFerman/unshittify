@@ -12,23 +12,42 @@ class MediaParser
     {
         return match ($media['type']) {
             'video' => MediaType::VIDEO,
+            'photo' => MediaType::IMAGE,
             default => null,
         };
     }
 
-    public static function mediaDTOCollectionFromTwitter(array $mediaArray): MediaCollectionDTO
+    public static function mediaDTOCollectionFromTwitter(array $media): MediaCollectionDTO
     {
         $mediaItems = new MediaCollectionDTO;
-        for ($i = 0; $i < count($mediaArray['video_info']['variants']); $i++) {
-            $mediaItems->add(self::mediaDTOFromTwitter($mediaArray, $i));
+        $type = self::getMediaType($media);
+
+        switch ($type) {
+            case MediaType::VIDEO:
+                for ($i = 0; $i < count($media['video_info']['variants']); $i++) {
+                    $mediaItems->add(self::videoMediaDTOFromTwitter($media, $i));
+                }
+                break;
+            case MediaType::IMAGE:
+                $mediaItems->add(new MediaDTO(
+                    remote_id: $media['id_str'],
+                    type: $type,
+                    url: $media['media_url_https'],
+                    content_type: mimeType($media['media_url_https']),
+                    quality: 1,
+                    properties: $media['original_info'] ?? null,
+                ));
+                break;
+            default:
+                throw new \InvalidArgumentException('Unsupported media type');
         }
 
         return $mediaItems;
     }
 
-    public static function mediaDTOFromTwitter(array $data, int $variantIndex): MediaDTO
+    public static function videoMediaDTOFromTwitter(array $data, int $variantIndex): MediaDTO
     {
-        $properties = self::getMediaProperties($data, $variantIndex);
+        $properties = self::getVideoProperties($data, $variantIndex);
 
         return new MediaDTO(
             remote_id: $data['id_str'],
@@ -40,7 +59,7 @@ class MediaParser
         );
     }
 
-    protected static function getMediaProperties(array $data, int $variantIndex): array
+    protected static function getVideoProperties(array $data, int $variantIndex): array
     {
         $variant = $data['video_info']['variants'][$variantIndex];
         switch ($variant['content_type']) {
