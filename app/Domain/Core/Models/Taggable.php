@@ -2,16 +2,12 @@
 
 namespace App\Domain\Core\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Taggable extends Pivot
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory;
-
     protected $table = 'core_taggables';
     public $timestamps = true;
 
