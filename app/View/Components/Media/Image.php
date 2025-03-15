@@ -2,6 +2,7 @@
 
 namespace App\View\Components\Media;
 
+use App\Domain\Core\Models\Media;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -11,7 +12,7 @@ class Image extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(public string $url)
+    public function __construct(public string $remote_id)
     {
     }
 
@@ -20,6 +21,7 @@ class Image extends Component
      */
     public function render(): View|Closure|string
     {
-        return view('components.media.image');
+        $media = Media::whereRemoteId($this->remote_id)->orderBy('quality', 'desc')->first();
+        return view('components.media.image', ['media' => $media]);
     }
 }

@@ -1,5 +1,32 @@
 <?php
 
+use Illuminate\Support\Str;
+use Illuminate\Support\Uri;
+
+if (!function_exists('getCleanUrl')) {
+    function getCleanUrl(string $url): string
+    {
+        $parsedUrl = new Uri($url);
+        $query = $parsedUrl->query()->all();
+
+        $bannedParams = config('web.banned_params');
+        foreach ($query as $param => $value) {
+            if ($bannedParams[$param] ?? false) {
+                unset($query[$param]);
+            }
+        }
+
+        $parsedUrl = $parsedUrl->replaceQuery($query);
+        $cleanUrl = $parsedUrl->getUri();
+
+        if(empty($query)) {
+            $cleanUrl = Str::replace('?', '', $cleanUrl);
+        }
+
+        return $cleanUrl;
+    }
+}
+
 if (!function_exists('mimeType')) {
     function mimeType(string $url)
     {

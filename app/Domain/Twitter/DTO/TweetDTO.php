@@ -5,6 +5,7 @@ namespace App\Domain\Twitter\DTO;
 use App\Domain\Core\DTO\MediaCollectionDTO;
 use App\Domain\Twitter\Support\DTO\MediaParser;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class TweetDTO
@@ -21,6 +22,8 @@ class TweetDTO
         public ?TweetDTO $retweet,
         public ?UserDTO $author,
         public ?MediaCollectionDTO $media,
+        /** @var array<string> $links */
+        public array $links,
     )
     {
     }
@@ -49,8 +52,18 @@ class TweetDTO
             $type = MediaParser::getMediaType($media);
             if ($type) {
                 $mediaCollection = $mediaCollection->merge(MediaParser::mediaDTOCollectionFromTwitter($media));
-                $content = Str::replace($media['url'], "<x-media.$type->value :remote_id=\"{$media['id_str']}\"/>", $content);
+                $content = Str::replace($media['url'], "<x-media.$type->value remote_id=\"{$media['id_str']}\"/>", $content);
+            } else {
+                Log::warning("Unsupported media type: {$media['type']}");
             }
+        }
+
+        $entities = $data['result']['note_tweet']['note_tweet_results']['result']['entity_set'] ?? $data['result']['legacy']['entities'];
+        $links = [];
+        foreach ($entities['urls'] as $link) {
+            $cleanUrl = getCleanUrl($link['expanded_url']);
+            $content = Str::replace($link['url'], "\n\n<x-entry.link url=\"$cleanUrl\"/>", $content);
+            $links[] = $cleanUrl;
         }
 
         return new self(
@@ -65,6 +78,7 @@ class TweetDTO
             retweet: $retweet,
             author: $author,
             media: $mediaCollection,
+            links: $links,
         );
     }
 

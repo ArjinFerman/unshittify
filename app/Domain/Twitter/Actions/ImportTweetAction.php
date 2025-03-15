@@ -10,6 +10,7 @@ use App\Domain\Core\Models\Entry;
 use App\Domain\Twitter\DTO\TweetDTO;
 use App\Domain\Twitter\Models\Tweet;
 use App\Domain\Twitter\Models\User;
+use App\Domain\Web\Jobs\ImportWebPageJob;
 
 class ImportTweetAction extends BaseAction
 {
@@ -24,14 +25,16 @@ class ImportTweetAction extends BaseAction
 
             $entry = $tweet->entry;
             if (!$entry) {
-                $title = "@{$tweetData->author->screen_name}";
-                $content = $tweetData->full_text;
+                $entry = new Entry;
+                $entry->url = config('twitter.status_base_url') . $tweetData->author->rest_id;
+                $entry->title = "@{$tweetData->author->screen_name}";
+                $entry->content = $tweetData->full_text;
+
                 /** @var Entry $reference */
                 $reference = null;
                 $referenceType = null;
-
                 if ($tweetData->retweet) {
-                    $content = null;
+                    $entry->content = null;
                     $reference = self::make()->withoutTransaction()->execute($tweetData->retweet);
                     $referenceType = ReferenceType::REPOST;
                 } else if ($tweetData->quoted_tweet) {
@@ -39,15 +42,9 @@ class ImportTweetAction extends BaseAction
                     $referenceType = ReferenceType::QUOTE;
                 }
 
-                /** @var Entry $entry */
-                $entry = Entry::create([
-                    'author_id' => $twitterUser->author_id,
-                    'entryable_id' => $tweet->id,
-                    'entryable_type' => Tweet::class,
-                    'url' => config('twitter.status_base_url') . $tweetData->author->rest_id,
-                    'title' => $title,
-                    'content' => $content,
-                ]);
+                $entry->entryable()->associate($tweet);
+                $entry->author()->associate($twitterUser->author);
+                $entry->save();
 
                 /** @var MediaDTO $mediaItem */
                 foreach ($tweetData->media as $mediaItem) {
@@ -64,6 +61,11 @@ class ImportTweetAction extends BaseAction
 
                 if ($reference) {
                     $entry->references()->attach($reference->id, ['ref_type' => $referenceType]);
+                }
+
+                foreach ($tweetData->links as $link) {
+                    if (!Entry::whereUrl($link)->exists())
+                        ImportWebPageJob::dispatch($link);
                 }
             }
 

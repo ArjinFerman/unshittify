@@ -22,7 +22,7 @@
         </div>
 
         <div class="mt-4 mb-4 text-sm/relaxed">
-            {!! nl2br($mainContent) !!}
+            {!! $mainContent !!}
         </div>
 
         @if ($mainEntry->entryable->quoted_tweet_id)

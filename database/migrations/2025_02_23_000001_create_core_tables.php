@@ -14,11 +14,13 @@ return new class extends Migration
     {
         Schema::create('core_authors', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('parent_id')->nullable();
             $table->string('name');
             $table->longText('description')->nullable();
             $table->timestamps();
 
             $table->index('name');
+            $table->foreign('parent_id')->references('id')->on('core_authors');
         });
 
         Schema::create('core_feeds', function (Blueprint $table) {
@@ -50,6 +52,10 @@ return new class extends Migration
             $table->foreign('feed_id')->references('id')->on('core_feeds');
             $table->index('entryable_id');
             $table->index('entryable_type');
+            $table->index('url');
+            $table->index('title');
+            $table->index('created_at');
+            $table->index('updated_at');
         });
 
         Schema::create('core_entry_references', function (Blueprint $table) {

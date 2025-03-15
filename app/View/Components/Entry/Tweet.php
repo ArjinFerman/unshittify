@@ -6,6 +6,8 @@ use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Models\Entry as EntryModel;
 use Closure;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Facades\Blade;
+use Illuminate\View\ComponentAttributeBag;
 
 class Tweet extends BaseEntry
 {
@@ -27,7 +29,7 @@ class Tweet extends BaseEntry
 
         return view('components.entry.tweet', [
             'mainEntry' => ($isRetweeted ? $reference : $this->entry),
-            'mainContent' => $this->renderMedia($mainEntry),
+            'mainContent' => $this->renderComponents($mainEntry),
             'isRetweeted' => $isRetweeted,
         ]);
     }
