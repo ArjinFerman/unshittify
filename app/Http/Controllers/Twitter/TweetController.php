@@ -6,6 +6,7 @@ use App\Domain\Twitter\Services\TwitterService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\URL;
 
 class TweetController extends Controller
 {
@@ -19,11 +20,18 @@ class TweetController extends Controller
         return view('welcome', []);
     }
 
-    public function user(string $screenName): View
+    public function user(Request $request, string $screenName): View
     {
-        $tweets = $this->twitterService->getLatestUserTweets($screenName);
+        $cursor = $request->query('cursor');
+
+        $tweets = $this->twitterService->getLatestUserTweets($screenName, $cursor);
         $entries = $this->twitterService->importTweets($tweets);
 
-        return view('entries', ['entries' => $entries]);
+        return view('tweets', [
+            'screenName' => $screenName,
+            'entries' => $entries,
+            'currentCursor' => $cursor,
+            'bottomCursor' => $tweets->getBottomCursor(),
+        ]);
     }
 }

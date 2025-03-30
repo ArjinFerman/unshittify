@@ -74,24 +74,28 @@ class TwitterService
         return $user;
     }
 
-    public function getLatestUserTweets(string $screenName): TweetCollectionDTO
+    public function getLatestUserTweets(string $screenName, ?string $after = null): TweetCollectionDTO
     {
-        $user = $this->getUserByScreenName($screenName);
-
-        $tweets = Cache::get("twitter:latest_tweets:$screenName");
+        $cacheKey = "twitter:user:$screenName:$after";
+        $tweets = Cache::get($cacheKey);
         if ($tweets) return $tweets;
 
-        $variables = json_encode([
+        $user = $this->getUserByScreenName($screenName);
+
+        $variables = [
             "rest_id" => $user->rest_id,
             "count" => 20,
-        ]);
+        ];
+
+        if ($after)
+            $variables["cursor"] = $after;
 
         $tweets = TweetCollectionDTO::fromTimelineResult($this->fetchImpl($this->baseUrl . config('twitter.endpoints.' . __FUNCTION__), [
-            'variables' => $variables,
+            'variables' => json_encode($variables),
             'features' => json_encode(config('twitter.gql_features')),
         ]));
 
-        Cache::put("twitter:latest_tweets:$screenName", $tweets, now()->addMinute());
+        Cache::put($cacheKey, $tweets, now()->addMinute());
 
         return $tweets;
     }
