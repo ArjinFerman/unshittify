@@ -23,7 +23,7 @@ class Media extends Model
      */
     protected $fillable = [
         'entry_id',
-        'remote_id',
+        'variant_id',
         'type',
         'url',
         'content_type',

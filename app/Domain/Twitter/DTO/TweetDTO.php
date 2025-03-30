@@ -52,7 +52,7 @@ class TweetDTO
             $type = MediaParser::getMediaType($media);
             if ($type) {
                 $mediaCollection = $mediaCollection->merge(MediaParser::mediaDTOCollectionFromTwitter($media));
-                $content = Str::replace($media['url'], "<x-media.$type->value remote_id=\"{$media['id_str']}\"/>", $content);
+                $content = Str::replace($media['url'], "<x-media.$type->value variant_id=\"twitter-{$media['id_str']}\"/>", $content);
             } else {
                 Log::warning("Unsupported media type: {$media['type']}");
             }

@@ -51,7 +51,7 @@ class ImportTweetAction extends BaseAction
                 foreach ($tweetData->media as $mediaItem) {
                     $entry->media()->create([
                         'entry_id' => $entry->id,
-                        'remote_id' => $mediaItem->remote_id,
+                        'variant_id' => $mediaItem->variant_id,
                         'type' => $mediaItem->type,
                         'url' => $mediaItem->url,
                         'content_type' => $mediaItem->content_type,
