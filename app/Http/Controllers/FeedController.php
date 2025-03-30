@@ -12,7 +12,7 @@ class FeedController extends Controller
     public function index(Request $request): View
     {
         $entries = Entry::query()
-            ->orderBy('id', 'desc')
+            ->orderBy('published_at', 'desc')
             ->limit(20)
             ->get();
 

@@ -45,6 +45,7 @@ return new class extends Migration
             $table->string('url');
             $table->string('title');
             $table->longText('content')->nullable();
+            $table->timestamp('published_at')->nullable();
 
             $table->timestamps();
 
@@ -55,7 +56,7 @@ return new class extends Migration
             $table->index('url');
             $table->index('title');
             $table->index('created_at');
-            $table->index('updated_at');
+            $table->index('published_at');
         });
 
         Schema::create('core_entry_references', function (Blueprint $table) {
