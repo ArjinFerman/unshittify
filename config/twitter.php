@@ -8,8 +8,17 @@ return [
     'consumer_secret' => env('TWITTER_CONSUMER_SECRET', 'Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys'),
 
     'endpoints' => [
-        'getUserByScreenName' => "graphql/u7wQyGi6oExe8_TRWGMq4Q/UserResultByScreenNameQuery",
-        'getLatestUserTweets' => "graphql/3JNH4e9dq1BifLxAa3UMWg/UserWithProfileTweetsQueryV2",
+        'getUserByScreenName'   => 'graphql/u7wQyGi6oExe8_TRWGMq4Q/UserResultByScreenNameQuery',
+        'getLatestUserTweets'   => 'graphql/3JNH4e9dq1BifLxAa3UMWg/UserWithProfileTweetsQueryV2',
+        'getTweetWithReplies'   => 'graphql/q94uRCEn65LZThakYcPT6g/TweetDetail',
+    ],
+
+    'tweet_variables' => [
+        'includeHasBirdwatchNotes'  => false,
+        'includePromotedContent'    => false,
+        'withBirdwatchNotes'        => false,
+        'withVoice'                 => false,
+        'withV2Timeline'            => true
     ],
 
     'gql_features' => [

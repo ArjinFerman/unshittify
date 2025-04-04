@@ -21,6 +21,7 @@ class Tweet extends Entryable
         'retweet_id',
         'quoted_tweet_id',
         'reply_to_id',
+        'conversation_id'
     ];
 
     public function user(): BelongsTo
@@ -36,5 +37,10 @@ class Tweet extends Entryable
     public function quotedTweet(): BelongsTo
     {
         return $this->belongsTo(Tweet::class, 'quoted_tweet_id', 'tweet_id');
+    }
+
+    public function replyToTweet(): BelongsTo
+    {
+        return $this->belongsTo(Tweet::class, 'reply_to_id', 'tweet_id');
     }
 }

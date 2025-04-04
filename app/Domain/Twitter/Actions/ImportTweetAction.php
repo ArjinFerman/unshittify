@@ -41,6 +41,9 @@ class ImportTweetAction extends BaseAction
                 } else if ($tweetData->quoted_tweet) {
                     $reference = self::make()->withoutTransaction()->execute($tweetData->quoted_tweet);
                     $referenceType = ReferenceType::QUOTE;
+                } else if ($tweetData->reply_to_id_str) {
+                    $reference = Tweet::whereTweetId($tweetData->reply_to_id_str)->first()?->entry;
+                    $referenceType = ($reference ? ReferenceType::REPLY_TO : null);
                 }
 
                 $entry->entryable()->associate($tweet);
@@ -82,7 +85,8 @@ class ImportTweetAction extends BaseAction
                 'tweet_id' => $tweetData->rest_id,
                 'retweet_id' => $tweetData->retweet?->rest_id,
                 'quoted_tweet_id' => $tweetData->quoted_tweet?->rest_id,
-                'reply_to_id' => null,
+                'reply_to_id' => $tweetData->reply_to_id_str,
+                'conversation_id' => $tweetData->conversation_id_str,
             ]);
 
         return $tweet;

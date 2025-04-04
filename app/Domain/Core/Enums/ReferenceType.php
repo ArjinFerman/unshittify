@@ -7,5 +7,5 @@ enum ReferenceType: string
     case LINK = 'link';
     case QUOTE = 'quote';
     case REPOST = 'repost';
-    case REPLY = 'reply';
+    case REPLY_TO = 'reply_to';
 }

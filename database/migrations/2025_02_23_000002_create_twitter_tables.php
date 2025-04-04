@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('retweet_id')->nullable();
             $table->string('quoted_tweet_id')->nullable();
             $table->string('reply_to_id')->nullable();
+            $table->string('conversation_id')->nullable();
             $table->timestamps();
 
             $table->foreign('twitter_user_id')->references('id')->on('twitter_users');
@@ -25,6 +26,7 @@ return new class extends Migration
             $table->index('retweet_id');
             $table->index('quoted_tweet_id');
             $table->index('reply_to_id');
+            $table->index('conversation_id');
         });
 
         Schema::create('twitter_users', function (Blueprint $table) {

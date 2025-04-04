@@ -18,6 +18,7 @@ class TweetDTO
         public bool $is_quote_status,
         public ?string $quoted_status_id_str,
         public string $user_id_str,
+        public ?string $reply_to_id_str,
         public ?TweetDTO $quoted_tweet,
         public ?TweetDTO $retweet,
         public ?UserDTO $author,
@@ -31,24 +32,25 @@ class TweetDTO
     public static function fromTweetResult(array $data): self
     {
         $quoted_tweet = null;
-        if(!empty($data['result']['quoted_status_result'])) {
-            $quoted_tweet = TweetDTO::fromTweetResult($data['result']['quoted_status_result']);
+        if(!empty($data['quoted_status_result'])) {
+            $quoted_tweet = TweetDTO::fromTweetResult($data['quoted_status_result']['result']);
         }
 
         $retweet = null;
-        if(!empty($data['result']['legacy']['retweeted_status_result'])) {
-            $retweet = TweetDTO::fromTweetResult($data['result']['legacy']['retweeted_status_result']);
+        if(!empty($data['legacy']['retweeted_status_result'])) {
+            $retweet = TweetDTO::fromTweetResult($data['legacy']['retweeted_status_result']['result']);
         }
 
         $author = null;
-        if(!empty($data['result']['core']['user_result'])) {
-            $author = UserDTO::fromUserResult($data['result']['core']['user_result']);
+        $userResults = $data['core']['user_result'] ?? $data['core']['user_results'] ?? null;
+        if($userResults) {
+            $author = UserDTO::fromUserResult($userResults);
         }
 
-        $content = e($data['result']['note_tweet']['note_tweet_results']['result']['text'] ?? $data['result']['legacy']['full_text']);
+        $content = e($data['note_tweet']['note_tweet_results']['result']['text'] ?? $data['legacy']['full_text']);
 
         $mediaCollection = new MediaCollectionDTO;
-        foreach ($data['result']['legacy']['extended_entities']['media'] ?? [] as $media) {
+        foreach ($data['legacy']['extended_entities']['media'] ?? [] as $media) {
             $type = MediaParser::getMediaType($media);
             if ($type) {
                 $mediaCollection = $mediaCollection->merge(MediaParser::mediaDTOCollectionFromTwitter($media));
@@ -58,7 +60,7 @@ class TweetDTO
             }
         }
 
-        $entities = $data['result']['note_tweet']['note_tweet_results']['result']['entity_set'] ?? $data['result']['legacy']['entities'];
+        $entities = $data['note_tweet']['note_tweet_results']['result']['entity_set'] ?? $data['legacy']['entities'];
         $links = [];
         foreach ($entities['urls'] as $link) {
             $cleanUrl = getCleanUrl($link['expanded_url']);
@@ -67,13 +69,14 @@ class TweetDTO
         }
 
         return new self(
-            rest_id: $data['result']['rest_id'],
-            conversation_id_str: $data['result']['legacy']['conversation_id_str'],
-            created_at: Carbon::parse($data['result']['legacy']['created_at']),
+            rest_id: $data['rest_id'],
+            conversation_id_str: $data['legacy']['conversation_id_str'],
+            created_at: Carbon::parse($data['legacy']['created_at']),
             full_text: $content,
-            is_quote_status: $data['result']['legacy']['is_quote_status'],
-            quoted_status_id_str: $data['result']['legacy']['quoted_status_id_str'] ?? null,
-            user_id_str: $data['result']['legacy']['user_id_str'],
+            is_quote_status: $data['legacy']['is_quote_status'],
+            quoted_status_id_str: $data['legacy']['quoted_status_id_str'] ?? null,
+            user_id_str: $data['legacy']['user_id_str'],
+            reply_to_id_str: $data['legacy']['in_reply_to_status_id_str'] ?? null,
             quoted_tweet: $quoted_tweet,
             retweet: $retweet,
             author: $author,
@@ -81,6 +84,4 @@ class TweetDTO
             links: $links,
         );
     }
-
-
 }

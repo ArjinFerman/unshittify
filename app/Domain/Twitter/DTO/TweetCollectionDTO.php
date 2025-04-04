@@ -5,7 +5,7 @@ namespace App\Domain\Twitter\DTO;
 use Illuminate\Support\Collection;
 
 /**
- * @implements Collection<TweetDTO>
+ * @implements Collection<mixed, TweetDTO>
  */
 class TweetCollectionDTO extends Collection
 {
@@ -18,9 +18,19 @@ class TweetCollectionDTO extends Collection
         parent::__construct($items);
     }
 
+    public function getTopCursor(): ?string
+    {
+        return $this->top_cursor;
+    }
+
+    public function getBottomCursor(): ?string
+    {
+        return $this->bottom_cursor;
+    }
+
     public static function fromTimelineResult(array $data): self
     {
-        $items = [];
+        $collection = new self;
         $cursors = [];
 
         foreach ($data['data']['user_result']['result']['timeline_response']['timeline']['instructions'] as $instruction) {
@@ -28,7 +38,7 @@ class TweetCollectionDTO extends Collection
                 foreach ($instruction['entries'] as $entry) {
                     switch ($entry['content']['__typename']) {
                         case 'TimelineTimelineItem':
-                            $items[] = TweetDTO::fromTweetResult($entry['content']['content']['tweetResult']);
+                            $collection->add(TweetDTO::fromTweetResult($entry['content']['content']['tweetResult']['result']));
                             break;
                         case 'TimelineTimelineCursor':
                             $cursors[$entry['content']['cursorType']] = $entry['content']['value'];
@@ -38,16 +48,42 @@ class TweetCollectionDTO extends Collection
             }
         }
 
-        return new self (items: $items, top_cursor: $cursors['Top'] ?? null, bottom_cursor: $cursors['Bottom'] ?? null);
+        $collection->top_cursor = $cursors['Top'] ?? null;
+        $collection->bottom_cursor = $cursors['Bottom'] ?? null;
+        return $collection;
     }
 
-    public function getTopCursor(): ?string
+    public static function fromConversationResult(array $data): self
     {
-        return $this->top_cursor;
-    }
+        $collection = new self;
+        $cursors = [];
 
-    public function getBottomCursor(): ?string
-    {
-        return $this->bottom_cursor;
+        foreach ($data['data']['threaded_conversation_with_injections_v2']['instructions'] as $instruction) {
+            if ($instruction['type'] === 'TimelineAddEntries') {
+                foreach ($instruction['entries'] as $entry) {
+                    switch ($entry['content']['__typename']) {
+                        case 'TimelineTimelineItem':
+                            switch ($entry['content']['itemContent']['__typename']) {
+                                case 'TimelineTweet':
+                                    $collection->add(TweetDTO::fromTweetResult($entry['content']['itemContent']['tweet_results']['result']));
+                                    break;
+                                case 'TimelineTimelineCursor':
+                                    $cursors[$entry['content']['itemContent']['cursorType']] = $entry['content']['itemContent']['value'];
+                                    break;
+                            }
+                            break;
+                        case 'TimelineTimelineModule':
+                            foreach ($entry['content']['items'] as $threadItem) {
+                                $collection->add(TweetDTO::fromTweetResult($threadItem['item']['itemContent']['tweet_results']['result']));
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        $collection->top_cursor = $cursors['Top'] ?? null;
+        $collection->bottom_cursor = $cursors['Bottom'] ?? null;
+        return $collection;
     }
 }

@@ -41,7 +41,7 @@ class TwitterService
 
     /**
      * @param TweetCollectionDTO $tweets
-     * @return Collection<Entry>
+     * @return Collection<mixed, Entry>
      * @throws \Throwable
      */
     public function importTweets(TweetCollectionDTO $tweets): Collection
@@ -91,6 +91,28 @@ class TwitterService
             $variables["cursor"] = $after;
 
         $tweets = TweetCollectionDTO::fromTimelineResult($this->fetchImpl($this->baseUrl . config('twitter.endpoints.' . __FUNCTION__), [
+            'variables' => json_encode($variables),
+            'features' => json_encode(config('twitter.gql_features')),
+        ]));
+
+        Cache::put($cacheKey, $tweets, now()->addMinute());
+
+        return $tweets;
+    }
+
+    public function getTweetWithReplies(string $id, ?string $after = null): TweetCollectionDTO
+    {
+        $cacheKey = "twitter:tweet:$id:$after";
+        $tweets = Cache::get($cacheKey);
+        if ($tweets) return $tweets;
+
+        $variables = config('twitter.tweet_variables');
+        $variables['focalTweetId'] = $id;
+
+        if ($after)
+            $variables["cursor"] = $after;
+
+        $tweets = TweetCollectionDTO::fromConversationResult($this->fetchImpl($this->baseUrl . config('twitter.endpoints.' . __FUNCTION__), [
             'variables' => json_encode($variables),
             'features' => json_encode(config('twitter.gql_features')),
         ]));
