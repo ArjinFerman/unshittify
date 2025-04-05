@@ -7,7 +7,7 @@ use App\Domain\Core\Enums\MediaType;
 class MediaDTO
 {
     public function __construct(
-        public string $variant_id,
+        public string $object_id,
         public MediaType $type,
         public string $url,
         public string $content_type,

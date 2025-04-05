@@ -14,11 +14,13 @@ return new class extends Migration
     {
         Schema::create('web_pages', function (Blueprint $table) {
             $table->id();
-            $table->string('canonical_url')->nullable();
+            $table->unsignedBigInteger('parent_id')->nullable();
+            $table->string('variant_url')->nullable();
             $table->longText('full_content')->nullable();
             $table->timestamps();
 
-            $table->index('canonical_url');
+            $table->index('parent_id');
+            $table->index('variant_url');
             $table->index('created_at');
         });
     }

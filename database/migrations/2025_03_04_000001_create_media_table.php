@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::create('core_media', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('entry_id');
-            $table->string('variant_id');
+            $table->string('object_id');
             $table->enum('type', array_column(MediaType::cases(), 'value'));
             $table->string('url');
             $table->string('content_type');
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('entry_id')->references('id')->on('core_entries');
-            $table->index('variant_id');
+            $table->index('object_id');
         });
     }
 

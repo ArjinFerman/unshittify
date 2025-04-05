@@ -23,7 +23,7 @@ class TweetDTO
         public ?TweetDTO $retweet,
         public ?UserDTO $author,
         public ?MediaCollectionDTO $media,
-        /** @var array<string> $links */
+        /** @var array<LinkDTO> $links */
         public array $links,
     )
     {
@@ -54,18 +54,34 @@ class TweetDTO
             $type = MediaParser::getMediaType($media);
             if ($type) {
                 $mediaCollection = $mediaCollection->merge(MediaParser::mediaDTOCollectionFromTwitter($media));
-                $content = Str::replace($media['url'], "<x-media.$type->value variant_id=\"twitter-{$media['id_str']}\"/>", $content);
+                $content = Str::replace($media['url'], "<x-media.$type->value object_id=\"twitter-{$media['id_str']}\"/>", $content);
             } else {
                 Log::warning("Unsupported media type: {$media['type']}");
+            }
+        }
+
+        $tweetCard = [];
+        if (isset($data['tweet_card'])) {
+            foreach ($data['tweet_card']['legacy']['binding_values'] as $binding_value) {
+                $tweetCard[$binding_value['key']] = $binding_value['value'];
             }
         }
 
         $entities = $data['note_tweet']['note_tweet_results']['result']['entity_set'] ?? $data['legacy']['entities'];
         $links = [];
         foreach ($entities['urls'] as $link) {
-            $cleanUrl = getCleanUrl($link['expanded_url']);
-            $content = Str::replace($link['url'], "\n\n<x-entry.link url=\"$cleanUrl\"/>", $content);
-            $links[] = $cleanUrl;
+            $linkDto = new LinkDTO($link['url']);
+            $linkDto->expanded_url = getCleanUrl($link['expanded_url']);
+
+            if (isset($tweetCard['card_url']) && $tweetCard['card_url']['string_value'] == $linkDto->url) {
+                $linkDto->author = $tweetCard['vanity_url']['string_value'];
+                $linkDto->title = $tweetCard['title']['string_value'];
+                $linkDto->description = $tweetCard['description']['string_value'];
+                $linkDto->thumbnail_url = isset($tweetCard['thumbnail_image_original']) ? $tweetCard['thumbnail_image_original']['image_value']['url'] : null;
+            }
+
+            $links[] = $linkDto;
+            $content = Str::replace($link['url'], "<x-entry.link url=\"{$linkDto->expanded_url}\"/>", $content);
         }
 
         return new self(

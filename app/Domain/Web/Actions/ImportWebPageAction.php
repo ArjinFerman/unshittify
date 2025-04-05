@@ -47,7 +47,7 @@ class ImportWebPageAction extends BaseAction
                 if(!$page)
                     $page = new Page;
 
-                $page->canonical_url = $finalUrl;
+                $page->variant_url = $finalUrl;
                 if ($withContent)
                     $page->full_content = $this->cleanUpContent($body);
 

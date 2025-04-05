@@ -10,7 +10,7 @@ use App\Domain\Core\Models\Entry;
 use App\Domain\Twitter\DTO\TweetDTO;
 use App\Domain\Twitter\Models\Tweet;
 use App\Domain\Twitter\Models\User;
-use App\Domain\Web\Jobs\ImportWebPageJob;
+use Illuminate\Support\Str;
 
 class ImportTweetAction extends BaseAction
 {
@@ -26,7 +26,7 @@ class ImportTweetAction extends BaseAction
             $entry = $tweet->entry;
             if (!$entry) {
                 $entry = new Entry;
-                $entry->url = config('twitter.status_base_url') . $tweetData->author->rest_id;
+                $entry->url = config('twitter.status_base_url') . $tweetData->rest_id;
                 $entry->title = "@{$tweetData->author->screen_name}";
                 $entry->content = $tweetData->full_text;
                 $entry->published_at = $tweetData->created_at;
@@ -48,13 +48,18 @@ class ImportTweetAction extends BaseAction
 
                 $entry->entryable()->associate($tweet);
                 $entry->author()->associate($twitterUser->author);
+
+                foreach ($tweetData->links as $link) {
+                    FindOrImportLinkAction::make()->execute($link);
+                }
+
                 $entry->save();
 
                 /** @var MediaDTO $mediaItem */
                 foreach ($tweetData->media as $mediaItem) {
                     $entry->media()->create([
                         'entry_id' => $entry->id,
-                        'variant_id' => $mediaItem->variant_id,
+                        'object_id' => $mediaItem->object_id,
                         'type' => $mediaItem->type,
                         'url' => $mediaItem->url,
                         'content_type' => $mediaItem->content_type,
@@ -65,11 +70,6 @@ class ImportTweetAction extends BaseAction
 
                 if ($reference) {
                     $entry->references()->attach($reference->id, ['ref_type' => $referenceType]);
-                }
-
-                foreach ($tweetData->links as $link) {
-                    if (!Entry::whereUrl($link)->exists())
-                        ImportWebPageJob::dispatch($link);
                 }
             }
 

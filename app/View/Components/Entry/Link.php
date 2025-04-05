@@ -3,6 +3,7 @@
 namespace App\View\Components\Entry;
 
 use App\Domain\Core\Models\Entry;
+use App\Domain\Web\Models\Page;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -21,7 +22,11 @@ class Link extends Component
      */
     public function render(): View|Closure|string
     {
-        $link = Entry::whereUrl($this->url)->first();
+        $link = Page::whereVariantUrl($this->url)->first();
+        if ($link && $link->parent_id)
+            $link = $link->parent;
+
+        $link = $link?->entry;
         return view('components.entry.link', ['link' => $link]);
     }
 }

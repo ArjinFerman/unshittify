@@ -30,7 +30,7 @@ class MediaParser
                 break;
             case MediaType::IMAGE:
                 $mediaItems->add(new MediaDTO(
-                    variant_id: "twitter-{$media['id_str']}",
+                    object_id: "twitter-{$media['id_str']}",
                     type: $type,
                     url: $media['media_url_https'],
                     content_type: mimeType($media['media_url_https']),
@@ -50,7 +50,7 @@ class MediaParser
         $properties = self::getVideoProperties($data, $variantIndex);
 
         return new MediaDTO(
-            variant_id: "twitter-{$data['id_str']}",
+            object_id: "twitter-{$data['id_str']}",
             type: self::getMediaType($data),
             url: $data['video_info']['variants'][$variantIndex]['url'],
             content_type: $data['video_info']['variants'][$variantIndex]['content_type'],
