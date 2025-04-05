@@ -15,14 +15,14 @@ use Illuminate\Support\Facades\Storage;
 
 class TwitterService
 {
-    protected string $baseUrl;
+    protected string $apiBaseUrl;
     protected string $consumerKey;
     protected string $consumerSecret;
     protected array $accounts = [];
 
     public function __construct()
     {
-        $this->baseUrl = config('twitter.base_url');
+        $this->apiBaseUrl = config('twitter.api_base_url');
         $this->consumerKey = config('twitter.consumer_key');
         $this->consumerSecret = config('twitter.consumer_secret');
 
@@ -44,11 +44,11 @@ class TwitterService
      * @return Collection<mixed, Entry>
      * @throws \Throwable
      */
-    public function importTweets(TweetCollectionDTO $tweets): Collection
+    public function importTweets(TweetCollectionDTO $tweets, bool $createTweets = false): Collection
     {
         $entries = new Collection();
         foreach ($tweets as $tweet) {
-            $entries->add(ImportTweetAction::make()->execute($tweet));
+            $entries->add(ImportTweetAction::make()->execute($tweet, $createTweets));
         }
 
         return $entries;
@@ -64,7 +64,7 @@ class TwitterService
             "screen_name" => $screenName,
         ]);
 
-        $user = UserDTO::fromUserResult($this->fetchImpl($this->baseUrl . config('twitter.endpoints.' . __FUNCTION__), [
+        $user = UserDTO::fromUserResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . __FUNCTION__), [
             'variables' => $variables,
             'features' => json_encode(config('twitter.gql_features')),
         ])['data']['user_result']);
@@ -90,7 +90,7 @@ class TwitterService
         if ($after)
             $variables["cursor"] = $after;
 
-        $tweets = TweetCollectionDTO::fromTimelineResult($this->fetchImpl($this->baseUrl . config('twitter.endpoints.' . __FUNCTION__), [
+        $tweets = TweetCollectionDTO::fromTimelineResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . __FUNCTION__), [
             'variables' => json_encode($variables),
             'features' => json_encode(config('twitter.gql_features')),
         ]));
@@ -112,7 +112,7 @@ class TwitterService
         if ($after)
             $variables["cursor"] = $after;
 
-        $tweets = TweetCollectionDTO::fromConversationResult($this->fetchImpl($this->baseUrl . config('twitter.endpoints.' . __FUNCTION__), [
+        $tweets = TweetCollectionDTO::fromConversationResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . __FUNCTION__), [
             'variables' => json_encode($variables),
             'features' => json_encode(config('twitter.gql_features')),
         ]));

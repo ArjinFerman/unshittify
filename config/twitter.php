@@ -1,9 +1,10 @@
 <?php
 
 return [
+    'base_url' => 'https://x.com/',
     'status_base_url' => 'https://x.com/status/',
 
-    'base_url' => env('TWITTER_BASE_URL', 'https://api.twitter.com/'),
+    'api_base_url' => env('TWITTER_API_BASE_URL', 'https://api.twitter.com/'),
     'consumer_key' => env('TWITTER_CONSUMER_KEY', '3nVuSoBZnx6U4vzUxf5w'),
     'consumer_secret' => env('TWITTER_CONSUMER_SECRET', 'Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys'),
 

@@ -5,21 +5,22 @@ namespace App\Domain\Twitter\Actions;
 use App\Domain\Core\Actions\BaseAction;
 use App\Domain\Core\Actions\FindOrCreateAuthorAction;
 use App\Domain\Core\DTO\MediaDTO;
+use App\Domain\Core\Enums\FeedType;
 use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Models\Entry;
+use App\Domain\Core\Models\Feed;
 use App\Domain\Twitter\DTO\TweetDTO;
 use App\Domain\Twitter\Models\Tweet;
 use App\Domain\Twitter\Models\User;
-use Illuminate\Support\Str;
 
 class ImportTweetAction extends BaseAction
 {
     /**
      * @throws \Throwable
      */
-    public function execute(TweetDTO $tweetData): Entry
+    public function execute(TweetDTO $tweetData, bool $createFeed = false): Entry
     {
-        return $this->optionalTransaction(function () use ($tweetData) {
+        return $this->optionalTransaction(function () use ($tweetData, $createFeed) {
             $twitterUser = $this->findOrCreateAuthorUser($tweetData);
             $tweet = $this->findOrCreateTweet($tweetData, $twitterUser);
 
@@ -46,6 +47,9 @@ class ImportTweetAction extends BaseAction
                     $referenceType = ($reference ? ReferenceType::REPLY_TO : null);
                 }
 
+                $feed = $this->findOrCreateFeed($twitterUser, $createFeed);
+
+                $entry->feed_id = $feed?->id;
                 $entry->entryable()->associate($tweet);
                 $entry->author()->associate($twitterUser->author);
 
@@ -108,5 +112,21 @@ class ImportTweetAction extends BaseAction
         }
 
         return $twitterUser;
+    }
+
+    public function findOrCreateFeed(User $twitterUser, $createFeed = false): ?Feed
+    {
+        $feed = Feed::whereAuthorId($twitterUser->author_id)->first();
+        if ($feed || !$createFeed)
+            return $feed;
+
+        $feed = new Feed;
+        $feed->url = config('twitter.base_url') . $twitterUser->screen_name;
+        $feed->author_id = $twitterUser->author_id;
+        $feed->type = FeedType::TWITTER;
+        $feed->name = $twitterUser->screen_name;
+        $feed->save();
+
+        return $feed;
     }
 }

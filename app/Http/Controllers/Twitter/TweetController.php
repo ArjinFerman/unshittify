@@ -26,7 +26,7 @@ class TweetController extends Controller
         $tweets = $this->twitterService->getLatestUserTweets($screenName, $cursor);
         $data = [
             'screenName' => $screenName,
-            'entries' => $this->twitterService->importTweets($tweets),
+            'entries' => $this->twitterService->importTweets($tweets, true),
         ];
 
         if ($cursor) {

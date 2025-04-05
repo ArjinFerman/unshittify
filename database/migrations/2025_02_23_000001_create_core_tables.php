@@ -1,5 +1,6 @@
 <?php
 
+use App\Domain\Core\Enums\FeedType;
 use App\Domain\Core\Enums\ReferenceType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -28,7 +29,7 @@ return new class extends Migration
             $table->unsignedBigInteger('author_id');
 
             $table->string('name');
-            $table->string('type');
+            $table->enum('type', array_column(FeedType::cases(), 'value'));
             $table->string('url');
 
             $table->timestamps();
