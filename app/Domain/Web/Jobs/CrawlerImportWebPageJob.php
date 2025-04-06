@@ -2,11 +2,11 @@
 
 namespace App\Domain\Web\Jobs;
 
-use App\Domain\Web\Actions\ImportWebPageAction;
+use App\Domain\Web\Actions\CrawlerImportWebPageAction;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Queue\Queueable;
 
-class ImportWebPageJob implements ShouldQueue
+class CrawlerImportWebPageJob implements ShouldQueue
 {
     use Queueable;
 
@@ -22,6 +22,6 @@ class ImportWebPageJob implements ShouldQueue
      */
     public function handle(): void
     {
-        (new ImportWebPageAction())->execute($this->url);
+        (new CrawlerImportWebPageAction())->execute($this->url);
     }
 }

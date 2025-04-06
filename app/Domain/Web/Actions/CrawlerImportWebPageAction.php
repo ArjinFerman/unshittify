@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Uri;
 use League\HTMLToMarkdown\HtmlConverter;
 
-class ImportWebPageAction extends BaseAction
+class CrawlerImportWebPageAction extends BaseAction
 {
     protected $blacklist = [];
 
