@@ -2,7 +2,9 @@
 
 namespace App\Domain\Core\Models;
 
+use App\Domain\Core\Enums\MediaPurpose;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Author extends Model
 {
@@ -17,4 +19,15 @@ class Author extends Model
         'name',
         'description',
     ];
+
+    public function media(): MorphToMany
+    {
+        return $this->morphToMany(Media::class, 'mediable', 'core_mediables');
+    }
+
+    public function avatars(): MorphToMany
+    {
+        return $this->morphToMany(Media::class, 'mediable', 'core_mediables')
+            ->wherePivot('purpose', '=', MediaPurpose::AVATAR);
+    }
 }

@@ -14,8 +14,7 @@ return new class extends Migration
     {
         Schema::create('core_media', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('entry_id');
-            $table->string('object_id');
+            $table->string('media_object_id');
             $table->enum('type', array_column(MediaType::cases(), 'value'));
             $table->string('url');
             $table->string('content_type');
@@ -23,8 +22,18 @@ return new class extends Migration
             $table->json('properties')->nullable();
             $table->timestamps();
 
-            $table->foreign('entry_id')->references('id')->on('core_entries');
-            $table->index('object_id');
+            $table->index('media_object_id');
+        });
+
+        Schema::create('core_mediables', function (Blueprint $table) {
+            $table->primary(['media_id', 'mediable_id', 'mediable_type']);
+            $table->unsignedBigInteger('media_id');
+            $table->unsignedBigInteger('mediable_id');
+            $table->string('mediable_type');
+            $table->string('purpose');
+            $table->timestamps();
+
+            $table->foreign('media_id')->references('id')->on('core_media');
         });
     }
 
@@ -34,5 +43,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('core_media');
+        Schema::dropIfExists('core_mediables');
     }
 };

@@ -54,7 +54,7 @@ class TweetDTO
             $type = MediaParser::getMediaType($media);
             if ($type) {
                 $mediaCollection = $mediaCollection->merge(MediaParser::mediaDTOCollectionFromTwitter($media));
-                $content = Str::replace($media['url'], "<x-media.$type->value object_id=\"twitter-{$media['id_str']}\"/>", $content);
+                $content = Str::replace($media['url'], "<x-media.$type->value mediaObjectId=\"twitter-{$media['id_str']}\"/>", $content);
             } else {
                 Log::warning("Unsupported media type: {$media['type']}");
             }
@@ -73,10 +73,10 @@ class TweetDTO
             $linkDto = new LinkDTO($link['url']);
             $linkDto->expanded_url = getCleanUrl($link['expanded_url']);
 
-            if (isset($tweetCard['card_url']) && $tweetCard['card_url']['string_value'] == $linkDto->url) {
+            if (isset($tweetCard['card_url']) && !isset($tweetCard['broadcast_id']) && $tweetCard['card_url']['string_value'] == $linkDto->url) {
                 $linkDto->author = $tweetCard['vanity_url']['string_value'];
                 $linkDto->title = $tweetCard['title']['string_value'];
-                $linkDto->description = $tweetCard['description']['string_value'];
+                $linkDto->description = $tweetCard['description']['string_value'] ?? null;
                 $linkDto->thumbnail_url = isset($tweetCard['thumbnail_image_original']) ? $tweetCard['thumbnail_image_original']['image_value']['url'] : null;
             }
 

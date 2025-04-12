@@ -5,8 +5,8 @@ namespace App\Domain\Core\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Entry extends Model
@@ -70,8 +70,8 @@ class Entry extends Model
             ->withPivot('ref_type');
     }
 
-    public function media(): HasMany
+    public function media(): MorphToMany
     {
-        return $this->hasMany(Media::class);
+        return $this->morphToMany(Media::class, 'mediable', 'core_mediables');
     }
 }

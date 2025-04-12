@@ -6,6 +6,8 @@ use App\Domain\Core\Actions\BaseAction;
 use App\Domain\Core\Actions\FindOrCreateAuthorAction;
 use App\Domain\Core\DTO\MediaDTO;
 use App\Domain\Core\Enums\FeedType;
+use App\Domain\Core\Enums\MediaPurpose;
+use App\Domain\Core\Enums\MediaType;
 use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Models\Entry;
 use App\Domain\Core\Models\Feed;
@@ -62,13 +64,14 @@ class ImportTweetAction extends BaseAction
                 /** @var MediaDTO $mediaItem */
                 foreach ($tweetData->media as $mediaItem) {
                     $entry->media()->create([
-                        'entry_id' => $entry->id,
-                        'object_id' => $mediaItem->object_id,
+                        'media_object_id' => $mediaItem->media_object_id,
                         'type' => $mediaItem->type,
                         'url' => $mediaItem->url,
                         'content_type' => $mediaItem->content_type,
                         'quality' => $mediaItem->quality,
                         'properties' => $mediaItem->properties,
+                    ], [
+                        'purpose' => MediaPurpose::CONTENT
                     ]);
                 }
 
@@ -102,6 +105,16 @@ class ImportTweetAction extends BaseAction
         if (!$twitterUser) {
             $author = FindOrCreateAuthorAction::make()->withoutTransaction()->execute($tweetData->author->name, [
                 'description' => $tweetData->author->description,
+            ]);
+
+            $author->media()->create([
+                'media_object_id' => "twitter-profile-{$tweetData->author->rest_id}",
+                'type' => MediaType::IMAGE,
+                'url' => $tweetData->author->profile_image_url_https,
+                'content_type' => mimeType($tweetData->author->profile_image_url_https),
+                'quality' => 1,
+            ], [
+                'purpose' => MediaPurpose::AVATAR
             ]);
 
             $twitterUser = User::create([

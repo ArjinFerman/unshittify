@@ -22,17 +22,11 @@ class Media extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'entry_id',
-        'object_id',
+        'media_object_id',
         'type',
         'url',
         'content_type',
         'quality',
         'properties',
     ];
-
-    public function entry(): BelongsTo
-    {
-        return $this->belongsTo(Entry::class);
-    }
 }

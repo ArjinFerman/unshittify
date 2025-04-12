@@ -1,3 +1,3 @@
 <picture>
-    <img src="{{ $media->url }}" alt="{{ $media->id }}" class="max-h-96">
+    <img src="{{ $media->url }}" alt="{{ $media->id }}" {{ $attributes->merge(['class' => 'max-h-96']) }}">
 </picture>

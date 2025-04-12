@@ -12,7 +12,7 @@ class Image extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(public string $object_id)
+    public function __construct(public string $mediaObjectId)
     {
     }
 
@@ -21,7 +21,7 @@ class Image extends Component
      */
     public function render(): View|Closure|string
     {
-        $media = Media::whereObjectId($this->object_id)->orderBy('quality', 'desc')->first();
+        $media = Media::whereMediaObjectId($this->mediaObjectId)->orderBy('quality', 'desc')->first();
         return view('components.media.image', ['media' => $media]);
     }
 }
