@@ -1,4 +1,3 @@
-@php use App\Http\Presenters\EntryPresenter; @endphp
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
     <head>

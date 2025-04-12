@@ -3,7 +3,7 @@
     dark:ring-zinc-800 dark:hover:text-white/70 dark:hover:ring-zinc-700 dark:focus-visible:ring-[#FF2D20]">
     <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
         <!-- <svg class="size-5 sm:size-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"> -->
-        <x-media.image :mediaObjectId="$mainEntry->author?->avatars()->first()?->media_object_id" class="rounded-full size-12 sm:size-16"/>
+        <x-media :mediaObjectId="$mainEntry->author?->avatars?->first()?->media_object_id" class="rounded-full size-12 sm:size-16"/>
     </div>
 
     <div class="pt-3 sm:pt-5">

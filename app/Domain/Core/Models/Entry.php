@@ -2,6 +2,7 @@
 
 namespace App\Domain\Core\Models;
 
+use AjCastro\EagerLoadPivotRelations\EagerLoadPivotTrait;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -11,6 +12,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Entry extends Model
 {
+    use EagerLoadPivotTrait;
+
     protected $table = 'core_entries';
 
     /**

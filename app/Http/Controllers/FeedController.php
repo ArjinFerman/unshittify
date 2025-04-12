@@ -11,7 +11,9 @@ class FeedController extends Controller
 {
     public function index(Request $request): View
     {
-        $entries = Entry::query()
+        $entries = Entry::with([
+            'references', 'references.pivot' //TODO: Optimize everything!
+        ])
             ->whereNotNull('feed_id')
             ->orderBy('published_at', 'desc')
             ->limit(20)

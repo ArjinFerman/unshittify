@@ -23,12 +23,12 @@ class Tweet extends BaseEntry
      */
     public function render(): View|Closure|string
     {
-        $reference = $this->entry->references()->first();
+        $reference = $this->entry->references->first();
         $isRetweeted = ($reference?->pivot?->ref_type == ReferenceType::REPOST);
         $mainEntry = ($isRetweeted ? $reference : $this->entry);
 
         return view('components.entry.tweet', [
-            'mainEntry' => ($isRetweeted ? $reference : $this->entry),
+            'mainEntry' => $mainEntry,
             'mainContent' => $this->renderComponents($mainEntry),
             'isRetweeted' => $isRetweeted,
         ]);
