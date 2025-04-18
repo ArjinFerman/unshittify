@@ -29,7 +29,7 @@ class ImportTweetAction extends BaseAction
             $entry = $tweet->entry;
             if (!$entry) {
                 $entry = new Entry;
-                $entry->url = config('twitter.status_base_url') . $tweetData->rest_id;
+                $entry->url = config('twitter.base_url') . "{$twitterUser->screen_name}/status/{$tweetData->rest_id}";
                 $entry->title = "@{$tweetData->author->screen_name}";
                 $entry->content = $tweetData->full_text;
                 $entry->published_at = $tweetData->created_at;

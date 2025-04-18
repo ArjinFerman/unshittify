@@ -1,7 +1,9 @@
 <?php
 
+use App\Domain\Core\Enums\CoreTagType;
 use App\Domain\Core\Enums\FeedType;
 use App\Domain\Core\Enums\ReferenceType;
+use App\Domain\Core\Models\Tag;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -87,6 +89,9 @@ return new class extends Migration
 
             $table->foreign('tag_id')->references('id')->on('core_tags');
         });
+
+        Tag::create(['name' => CoreTagType::READ->name]);
+        Tag::create(['name' => CoreTagType::STARRED->name]);
     }
 
     /**

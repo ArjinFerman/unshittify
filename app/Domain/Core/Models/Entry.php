@@ -3,6 +3,7 @@
 namespace App\Domain\Core\Models;
 
 use AjCastro\EagerLoadPivotRelations\EagerLoadPivotTrait;
+use App\Domain\Core\Enums\CoreTagType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -30,6 +31,10 @@ class Entry extends Model
         'url',
         'title',
         'content',
+    ];
+
+    protected $casts = [
+        'published_at' => 'datetime',
     ];
 
     public function newPivot(Model $parent, array $attributes, $table, $exists, $using = null): Pivot
@@ -76,5 +81,25 @@ class Entry extends Model
     public function media(): MorphToMany
     {
         return $this->morphToMany(Media::class, 'mediable', 'core_mediables');
+    }
+
+    public function tags(): MorphToMany
+    {
+        return $this->morphToMany(Tag::class, 'taggable', 'core_taggables');
+    }
+
+    public function isRead(): bool
+    {
+        return $this->hasTag(CoreTagType::READ->value);
+    }
+
+    public function isStarred(): bool
+    {
+        return $this->hasTag(CoreTagType::STARRED->value);
+    }
+
+    public function hasTag(int $tagId): bool
+    {
+        return !is_null($this->tags->firstWhere('id', $tagId));
     }
 }
