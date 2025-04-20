@@ -7,4 +7,5 @@ enum FeedType: string
     case TWITTER = 'twitter';
     case YOUTUBE = 'youtube';
     case SUBSTACK = 'substack';
+    case WEB = 'web';
 }

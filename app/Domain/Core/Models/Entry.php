@@ -10,10 +10,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Entry extends Model
 {
     use EagerLoadPivotTrait;
+    use BelongsToThrough;
 
     protected $table = 'core_entries';
 
@@ -51,14 +53,14 @@ class Entry extends Model
         return class_basename($this->entryable_type);
     }
 
-    public function author(): BelongsTo
-    {
-        return $this->belongsTo(Author::class);
-    }
-
     public function feed(): BelongsTo
     {
         return $this->belongsTo(Feed::class);
+    }
+
+    public function author(): \Znck\Eloquent\Relations\BelongsToThrough
+    {
+        return $this->belongsToThrough(Author::class, Feed::class);
     }
 
     public function entryable(): MorphTo

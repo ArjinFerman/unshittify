@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 
+use App\Domain\Core\Enums\FeedStatus;
 use App\Domain\Core\Models\Entry;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
@@ -14,7 +15,9 @@ class FeedController extends Controller
         $entries = Entry::with([
             'references', 'references.pivot' //TODO: Optimize everything!
         ])
-            ->whereNotNull('feed_id')
+            ->whereHas('feed', function ($query) {
+                $query->whereStatus(FeedStatus::ACTIVE);
+            })
             ->orderBy('published_at', 'desc')
             ->limit(20)
             ->get();

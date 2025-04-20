@@ -4,6 +4,8 @@ namespace App\Domain\Twitter\Actions;
 
 use App\Domain\Core\Actions\BaseAction;
 use App\Domain\Core\Actions\FindOrCreateAuthorAction;
+use App\Domain\Core\Actions\FindOrCreateFeedAction;
+use App\Domain\Core\Enums\FeedType;
 use App\Domain\Core\Models\Entry;
 use App\Domain\Twitter\DTO\LinkDTO;
 use App\Domain\Web\Models\Page;
@@ -34,6 +36,13 @@ class FindOrImportLinkAction extends BaseAction
                     'description' => '',
                 ]);
 
+            $feed = FindOrCreateFeedAction::make()->withoutTransaction()->execute(
+                "{$linkUri->scheme()}://{$linkUri->host()}",
+                FeedType::WEB,
+                $author,
+                $linkUri->host(),
+            );
+
             $entry = new Entry;
             $entry->url = $linkData->expanded_url;
             $entry->title = $linkData->title;
@@ -41,7 +50,7 @@ class FindOrImportLinkAction extends BaseAction
             $entry->published_at = now();
 
             $entry->entryable()->associate($page);
-            $entry->author()->associate($author);
+            $entry->feed()->associate($feed);
             $entry->save();
 
             return $entry;

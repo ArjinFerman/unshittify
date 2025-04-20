@@ -4,6 +4,7 @@ namespace App\Domain\Twitter\Actions;
 
 use App\Domain\Core\Actions\BaseAction;
 use App\Domain\Core\Actions\FindOrCreateAuthorAction;
+use App\Domain\Core\Actions\FindOrCreateFeedAction;
 use App\Domain\Core\DTO\MediaDTO;
 use App\Domain\Core\Enums\FeedType;
 use App\Domain\Core\Enums\MediaPurpose;
@@ -49,11 +50,15 @@ class ImportTweetAction extends BaseAction
                     $referenceType = ($reference ? ReferenceType::REPLY_TO : null);
                 }
 
-                $feed = $this->findOrCreateFeed($twitterUser, $createFeed);
+                $feed = FindOrCreateFeedAction::make()->withoutTransaction()->execute(
+                    config('twitter.base_url') . $twitterUser->screen_name,
+                    FeedType::TWITTER,
+                    $twitterUser->author,
+                    $twitterUser->screen_name
+                );
 
-                $entry->feed_id = $feed?->id;
+                $entry->feed()->associate($feed);
                 $entry->entryable()->associate($tweet);
-                $entry->author()->associate($twitterUser->author);
 
                 foreach ($tweetData->links as $link) {
                     FindOrImportLinkAction::make()->execute($link);

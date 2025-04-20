@@ -32,7 +32,5 @@ class ToggleEntryTagStateAction extends BaseAction
             $entry->tags()->detach($tagId);
         else
             $entry->tags()->attach($tagId);
-
-        $entry->load('tags');
     }
 }

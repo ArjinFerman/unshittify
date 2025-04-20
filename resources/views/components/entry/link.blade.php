@@ -16,7 +16,7 @@
         <div class="pt-3 sm:pt-5">
             <div>
                 <h2 class="text-xl font-semibold text-black dark:text-white">
-                    {{ $link->author?->name }}
+                    {{ $link->feed?->author?->name }}
                 </h2>
             </div>
 

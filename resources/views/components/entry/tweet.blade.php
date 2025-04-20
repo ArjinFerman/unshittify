@@ -6,7 +6,7 @@
     </a>
     <div class="flex size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
         <a href="{{ route('twitter.user', ['screenName' => $mainEntry->entryable->user->screen_name]) }}" class="relative">
-            <x-media :mediaObjectId="$mainEntry->author?->avatars?->first()?->media_object_id" class="rounded-full size-12 sm:size-16"/>
+            <x-media :mediaObjectId="$mainEntry->feed?->author?->avatars?->first()?->media_object_id" class="rounded-full size-12 sm:size-16"/>
         </a>
     </div>
 
@@ -14,17 +14,17 @@
         <div>
             <a href="{{ route('twitter.user', ['screenName' => $mainEntry->entryable->user->screen_name]) }}" class="relative">
                 <h2 class="text-xl font-semibold text-black dark:text-white">
-                    {{ $mainEntry->author?->name }} ({{ "@{$mainEntry->entryable->user->screen_name}" }})
+                    {{ $mainEntry->feed?->author?->name }} ({{ "@{$mainEntry->entryable->user->screen_name}" }})
                 </h2>
             </a>
             @if ($isRetweeted)
             <a href="{{ route('twitter.user', ['screenName' => $entry->entryable->user->screen_name]) }}" class="relative">
-                <span>{{ __('twitter.retweeted', ['author' => $entry->author?->name, 'screen_name' => $entry->entryable->user->screen_name]) }}</span>
+                <span>{{ __('twitter.retweeted', ['author' => $entry->feed?->author?->name, 'screen_name' => $entry->entryable->user->screen_name]) }}</span>
             </a>
             @endif
         </div>
         <div class="mt-0 mb-2 text-xs/relaxed">
-            <span class="font-bold">Published at:</span> <span>{{ $entry->published_at->setTimezone('Europe/Paris') }}</span>
+            <span class="font-bold">{{ __('Published at') }}:</span> <span>{{ $entry->published_at->setTimezone('Europe/Paris') }}</span>
         </div>
         <livewire:entry.menu :entry="$mainEntry" :key="$mainEntry->id" />
 

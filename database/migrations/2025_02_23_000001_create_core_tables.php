@@ -1,6 +1,7 @@
 <?php
 
 use App\Domain\Core\Enums\CoreTagType;
+use App\Domain\Core\Enums\FeedStatus;
 use App\Domain\Core\Enums\FeedType;
 use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Models\Tag;
@@ -32,6 +33,7 @@ return new class extends Migration
 
             $table->string('name');
             $table->enum('type', array_column(FeedType::cases(), 'value'));
+            $table->enum('status', array_column(FeedStatus::cases(), 'value'));
             $table->string('url');
 
             $table->timestamps();
@@ -41,8 +43,7 @@ return new class extends Migration
 
         Schema::create('core_entries', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('author_id');
-            $table->unsignedBigInteger('feed_id')->nullable();
+            $table->unsignedBigInteger('feed_id');
             $table->unsignedBigInteger('entryable_id');
             $table->string('entryable_type');
             $table->string('url');
@@ -52,7 +53,6 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->foreign('author_id')->references('id')->on('core_authors');
             $table->foreign('feed_id')->references('id')->on('core_feeds');
             $table->index('entryable_id');
             $table->index('entryable_type');

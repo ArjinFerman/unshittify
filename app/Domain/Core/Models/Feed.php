@@ -2,6 +2,8 @@
 
 namespace App\Domain\Core\Models;
 
+use App\Domain\Core\Enums\FeedStatus;
+use App\Domain\Core\Enums\FeedType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -18,7 +20,13 @@ class Feed extends Model
         'author_id',
         'name',
         'type',
+        'status',
         'url',
+    ];
+
+    protected $casts = [
+        'type' => FeedType::class,
+        'status' => FeedStatus::class,
     ];
 
     public function author(): BelongsTo

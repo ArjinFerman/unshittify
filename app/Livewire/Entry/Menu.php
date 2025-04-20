@@ -2,8 +2,11 @@
 
 namespace App\Livewire\Entry;
 
+use App\Domain\Core\Actions\ChangeFeedStatusAction;
+use App\Domain\Core\Actions\CreateFeedFromEntryAction;
 use App\Domain\Core\Actions\ToggleEntryTagStateAction;
 use App\Domain\Core\Enums\CoreTagType;
+use App\Domain\Core\Enums\FeedStatus;
 use App\Domain\Core\Models\Entry;
 use Livewire\Component;
 
@@ -19,16 +22,23 @@ class Menu extends Component
     public function toggleRead(): void
     {
         ToggleEntryTagStateAction::make()->execute($this->entry, CoreTagType::READ->value);
+        $this->entry->load('tags');
     }
 
     public function toggleStarred(): void
     {
         ToggleEntryTagStateAction::make()->execute($this->entry, CoreTagType::STARRED->value);
+        $this->entry->load('tags');
     }
 
     public function subscribe(): void
     {
+        ChangeFeedStatusAction::make()->execute(
+            $this->entry->feed,
+            $this->entry->feed->status == FeedStatus::ACTIVE ? FeedStatus::INACTIVE : FeedStatus::ACTIVE
+        );
 
+        $this->entry->feed->refresh();
     }
 
     public function render()
