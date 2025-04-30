@@ -74,7 +74,12 @@ class TweetCollectionDTO extends Collection
                             break;
                         case 'TimelineTimelineModule':
                             foreach ($entry['content']['items'] as $threadItem) {
-                                $collection->add(TweetDTO::fromTweetResult($threadItem['item']['itemContent']['tweet_results']['result']));
+                                switch ($threadItem['item']['itemContent']['__typename']) {
+                                    case 'TimelineTweet':
+                                        $collection->add(TweetDTO::fromTweetResult($threadItem['item']['itemContent']['tweet_results']['result']));
+                                        break;
+                                    // TODO: case 'TimelineTimelineCursor':
+                                }
                             }
                             break;
                     }

@@ -1,7 +1,25 @@
 <?php
 
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Uri;
+
+if (!function_exists('inTransaction')) {
+    function inTransaction(Closure $closure): mixed
+    {
+        try {
+            DB::beginTransaction();
+            $result = call_user_func($closure);
+            DB::commit();
+            return $result;
+        } catch (Throwable $e) {
+            Log::error($e);
+            DB::rollBack();
+            throw $e;
+        }
+    }
+}
 
 if (!function_exists('getCleanUrl')) {
     function getCleanUrl(string $url): string
