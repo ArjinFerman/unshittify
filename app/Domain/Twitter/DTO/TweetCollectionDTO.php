@@ -65,6 +65,9 @@ class TweetCollectionDTO extends Collection
                         case 'TimelineTimelineItem':
                             switch ($entry['content']['itemContent']['__typename']) {
                                 case 'TimelineTweet':
+                                    if(!isset($entry['content']['itemContent']['tweet_results']['result']))
+                                        break;
+
                                     $collection->add(TweetDTO::fromTweetResult($entry['content']['itemContent']['tweet_results']['result']));
                                     break;
                                 case 'TimelineTimelineCursor':

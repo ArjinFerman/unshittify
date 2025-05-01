@@ -14,7 +14,7 @@ class Tweet extends BaseEntry
     /**
      * Create a new component instance.
      */
-    public function __construct(public EntryModel $entry)
+    public function __construct(public EntryModel $entry, public int $level = 0)
     {
     }
 
