@@ -44,18 +44,18 @@ return new class extends Migration
         Schema::create('core_entries', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('feed_id');
-            $table->unsignedBigInteger('entryable_id');
-            $table->string('entryable_type');
             $table->string('url');
             $table->string('title');
             $table->longText('content')->nullable();
             $table->timestamp('published_at')->nullable();
 
+            $table->string('type');
+            $table->json('metadata')->nullable();
+
             $table->timestamps();
 
             $table->foreign('feed_id')->references('id')->on('core_feeds');
-            $table->index('entryable_id');
-            $table->index('entryable_type');
+            $table->index('type');
             $table->index('url');
             $table->index('title');
             $table->index('created_at');
@@ -67,6 +67,7 @@ return new class extends Migration
             $table->unsignedBigInteger('entry_id');
             $table->unsignedBigInteger('ref_entry_id');
             $table->enum('ref_type', array_column(ReferenceType::cases(), 'value'));
+            $table->string('ref_path');
 
             $table->foreign('entry_id')->references('id')->on('core_entries');
             $table->foreign('ref_entry_id')->references('id')->on('core_entries');

@@ -3,7 +3,6 @@
 namespace App\Livewire\Entry;
 
 use App\Domain\Core\Actions\ChangeFeedStatusAction;
-use App\Domain\Core\Actions\CreateFeedFromEntryAction;
 use App\Domain\Core\Actions\ToggleEntryTagStateAction;
 use App\Domain\Core\Enums\CoreTagType;
 use App\Domain\Core\Enums\FeedStatus;

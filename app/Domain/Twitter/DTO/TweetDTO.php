@@ -31,6 +31,11 @@ class TweetDTO
 
     public static function fromTweetResult(array $data): self
     {
+        if(!isset($data['rest_id'])) {
+            // Case of `$data['__typename'] == 'TweetWithVisibilityResults'`, but there might be more in the future
+            $data = $data['tweet'];
+        }
+
         $quoted_tweet = null;
         if(!empty($data['quoted_status_result'])) {
             $quoted_tweet = TweetDTO::fromTweetResult($data['quoted_status_result']['result']);
@@ -47,7 +52,7 @@ class TweetDTO
             $author = UserDTO::fromUserResult($userResults);
         }
 
-        $content = e($data['note_tweet']['note_tweet_results']['result']['text'] ?? $data['legacy']['full_text']);
+        $content = e(htmlspecialchars_decode($data['note_tweet']['note_tweet_results']['result']['text'] ?? $data['legacy']['full_text']));
 
         $mediaCollection = new MediaCollectionDTO;
         foreach ($data['legacy']['extended_entities']['media'] ?? [] as $media) {
@@ -73,7 +78,7 @@ class TweetDTO
             $linkDto = new LinkDTO($link['url']);
             $linkDto->expanded_url = getCleanUrl($link['expanded_url']);
 
-            if (isset($tweetCard['card_url']) && !isset($tweetCard['broadcast_id']) && $tweetCard['card_url']['string_value'] == $linkDto->url) {
+            if (isset($tweetCard['vanity_url']) && isset($tweetCard['card_url']) && !isset($tweetCard['broadcast_id']) && $tweetCard['card_url']['string_value'] == $linkDto->url) {
                 $linkDto->author = $tweetCard['vanity_url']['string_value'];
                 $linkDto->title = $tweetCard['title']['string_value'];
                 $linkDto->description = $tweetCard['description']['string_value'] ?? null;

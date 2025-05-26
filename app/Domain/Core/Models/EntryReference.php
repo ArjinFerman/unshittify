@@ -16,6 +16,7 @@ class EntryReference extends Pivot
      */
     protected $fillable = [
         'ref_type',
+        'ref_path',
     ];
 
     protected $casts = [

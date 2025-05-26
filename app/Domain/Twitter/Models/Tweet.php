@@ -2,45 +2,35 @@
 
 namespace App\Domain\Twitter\Models;
 
-use App\Domain\Core\Models\Entryable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Domain\Core\Enums\ReferenceType;
+use App\Domain\Core\Models\Entry;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Tweet extends Entryable
+class Tweet extends Entry
 {
-    protected $table = 'twitter_tweets';
-
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
-    protected $fillable = [
-        'twitter_user_id',
-        'tweet_id',
-        'retweet_id',
-        'quoted_tweet_id',
-        'reply_to_id',
-        'conversation_id'
-    ];
-
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'twitter_user_id');
+        return $this->belongsTo(User::class, 'twitter_user_id', '');
     }
 
-    public function retweet(): BelongsTo
+    public function retweeted(): ?static
     {
-        return $this->belongsTo(Tweet::class, 'retweet_id', 'tweet_id');
+        return $this->references
+            ->where('pivot.ref_type', '=', ReferenceType::REPOST)
+            ->first();
     }
 
-    public function quotedTweet(): BelongsTo
+    public function quotedTweet(): ?static
     {
-        return $this->belongsTo(Tweet::class, 'quoted_tweet_id', 'tweet_id');
+        return $this->references
+            ->where('pivot.ref_type', '=', ReferenceType::QUOTE)
+            ->first();
     }
 
-    public function replyToTweet(): BelongsTo
+    public function replyToTweet(): ?static
     {
-        return $this->belongsTo(Tweet::class, 'reply_to_id', 'tweet_id');
+        return $this->references
+            ->where('ref_type', '=', ReferenceType::REPLY_TO)
+            ->first();
     }
 }

@@ -21,87 +21,92 @@ class ImportTweetAction extends BaseAction
     /**
      * @throws \Throwable
      */
-    public function execute(TweetDTO $tweetData, bool $createFeed = false): Entry
+    public function execute(TweetDTO $tweetData, bool $createFeed = false, string $path = ''): Entry
     {
-        return $this->optionalTransaction(function () use ($tweetData, $createFeed) {
+        return $this->optionalTransaction(function () use ($tweetData, $createFeed, $path) {
             $twitterUser = $this->findOrCreateAuthorUser($tweetData);
-            $tweet = $this->findOrCreateTweet($tweetData, $twitterUser);
+            $url = config('twitter.base_url') . "{$twitterUser->screen_name}/status/{$tweetData->rest_id}";
 
-            $entry = $tweet->entry;
-            if (!$entry) {
-                $entry = new Entry;
-                $entry->url = config('twitter.base_url') . "{$twitterUser->screen_name}/status/{$tweetData->rest_id}";
-                $entry->title = "@{$tweetData->author->screen_name}";
-                $entry->content = $tweetData->full_text;
-                $entry->published_at = $tweetData->created_at;
+            $tweet = Tweet::whereUrl($url)->first();
 
-                /** @var Entry $reference */
-                $reference = null;
-                $referenceType = null;
-                if ($tweetData->retweet) {
-                    $entry->content = null;
-                    $reference = self::make()->withoutTransaction()->execute($tweetData->retweet);
-                    $referenceType = ReferenceType::REPOST;
-                } else if ($tweetData->quoted_tweet) {
-                    $reference = self::make()->withoutTransaction()->execute($tweetData->quoted_tweet);
-                    $referenceType = ReferenceType::QUOTE;
-                } else if ($tweetData->reply_to_id_str) {
-                    $reference = Tweet::whereTweetId($tweetData->reply_to_id_str)->first()?->entry;
-                    $referenceType = ($reference ? ReferenceType::REPLY_TO : null);
-                }
+            if ($tweet)
+                return $tweet;
 
-                $feed = FindOrCreateFeedAction::make()->withoutTransaction()->execute(
-                    config('twitter.base_url') . $twitterUser->screen_name,
-                    FeedType::TWITTER,
-                    $twitterUser->author,
-                    $twitterUser->screen_name
-                );
+            $tweet = new Tweet;
+            $tweet->type = Tweet::class;
+            $tweet->url = $url;
+            $tweet->title = "@{$tweetData->author->screen_name}";
+            $tweet->content = $tweetData->full_text;
+            $tweet->published_at = $tweetData->created_at;
+            $tweet->metadata = $this->getMetadata($tweetData, $twitterUser);
 
-                $entry->feed()->associate($feed);
-                $entry->entryable()->associate($tweet);
+            $feed = FindOrCreateFeedAction::make()->withoutTransaction()->execute(
+                config('twitter.base_url') . $twitterUser->screen_name,
+                FeedType::TWITTER,
+                $twitterUser->author,
+                $twitterUser->screen_name
+            );
 
-                foreach ($tweetData->links as $link) {
-                    FindOrImportLinkAction::make()->execute($link);
-                }
+            $tweet->feed()->associate($feed);
 
-                $entry->save();
-
-                /** @var MediaDTO $mediaItem */
-                foreach ($tweetData->media as $mediaItem) {
-                    $entry->media()->create([
-                        'media_object_id' => $mediaItem->media_object_id,
-                        'type' => $mediaItem->type,
-                        'url' => $mediaItem->url,
-                        'content_type' => $mediaItem->content_type,
-                        'quality' => $mediaItem->quality,
-                        'properties' => $mediaItem->properties,
-                    ], [
-                        'purpose' => MediaPurpose::CONTENT
-                    ]);
-                }
-
-                if ($reference) {
-                    $entry->references()->attach($reference->id, ['ref_type' => $referenceType]);
-                }
+            foreach ($tweetData->links as $link) {
+                FindOrImportLinkAction::make()->execute($link);
             }
 
-            return $entry;
+            $tweet->save();
+
+            /** @var MediaDTO $mediaItem */
+            foreach ($tweetData->media as $mediaItem) {
+                $tweet->media()->create([
+                    'media_object_id' => $mediaItem->media_object_id,
+                    'type' => $mediaItem->type,
+                    'url' => $mediaItem->url,
+                    'content_type' => $mediaItem->content_type,
+                    'quality' => $mediaItem->quality,
+                    'properties' => $mediaItem->properties,
+                ], [
+                    'purpose' => MediaPurpose::CONTENT
+                ]);
+            }
+
+            /** @var Entry $reference */
+            $path = "$path/{$tweet->id}";
+            $reference = null;
+            $referenceType = null;
+            if ($tweetData->retweet) {
+                $tweet->content = null;
+                $reference = self::make()->withoutTransaction()->execute($tweetData->retweet, false, $path);
+                $referenceType = ReferenceType::REPOST;
+            } else if ($tweetData->quoted_tweet) {
+                $reference = self::make()->withoutTransaction()->execute($tweetData->quoted_tweet, false, $path);
+                $referenceType = ReferenceType::QUOTE;
+            } else if ($tweetData->reply_to_id_str) {
+                $reference = Tweet::whereTweetId($tweetData->reply_to_id_str)->first()?->entry;
+                $referenceType = ($reference ? ReferenceType::REPLY_TO : null);
+            }
+
+            if ($reference) {
+                $path = "$path/{$reference->id}/";
+                $tweet->references()->attach($reference->id, ['ref_type' => $referenceType, 'ref_path' => $path]);
+            }
+
+            return $tweet;
         });
     }
 
-    protected function findOrCreateTweet(TweetDTO $tweetData, User $twitterUser): Tweet
+    protected function getMetadata(TweetDTO $tweetData, User $twitterUser): array
     {
-        $tweet = Tweet::whereTweetId($tweetData->rest_id)->first() ??
-            Tweet::create([
-                'twitter_user_id' => $twitterUser->id,
-                'tweet_id' => $tweetData->rest_id,
-                'retweet_id' => $tweetData->retweet?->rest_id,
-                'quoted_tweet_id' => $tweetData->quoted_tweet?->rest_id,
-                'reply_to_id' => $tweetData->reply_to_id_str,
-                'conversation_id' => $tweetData->conversation_id_str,
-            ]);
-
-        return $tweet;
+        return [
+            'twitter_user_id' => $twitterUser->id,
+            'tweet_id' => $tweetData->rest_id,
+            'retweet_id' => $tweetData->retweet?->rest_id,
+            'quoted_tweet_id' => $tweetData->quoted_tweet?->rest_id,
+            'reply_to_id' => $tweetData->reply_to_id_str,
+            'conversation_id' => $tweetData->conversation_id_str,
+            'user' => [
+                'screen_name' => $twitterUser->screen_name,
+            ]
+        ];
     }
 
     protected function findOrCreateAuthorUser(TweetDTO $tweetData): User
@@ -130,21 +135,5 @@ class ImportTweetAction extends BaseAction
         }
 
         return $twitterUser;
-    }
-
-    public function findOrCreateFeed(User $twitterUser, $createFeed = false): ?Feed
-    {
-        $feed = Feed::whereAuthorId($twitterUser->author_id)->first();
-        if ($feed || !$createFeed)
-            return $feed;
-
-        $feed = new Feed;
-        $feed->url = config('twitter.base_url') . $twitterUser->screen_name;
-        $feed->author_id = $twitterUser->author_id;
-        $feed->type = FeedType::TWITTER;
-        $feed->name = $twitterUser->screen_name;
-        $feed->save();
-
-        return $feed;
     }
 }

@@ -1,18 +1,18 @@
 <div class="content-box @if ($level <= 0) content-bg @endif">
-    <a href="{{ route('twitter.tweet', ['screenName' => $mainEntry->entryable->user->screen_name, 'tweetId' => $mainEntry->entryable->tweet_id])  }}"
+    <a href="{{ route('twitter.tweet', ['screenName' => $mainEntry->metadata['user']['screen_name'], 'tweetId' => $mainEntry->metadata['tweet_id']])  }}"
        class="absolute top-0 left-0 h-full w-full">
     </a>
     <div class="w-full">
         <div class="flex">
             <div class="flex lg:mr-6 mt-1 mr-4 size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                <a href="{{ route('twitter.user', ['screenName' => $mainEntry->entryable->user->screen_name]) }}" class="relative">
-                    <x-media :mediaObjectId="$mainEntry->feed?->author?->avatars?->first()?->media_object_id" class="rounded-full size-12 sm:size-16"/>
+                <a href="{{ route('twitter.user', ['screenName' => $mainEntry->metadata['user']['screen_name']]) }}" class="relative">
+                    <x-media :media="$mainEntry->feed?->author?->avatars?->first()" class="rounded-full size-12 sm:size-16"/>
                 </a>
             </div>
             <div class="flex lg:mt-5">
-                <a href="{{ route('twitter.user', ['screenName' => $mainEntry->entryable->user->screen_name]) }}" class="relative">
+                <a href="{{ route('twitter.user', ['screenName' => $mainEntry->metadata['user']['screen_name']]) }}" class="relative">
                     <h2 class="text-xl font-semibold text-black dark:text-white">
-                        {{ $mainEntry->feed?->author?->name }} ({{ "@{$mainEntry->entryable->user->screen_name}" }})
+                        {{ $mainEntry->feed?->author?->name }} ({{ "@{$mainEntry->metadata['user']['screen_name']}" }})
                     </h2>
                 </a>
             </div>
@@ -21,8 +21,8 @@
         <div class="pt-3 sm:pt-5 text-gray-400">
             @if ($isRetweeted)
                 <div class="text-sm text-blue-400">
-                    <a href="{{ route('twitter.user', ['screenName' => $entry->entryable->user->screen_name]) }}" class="relative">
-                        <span>{{ __('twitter.retweeted', ['author' => $entry->feed?->author?->name, 'screen_name' => $entry->entryable->user->screen_name]) }}</span>
+                    <a href="{{ route('twitter.user', ['screenName' => $entry->metadata['user']['screen_name']]) }}" class="relative">
+                        <span>{{ __('twitter.retweeted', ['author' => $entry->feed?->author?->name, 'screen_name' => $entry->metadata['user']['screen_name']]) }}</span>
                     </a>
                 </div>
             @endif
@@ -36,8 +36,8 @@
             </div>
         </div>
 
-        @if ($mainEntry->entryable->quoted_tweet_id)
-            <x-dynamic-component :component="'entry.'.$mainEntry->getEntryType()" :entry="$mainEntry->entryable->quotedTweet->entry" :level="$level+1" />
+        @if ($mainEntry->metadata['quoted_tweet_id'])
+            <x-dynamic-component :component="'entry.'.$mainEntry->getEntryType()" :entry="$mainEntry->quotedTweet()" :level="$level+1" />
         @endif
     </div>
 </div>

@@ -13,8 +13,9 @@ abstract class BaseEntry extends Component
     protected function renderComponents(Entry $entry): string
     {
         $mainContent = nl2br($entry->content);
-        return Str::replaceMatches('/<x-(\w+)(?:\.(\w+))?(?: (\w+)="([^"]+)")+\/>/', function ($matches) {
+        return Str::replaceMatches('/<x-(\w+)(?:\.(\w+))?(?: (\w+)="([^"]+)")+\/>/', function ($matches) use ($entry) {
             $attr = new ComponentAttributeBag();
+            $attr['entry'] = $entry;
             for ($i = 3; $i < count($matches); $i+=2) {
                 $attr[$matches[$i]] = $matches[$i + 1];
             }

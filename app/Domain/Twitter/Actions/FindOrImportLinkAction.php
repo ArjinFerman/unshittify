@@ -19,13 +19,9 @@ class FindOrImportLinkAction extends BaseAction
     public function execute(LinkDTO $linkData): ?Entry
     {
         return $this->optionalTransaction(function () use ($linkData) {
-            $page = Page::firstOrCreate([
-                'variant_url' => $linkData->expanded_url
-            ]);
-
-            $entry = $page->entry;
-            if ($entry)
-                return $entry;
+            $page = Page::whereUrl($linkData->expanded_url)->first();
+            if ($page)
+                return $page;
 
             if (!$linkData->title)
                 return null;
@@ -43,17 +39,17 @@ class FindOrImportLinkAction extends BaseAction
                 $linkUri->host(),
             );
 
-            $entry = new Entry;
-            $entry->url = $linkData->expanded_url;
-            $entry->title = $linkData->title;
-            $entry->content = $linkData->description;
-            $entry->published_at = now();
+            $page = new Page();
+            $page->type = Page::class;
+            $page->url = $linkData->expanded_url;
+            $page->title = $linkData->title;
+            $page->content = $linkData->description;
+            $page->published_at = now();
 
-            $entry->entryable()->associate($page);
-            $entry->feed()->associate($feed);
-            $entry->save();
+            $page->feed()->associate($feed);
+            $page->save();
 
-            return $entry;
+            return $page;
         });
     }
 }

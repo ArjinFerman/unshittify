@@ -27,17 +27,32 @@ class Entry extends Model
     protected $fillable = [
         'author_id',
         'feed_id',
-        'entryable_id',
-        'entryable_type',
-        'type',
         'url',
         'title',
         'content',
+        'type',
+        'metadata',
     ];
 
     protected $casts = [
         'published_at' => 'datetime',
+        'metadata' => 'array',
     ];
+
+    public function newFromBuilder($attributes = [], $connection = null)
+    {
+        $modelClass = $attributes->type;
+
+        if(!$modelClass) return null;
+
+        $model = new $modelClass;
+
+        $model->setRawAttributes((array) $attributes, true);
+        $model->setConnection($connection ?: $this->connection);
+        $model->exists = true;
+
+        return $model;
+    }
 
     public function newPivot(Model $parent, array $attributes, $table, $exists, $using = null): Pivot
     {
@@ -50,7 +65,7 @@ class Entry extends Model
 
     public function getEntryType(): string
     {
-        return class_basename($this->entryable_type);
+        return class_basename($this->type);
     }
 
     public function feed(): BelongsTo
@@ -60,18 +75,13 @@ class Entry extends Model
 
     public function author(): \Znck\Eloquent\Relations\BelongsToThrough
     {
-        return $this->belongsToThrough(Author::class, Feed::class);
-    }
-
-    public function entryable(): MorphTo
-    {
-        return $this->morphTo();
+        return $this->belongsToThrough(Author::class, Feed::class, foreignKeyLookup: [Author::class => 'author_id']);
     }
 
     public function references(): BelongsToMany
     {
         return $this->belongsToMany(Entry::class, 'core_entry_references', 'entry_id', 'ref_entry_id')
-            ->withPivot('ref_type');
+            ->withPivot(['ref_type', 'ref_path']);
     }
 
     public function referencedBy(): BelongsToMany

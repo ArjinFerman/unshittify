@@ -3,7 +3,7 @@
 namespace App\View\Components\Entry;
 
 use App\Domain\Core\Enums\ReferenceType;
-use App\Domain\Core\Models\Entry as EntryModel;
+use App\Domain\Twitter\Models\Tweet as EntryModel;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Blade;
