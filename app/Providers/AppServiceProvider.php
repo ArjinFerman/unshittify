@@ -18,20 +18,19 @@ class AppServiceProvider extends ServiceProvider
             return new TwitterService();
         });
 
-        Collection::macro('toNestedTree', function () {
+        Collection::macro('optimizeReferences', function () {
+            /** @var Collection $this */
             $keyed = $this->keyBy('id');
             $tree = collect();
 
-            $keyed->each(function ($item) {
-                $item->setRelation('prefetchedReferences', new \Illuminate\Database\Eloquent\Collection);
-            });
-
             foreach ($this as $item) {
+                $item->setRelation('prefetchedReferences', new \Illuminate\Database\Eloquent\Collection);
                 $pathSegments = array_filter(explode('/', $item->ref_path));
                 $parentId = $pathSegments ? end($pathSegments) : null;
 
                 if ($parentId && ($parentId = prev($pathSegments)) && $keyed->has($parentId)) {
-                    $item->ref_type = ReferenceType::from($item->ref_type);
+                    $item->pivot = new \stdClass;
+                    $item->pivot->ref_type = ReferenceType::from($item->ref_type);
                     $keyed[$parentId]->prefetchedReferences->push($item);
                 } else {
                     $tree->push($item);

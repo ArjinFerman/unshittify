@@ -13,7 +13,7 @@ class Link extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(public string $url)
+    public function __construct(public ?Entry $entry, public string $url)
     {
     }
 
@@ -22,11 +22,9 @@ class Link extends Component
      */
     public function render(): View|Closure|string
     {
-        $link = Page::whereVariantUrl($this->url)->first();
-        if ($link && $link->parent_id)
-            $link = $link->parent;
+        $link = $this->entry->optimizedReferences()
+            ->where('url', '=', $this->url)->first();
 
-        $link = $link?->entry;
         return view('components.entry.link', ['link' => $link]);
     }
 }

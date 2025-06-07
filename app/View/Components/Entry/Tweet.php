@@ -6,8 +6,6 @@ use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Twitter\Models\Tweet as EntryModel;
 use Closure;
 use Illuminate\Contracts\View\View;
-use Illuminate\Support\Facades\Blade;
-use Illuminate\View\ComponentAttributeBag;
 
 class Tweet extends BaseEntry
 {
@@ -23,7 +21,7 @@ class Tweet extends BaseEntry
      */
     public function render(): View|Closure|string
     {
-        $reference = $this->entry->references->first();
+        $reference = $this->entry->optimizedReferences()->first();
         $isRetweeted = ($reference?->pivot?->ref_type == ReferenceType::REPOST);
         $mainEntry = ($isRetweeted ? $reference : $this->entry);
 

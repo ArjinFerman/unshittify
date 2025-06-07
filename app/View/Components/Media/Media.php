@@ -2,6 +2,7 @@
 
 namespace App\View\Components\Media;
 
+use App\Domain\Core\Models\Entry;
 use App\Domain\Core\Models\Media as MediaModel;
 use Closure;
 use Illuminate\Contracts\View\View;
@@ -12,7 +13,7 @@ class Media extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(public ?MediaModel $media = null, public ?string $mediaObjectId = null)
+    public function __construct(public ?Entry $entry, public ?MediaModel $media = null, public ?string $mediaObjectId = null)
     {
     }
 
@@ -21,6 +22,10 @@ class Media extends Component
      */
     public function render(): View|Closure|string
     {
+        if (!$this->media) {
+            $this->media = $this->entry->media->where('media_object_id', '=', $this->mediaObjectId)->first();
+        }
+
         if (!$this->media) {
             $this->media = MediaModel::whereMediaObjectId($this->mediaObjectId)
                 ->orderBy('quality', 'desc')->first();

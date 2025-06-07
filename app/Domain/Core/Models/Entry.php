@@ -4,10 +4,10 @@ namespace App\Domain\Core\Models;
 
 use AjCastro\EagerLoadPivotRelations\EagerLoadPivotTrait;
 use App\Domain\Core\Enums\CoreTagType;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Znck\Eloquent\Traits\BelongsToThrough;
@@ -76,6 +76,11 @@ class Entry extends Model
     public function author(): \Znck\Eloquent\Relations\BelongsToThrough
     {
         return $this->belongsToThrough(Author::class, Feed::class, foreignKeyLookup: [Author::class => 'author_id']);
+    }
+
+    public function optimizedReferences(): Collection
+    {
+        return ($this->prefetchedReferences ?? $this->references);
     }
 
     public function references(): BelongsToMany
