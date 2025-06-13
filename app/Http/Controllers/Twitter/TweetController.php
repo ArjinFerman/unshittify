@@ -2,15 +2,15 @@
 
 namespace App\Http\Controllers\Twitter;
 
+use App\Domain\Core\Services\FeedService;
 use App\Domain\Twitter\Services\TwitterService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
 
 class TweetController extends Controller
 {
-    public function __construct(protected TwitterService $twitterService)
+    public function __construct(protected TwitterService $twitterService, protected FeedService $feedService)
     {
     }
 
@@ -37,6 +37,8 @@ class TweetController extends Controller
             $data['loadMoreLink'] = route('twitter.user', ['screenName' => $screenName, 'cursor' => $tweets->getBottomCursor()]);
         }
 
+        $data['entries'] = $this->feedService->getFeed($data['entries']->first()->feed_id);
+
         return view('tweets', $data);
     }
 
@@ -60,6 +62,11 @@ class TweetController extends Controller
                 'cursor' => $tweets->getBottomCursor(),
             ]);
         }
+
+        $data = [
+            'screenName' => $screenName,
+            'entries' => $this->feedService->getTweetWithReplies($tweetId)
+        ];
 
         return view('tweets', $data);
     }

@@ -81,13 +81,22 @@ class ImportTweetAction extends BaseAction
                 $reference = self::make()->withoutTransaction()->execute($tweetData->quoted_tweet, false, $path);
                 $referenceType = ReferenceType::QUOTE;
             } else if ($tweetData->reply_to_id_str) {
-                $reference = Tweet::whereTweetId($tweetData->reply_to_id_str)->first()?->entry;
+                $reference = Tweet::whereJsonContains('metadata->tweet_id', $tweetData->reply_to_id_str)->first();
                 $referenceType = ($reference ? ReferenceType::REPLY_TO : null);
             }
 
-            if ($reference) {
-                $path = "$path/{$reference->id}/";
-                $tweet->references()->attach($reference->id, ['ref_type' => $referenceType, 'ref_path' => $path]);
+            switch ($referenceType) {
+                case ReferenceType::REPLY_TO:
+                    //Reverse the direction of the "reply" reference - since most of the time we will be fetching
+                    //replies to a provided tweet on a tweet
+                    $path = "/{$reference->id}$path/";
+                    $reference->references()->attach($tweet->id, ['ref_type' => $referenceType, 'ref_path' => $path]);
+                    break;
+                case ReferenceType::QUOTE:
+                case ReferenceType::REPOST:
+                    $path = "$path/{$reference->id}/";
+                    $tweet->references()->attach($reference->id, ['ref_type' => $referenceType, 'ref_path' => $path]);
+                    break;
             }
 
             return $tweet;

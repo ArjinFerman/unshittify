@@ -21,8 +21,8 @@ class Tweet extends BaseEntry
      */
     public function render(): View|Closure|string
     {
-        $reference = $this->entry->optimizedReferences()->first();
-        $isRetweeted = ($reference?->pivot?->ref_type == ReferenceType::REPOST);
+        $reference = $this->entry->references->first();
+        $isRetweeted = ($reference?->ref_type == ReferenceType::REPOST->value);
         $mainEntry = ($isRetweeted ? $reference : $this->entry);
 
         return view('components.entry.tweet', [

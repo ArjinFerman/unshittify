@@ -2,9 +2,9 @@
 
 namespace App\Domain\Core\Models;
 
-use AjCastro\EagerLoadPivotRelations\EagerLoadPivotTrait;
+use App\Domain\Core\QueryBuilders\EntryQueryBuilder;
+use App\Support\Query\EagerLoadJoinTrait;
 use App\Domain\Core\Enums\CoreTagType;
-use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -14,7 +14,7 @@ use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Entry extends Model
 {
-    use EagerLoadPivotTrait;
+    use EagerLoadJoinTrait;
     use BelongsToThrough;
 
     protected $table = 'core_entries';
@@ -39,6 +39,21 @@ class Entry extends Model
         'metadata' => 'array',
     ];
 
+    use EagerLoadJoinTrait {
+        newFromBuilder as public fromEagerLoadJoinBuilder;
+    }
+
+    /**
+     * Create a new Eloquent query builder for the model.
+     *
+     * @param  \Illuminate\Database\Query\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function newEloquentBuilder($query)
+    {
+        return new EntryQueryBuilder($query);
+    }
+
     public function newFromBuilder($attributes = [], $connection = null)
     {
         $modelClass = $attributes->type;
@@ -50,6 +65,8 @@ class Entry extends Model
         $model->setRawAttributes((array) $attributes, true);
         $model->setConnection($connection ?: $this->connection);
         $model->exists = true;
+
+        $model = $model->setupJoinRelations($model, $attributes = []);
 
         return $model;
     }
@@ -76,11 +93,6 @@ class Entry extends Model
     public function author(): \Znck\Eloquent\Relations\BelongsToThrough
     {
         return $this->belongsToThrough(Author::class, Feed::class, foreignKeyLookup: [Author::class => 'author_id']);
-    }
-
-    public function optimizedReferences(): Collection
-    {
-        return ($this->prefetchedReferences ?? $this->references);
     }
 
     public function references(): BelongsToMany

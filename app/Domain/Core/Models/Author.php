@@ -4,6 +4,8 @@ namespace App\Domain\Core\Models;
 
 use App\Domain\Core\Enums\MediaPurpose;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
+use Illuminate\Database\Eloquent\Relations\MorphOneOrMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Author extends Model
@@ -25,9 +27,19 @@ class Author extends Model
         return $this->morphToMany(Media::class, 'mediable', 'core_mediables');
     }
 
-    public function avatars(): MorphToMany
+    public function avatar(): HasOneThrough
     {
-        return $this->morphToMany(Media::class, 'mediable', 'core_mediables')
-            ->wherePivot('purpose', '=', MediaPurpose::AVATAR);
+        $q = $this->hasOneThrough(
+            Media::class,
+            Mediable::class,
+            'mediable_id',
+            'id',
+            'id',
+            'media_id'
+        )->where('mediable_type', static::class);
+
+        $sql = $q->toRawSql();
+
+        return $q;
     }
 }

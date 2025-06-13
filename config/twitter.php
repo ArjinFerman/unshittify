@@ -65,5 +65,9 @@ return [
         "verified_phone_label_enabled" => false,
         "vibe_api_enabled" => false,
         "view_counts_everywhere_api_enabled" => false
-    ]
+    ],
+
+    'controller' => [
+        'action_prefix' => env('TWITTER_URL_ACTION_PREFIX', 'https://x.com'),
+    ],
 ];

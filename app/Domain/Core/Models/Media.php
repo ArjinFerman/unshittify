@@ -5,6 +5,7 @@ namespace App\Domain\Core\Models;
 use App\Domain\Core\Enums\MediaType;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Media extends Model
 {
@@ -29,4 +30,9 @@ class Media extends Model
         'quality',
         'properties',
     ];
+
+    public function entries(): MorphToMany
+    {
+        return $this->morphedByMany(Entry::class, 'mediable', 'core_mediables');
+    }
 }

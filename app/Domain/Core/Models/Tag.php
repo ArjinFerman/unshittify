@@ -22,4 +22,9 @@ class Tag extends Model
     {
         return $this->morphToMany(Author::class, 'taggable', 'core_taggables', 'taggable_id');
     }
+
+    public function entries(): MorphToMany
+    {
+        return $this->morphedByMany(Entry::class, 'taggable', 'core_taggables');
+    }
 }

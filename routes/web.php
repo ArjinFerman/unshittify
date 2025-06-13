@@ -14,3 +14,5 @@ Route::name('twitter.')->prefix('twitter')->group(function () {
     Route::get('/{screenName}', [TweetController::class, 'user'])->name('user');
     Route::get('/{screenName}/status/{tweetId}', [TweetController::class, 'tweet'])->name('tweet');
 });
+
+Route::twitterFullUrlRoutes();

@@ -22,7 +22,7 @@ class Link extends Component
      */
     public function render(): View|Closure|string
     {
-        $link = $this->entry->optimizedReferences()
+        $link = $this->entry->references
             ->where('url', '=', $this->url)->first();
 
         return view('components.entry.link', ['link' => $link]);

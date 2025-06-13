@@ -6,7 +6,7 @@
         <div class="flex">
             <div class="flex lg:mr-6 mt-1 mr-4 size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
                 <a href="{{ route('twitter.user', ['screenName' => $mainEntry->metadata['user']['screen_name']]) }}" class="relative">
-                    <x-media :media="$mainEntry->feed?->author?->avatars?->first()" class="rounded-full size-12 sm:size-16"/>
+                    <x-media :media="$mainEntry->feed?->author?->avatar" class="rounded-full size-12 sm:size-16"/>
                 </a>
             </div>
             <div class="flex lg:mt-5">
@@ -36,8 +36,12 @@
             </div>
         </div>
 
-        @if ($mainEntry->metadata['quoted_tweet_id'])
+        @if ($mainEntry->quotedTweet())
             <x-dynamic-component :component="'entry.'.$mainEntry->getEntryType()" :entry="$mainEntry->quotedTweet()" :level="$level+1" />
         @endif
     </div>
 </div>
+
+@foreach ($mainEntry->replies() as $reply)
+    <x-dynamic-component :component="'entry.'.$reply->getEntryType()" :entry="$reply" />
+@endforeach
