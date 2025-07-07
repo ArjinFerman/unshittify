@@ -4,6 +4,7 @@ namespace App\Domain\Twitter\Services;
 
 use App\Domain\Core\Models\Entry;
 use App\Domain\Twitter\Actions\ImportTweetAction;
+use App\Domain\Twitter\Actions\ImportTweetsAction;
 use App\Domain\Twitter\DTO\TweetCollectionDTO;
 use Illuminate\Support\Collection;
 use Exception;
@@ -46,10 +47,7 @@ class TwitterService
      */
     public function importTweets(TweetCollectionDTO $tweets, bool $createTweets = false): Collection
     {
-        $entries = new Collection();
-        foreach ($tweets as $tweet) {
-            $entries->add(ImportTweetAction::make()->execute($tweet, $createTweets));
-        }
+        $entries = ImportTweetsAction::make()->execute($tweets, $createTweets);
 
         return $entries;
     }

@@ -52,7 +52,7 @@ class EntryQueryBuilder extends EagerLoadJoinBuilder
         return $this
             ->whereExists(function (Builder $query) use ($entries) {
                 $query->from('core_entries', 'ce_ref')
-                    ->where('core_entry_references.ref_path', 'LIKE', DB::raw("CONCAT('/', ce_ref.id, '/%')"))
+                    ->where('core_entry_references.ref_path', 'LIKE', DB::raw("CONCAT('%/', ce_ref.id, '/%')"))
                     ->whereIn('ce_ref.id', $entries->pluck('id'));
             });
     }

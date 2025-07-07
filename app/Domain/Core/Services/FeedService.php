@@ -10,7 +10,9 @@ use App\Domain\Core\Models\Media;
 use App\Domain\Core\Models\Tag;
 use App\Domain\Core\QueryBuilders\EntryQueryBuilder;
 use App\View\Data\EntryViewDataCollection;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 class FeedService
 {
@@ -35,7 +37,28 @@ class FeedService
     public function getTweetWithReplies($tweetId)
     {
         return $this->getEntriesForView(function (EntryQueryBuilder $query) use ($tweetId) {
-            return $query->whereJsonContains('metadata->tweet_id', $tweetId);
+            return $query->where('metadata->tweet_id', $tweetId);
+        }, function (EntryQueryBuilder $query, Collection $entries) {
+            if ($entries->count() != 1)
+                Log::warning("getTweetWithReplies should have only one main entry (count: {$entries->count()})}");
+
+            return $query
+                ->leftJoin('core_entry_references as ref_to_parent', function(JoinClause $join) use ($entries) {
+                    $join->on('ref_to_parent.entry_id', '=', 'core_entries.id');
+                    $join->on('ref_to_parent.ref_entry_id', '=', $entries->first()->id);
+                })
+                ->leftJoin('core_entry_references as refs_of_parent', function(JoinClause $join) use ($entries) {
+                    $join->on('core_entry_references.entry_id', '=', 'refs_of_parent.entry_id');
+                    $join->on('refs_of_parent.ref_entry_id', '=', $entries->first()->id);
+                })
+                ->orWhere(function ($query) use ($entries) {
+                    $query->where('ref_to_parent.ref_entry_id', $entries->first()->id);
+                    $query->where('ref_to_parent.ref_type', '=', ReferenceType::REPLY_TO->value);
+                })
+                ->orWhere(function ($query) use ($entries) {
+                    $query->where('refs_of_parent.ref_entry_id', $entries->first()->id);
+                    $query->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
+                });
         });
     }
 
@@ -66,8 +89,9 @@ class FeedService
         ;
 
         if ($referenceQuery)
-            $references = $referenceQuery($references);
+            $references = $referenceQuery($references, $entries);
 
+        /** @var Collection<Entry> $entries */
         $references = $references->get();
 
         $entryIds = $entries->pluck('id')->merge($references->pluck('id'));

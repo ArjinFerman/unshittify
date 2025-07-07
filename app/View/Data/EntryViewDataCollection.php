@@ -9,7 +9,7 @@ use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
 
 /**
- * @implements Collection<mixed, EntryViewData>
+ * @implements Collection<mixed, Entry>
  */
 class EntryViewDataCollection extends Collection
 {
@@ -33,21 +33,25 @@ class EntryViewDataCollection extends Collection
         $this->checkRelation($entry, 'media');
         $this->checkRelation($entry, 'tags');
 
+        /** @var Entry $parent */
+        $parent = null;
+
         if ($entry->ref_path) {
             $pathSegments = array_filter(explode('/', $entry->ref_path));
             $this->entryPaths[$entry->id] = $pathSegments;
-            /** @var Entry $parent */
-            $parent = null;
 
             foreach ($pathSegments as $id) {
                 if ($id == $entry->id)
                     break;
 
-                $parent = $parent?->references?->get($id) ?? $this->items[$id];
+                $parent = $parent?->references?->get($id) ?? $this->get($id);
             }
+        }
 
+        if ($parent) {
             $this->checkRelation($parent, 'references');
             $parent->references->put($entry->id, $entry);
+            $this->forget($entry->id);
         } else {
             $this->entryPaths[$entry->id] = [$entry->id];
             $this->put($entry->id, $entry);
