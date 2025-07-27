@@ -26,7 +26,7 @@ class TweetController extends Controller
         $tweets = $this->twitterService->getLatestUserTweets($screenName, $cursor);
         $data = [
             'screenName' => $screenName,
-            'entries' => $this->twitterService->importTweets($tweets, true),
+            'entries' => $this->twitterService->importTweets($tweets, true)->sortBy('published_at'),
         ];
 
         if ($cursor) {
@@ -37,7 +37,10 @@ class TweetController extends Controller
             $data['loadMoreLink'] = route('twitter.user', ['screenName' => $screenName, 'cursor' => $tweets->getBottomCursor()]);
         }
 
-        $data['entries'] = $this->feedService->getFeed($data['entries']->first()->feed_id);
+        $data['entries'] = $this->feedService->getFeed(
+            $data['entries']->where('title', "@$screenName")->first()->feed_id,
+            $data['entries']->last()->published_at
+        );
 
         return view('tweets', $data);
     }
@@ -48,7 +51,7 @@ class TweetController extends Controller
         $tweets = $this->twitterService->getTweetWithReplies($tweetId, $cursor);
         $data = [
             'screenName' => $screenName,
-            'entries' => $this->twitterService->importTweets($tweets),
+            'entries' => $this->twitterService->importTweets($tweets)->sortBy('published_at'),
         ];
 
         if ($cursor) {
@@ -63,10 +66,7 @@ class TweetController extends Controller
             ]);
         }
 
-        $data = [
-            'screenName' => $screenName,
-            'entries' => $this->feedService->getTweetWithReplies($tweetId)
-        ];
+        $data['entries'] = $this->feedService->getTweetWithReplies($tweetId, $data['entries']->last()->published_at);
 
         return view('tweets', $data);
     }

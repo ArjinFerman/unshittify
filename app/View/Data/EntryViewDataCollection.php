@@ -52,7 +52,7 @@ class EntryViewDataCollection extends Collection
             $this->checkRelation($parent, 'references');
             $parent->references->put($entry->id, $entry);
             $this->forget($entry->id);
-        } else {
+        } else if (!isset($this->entryPaths[$entry->id]) && !$this->has($entry->id)) {
             $this->entryPaths[$entry->id] = [$entry->id];
             $this->put($entry->id, $entry);
         }

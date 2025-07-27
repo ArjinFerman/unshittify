@@ -10,6 +10,7 @@ use App\Domain\Core\Models\Media;
 use App\Domain\Core\Models\Tag;
 use App\Domain\Core\QueryBuilders\EntryQueryBuilder;
 use App\View\Data\EntryViewDataCollection;
+use Carbon\Carbon;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -25,39 +26,53 @@ class FeedService
         });
     }
 
-    public function getFeed($id)
+    public function getFeed(int $id, Carbon|string|null $after = null)
     {
-        return $this->getEntriesForView(function (EntryQueryBuilder $query) use ($id) {
+        return $this->getEntriesForView(function (EntryQueryBuilder $query) use ($id, $after) {
+            if ($after)
+                $query->where('published_at', '<=', $after);
+
             return $query->whereFeedId($id);
         }, function (EntryQueryBuilder $query) {
             return $query->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
         });
     }
 
-    public function getTweetWithReplies($tweetId)
+    public function getTweetWithReplies(string $tweetId, Carbon|string|null $after = null)
     {
         return $this->getEntriesForView(function (EntryQueryBuilder $query) use ($tweetId) {
             return $query->where('metadata->tweet_id', $tweetId);
-        }, function (EntryQueryBuilder $query, Collection $entries) {
+        }, function (EntryQueryBuilder $query, Collection $entries) use ($after) {
             if ($entries->count() != 1)
                 Log::warning("getTweetWithReplies should have only one main entry (count: {$entries->count()})}");
 
+            $entryId = $entries->first()->id;
+
+            if ($after)
+                $query->where('published_at', '<=', $after);
+
             return $query
-                ->leftJoin('core_entry_references as ref_to_parent', function(JoinClause $join) use ($entries) {
+                ->leftJoin('core_entry_references as ref_to_parent', function(JoinClause $join) use ($entryId) {
                     $join->on('ref_to_parent.entry_id', '=', 'core_entries.id');
-                    $join->on('ref_to_parent.ref_entry_id', '=', $entries->first()->id);
+                    $join->on('ref_to_parent.ref_entry_id', '=', $entryId);
                 })
-                ->leftJoin('core_entry_references as refs_of_parent', function(JoinClause $join) use ($entries) {
+                ->leftJoin('core_entry_references as refs_of_parent', function(JoinClause $join) use ($entryId) {
                     $join->on('core_entry_references.entry_id', '=', 'refs_of_parent.entry_id');
-                    $join->on('refs_of_parent.ref_entry_id', '=', $entries->first()->id);
+                    $join->on('refs_of_parent.ref_entry_id', '=', $entryId);
                 })
-                ->orWhere(function ($query) use ($entries) {
-                    $query->where('ref_to_parent.ref_entry_id', $entries->first()->id);
-                    $query->where('ref_to_parent.ref_type', '=', ReferenceType::REPLY_TO->value);
-                })
-                ->orWhere(function ($query) use ($entries) {
-                    $query->where('refs_of_parent.ref_entry_id', $entries->first()->id);
-                    $query->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
+                ->orWhere(function ($or) use ($entryId, $after) {
+                    if ($after)
+                        $or->where('published_at', '<=', $after);
+
+                    $or->where(function ($and) use ($entryId) {
+                        $and->where(function ($sub) use ($entryId) {
+                            $sub->where('ref_to_parent.ref_entry_id', $entryId);
+                            $sub->where('ref_to_parent.ref_type', '=', ReferenceType::REPLY_TO->value);
+                        })->orWhere(function ($sub) use ($entryId) {
+                            $sub->where('refs_of_parent.ref_entry_id', $entryId);
+                            $sub->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
+                        });
+                    });
                 });
         });
     }

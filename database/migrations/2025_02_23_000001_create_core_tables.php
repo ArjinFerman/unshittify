@@ -63,7 +63,7 @@ return new class extends Migration
         });
 
         Schema::create('core_entry_references', function (Blueprint $table) {
-            $table->primary(['entry_id', 'ref_entry_id']);
+            $table->primary(['ref_path']);
             $table->unsignedBigInteger('entry_id');
             $table->unsignedBigInteger('ref_entry_id');
             $table->enum('ref_type', array_column(ReferenceType::cases(), 'value'));

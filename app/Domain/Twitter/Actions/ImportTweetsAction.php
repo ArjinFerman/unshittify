@@ -40,7 +40,8 @@ class ImportTweetsAction extends BaseAction
             }
 
             $tweetAuthorsFeeds = $this->importFeeds($keyedTweets);
-            $existingTweets = Tweet::whereIn('metadata->tweet_id', $tweetAuthorsFeeds->pluck('tweet.rest_id'))->get()->keyBy('metadata.tweet_id');
+            $existingTweets = Tweet::whereIn('metadata->tweet_id', $tweetAuthorsFeeds->pluck('tweet.rest_id'))
+                ->get()->keyBy('metadata.tweet_id');
             $newTweets = $tweetAuthorsFeeds->whereNotIn('tweet.rest_id', $existingTweets->pluck('metadata.tweet_id'));
 
             $addedTweets = [];

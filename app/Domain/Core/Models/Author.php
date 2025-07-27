@@ -38,8 +38,6 @@ class Author extends Model
             'media_id'
         )->where('mediable_type', static::class);
 
-        $sql = $q->toRawSql();
-
         return $q;
     }
 }

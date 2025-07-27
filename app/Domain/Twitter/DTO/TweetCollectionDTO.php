@@ -79,11 +79,17 @@ class TweetCollectionDTO extends Collection
                             foreach ($entry['content']['items'] as $threadItem) {
                                 switch ($threadItem['item']['itemContent']['__typename']) {
                                     case 'TimelineTweet':
+                                        if (!$threadItem['item']['itemContent']['tweet_results'])
+                                            break;
+
                                         $collection->add(TweetDTO::fromTweetResult($threadItem['item']['itemContent']['tweet_results']['result']));
                                         break;
                                     // TODO: case 'TimelineTimelineCursor':
                                 }
                             }
+                            break;
+                        case 'TimelineTimelineCursor':
+                            $cursors[$entry['content']['cursorType']] = $entry['content']['value'];
                             break;
                     }
                 }
