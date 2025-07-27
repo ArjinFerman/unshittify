@@ -1,0 +1,34 @@
+<?php
+
+namespace App\View\Components\Entry;
+
+use App\Domain\Twitter\DTO\TweetDTO as APITweetDTO;
+use Closure;
+use Illuminate\Contracts\View\View;
+use Illuminate\View\Component;
+
+class TweetDto extends Component
+{
+    /**
+     * Create a new component instance.
+     */
+    public function __construct(public APITweetDTO $entry, public int $level = 0)
+    {
+    }
+
+    /**
+     * Get the view / contents that represent the component.
+     */
+    public function render(): View|Closure|string
+    {
+        $reference = $this->entry->retweet ?? $this->entry->quoted_tweet;
+        $isRetweeted = !is_null($this->entry->retweet);
+        $mainEntry = ($isRetweeted ? $reference : $this->entry);
+        $mainEntry->media = $mainEntry->media->keyBy('media_object_id');
+
+        return view('components.entry.tweet-dto', [
+            'mainEntry' => $mainEntry,
+            'isRetweeted' => $isRetweeted,
+        ]);
+    }
+}

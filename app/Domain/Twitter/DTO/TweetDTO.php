@@ -2,31 +2,37 @@
 
 namespace App\Domain\Twitter\DTO;
 
+use App\Domain\Core\DTO\BaseDTO;
 use App\Domain\Core\DTO\MediaCollectionDTO;
 use App\Domain\Twitter\Support\DTO\MediaParser;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
-class TweetDTO
+class TweetDTO extends BaseDTO
 {
     public function __construct(
-        public string $rest_id,
-        public string $conversation_id_str,
-        public Carbon $created_at,
-        public string $full_text,
-        public bool $is_quote_status,
-        public ?string $quoted_status_id_str,
-        public string $user_id_str,
-        public ?string $reply_to_id_str,
-        public ?TweetDTO $quoted_tweet,
-        public ?TweetDTO $retweet,
-        public ?UserDTO $author,
-        public ?MediaCollectionDTO $media,
+        public ?string $rest_id = null,
+        public ?string $conversation_id_str = null,
+        public ?Carbon $created_at = null,
+        public ?string $full_text = null,
+        public bool $is_quote_status = false,
+        public ?string $quoted_status_id_str = null,
+        public ?string $user_id_str = null,
+        public ?string $reply_to_id_str = null,
+        public ?TweetDTO $quoted_tweet = null,
+        public ?TweetDTO $retweet = null,
+        public ?UserDTO $author = null,
+        public ?MediaCollectionDTO $media = null,
         /** @var array<LinkDTO> $links */
-        public array $links,
+        public ?array $links = null,
     )
     {
+    }
+
+    public function getTweetUrl(): string
+    {
+        return config('twitter.base_url') . "{$this->author->screen_name}/status/{$this->rest_id}";
     }
 
     public static function fromTweetResult(array $data): self

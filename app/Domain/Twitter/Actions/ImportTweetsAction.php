@@ -46,12 +46,10 @@ class ImportTweetsAction extends BaseAction
 
             $addedTweets = [];
             foreach ($newTweets as $newTweetData) {
-                $url = config('twitter.base_url') . "{$newTweetData['tweet']->author->screen_name}/status/{$newTweetData['tweet']->rest_id}";
-
                 $addedTweets[] = [
                     'type'              => Tweet::class,
                     'feed_id'           => $newTweetData['feed']->id,
-                    'url'               => $url,
+                    'url'               => $newTweetData['tweet']->getTweetUrl(),
                     'title'             => "@{$newTweetData['tweet']->author->screen_name}",
                     'content'           => $newTweetData['tweet']->full_text,
                     'published_at'      => $newTweetData['tweet']->created_at,

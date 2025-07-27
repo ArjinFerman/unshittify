@@ -2,7 +2,9 @@
 
 namespace App\Domain\Twitter\DTO;
 
-class UserDTO
+use App\Domain\Core\DTO\BaseDTO;
+
+class UserDTO extends BaseDTO
 {
     public function __construct(
         public string $rest_id,

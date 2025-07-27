@@ -3,7 +3,6 @@
 namespace App\Domain\Twitter\Services;
 
 use App\Domain\Core\Models\Entry;
-use App\Domain\Twitter\Actions\ImportTweetAction;
 use App\Domain\Twitter\Actions\ImportTweetsAction;
 use App\Domain\Twitter\DTO\TweetCollectionDTO;
 use Illuminate\Support\Collection;
@@ -74,6 +73,16 @@ class TwitterService
 
     public function getLatestUserTweets(string $screenName, ?string $after = null): TweetCollectionDTO
     {
+        return $this->getLatestUserTweetsImpl(__FUNCTION__, $screenName, $after);
+    }
+
+    public function getLatestUserTweetsAndReplies(string $screenName, ?string $after = null): TweetCollectionDTO
+    {
+        return $this->getLatestUserTweetsImpl(__FUNCTION__, $screenName, $after);
+    }
+
+    protected function getLatestUserTweetsImpl(string $method, string $screenName, ?string $after = null): TweetCollectionDTO
+    {
         $cacheKey = "twitter:user:$screenName:$after";
         $tweets = Cache::get($cacheKey);
         if ($tweets) return $tweets;
@@ -88,7 +97,7 @@ class TwitterService
         if ($after)
             $variables["cursor"] = $after;
 
-        $tweets = TweetCollectionDTO::fromTimelineResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . __FUNCTION__), [
+        $tweets = TweetCollectionDTO::fromTimelineResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . $method), [
             'variables' => json_encode($variables),
             'features' => json_encode(config('twitter.gql_features')),
         ]));

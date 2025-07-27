@@ -9,9 +9,10 @@ return [
     'consumer_secret' => env('TWITTER_CONSUMER_SECRET', 'Bcs59EFbbsdF6Sl9Ng71smgStWEGwXXKSjYvPVt7qys'),
 
     'endpoints' => [
-        'getUserByScreenName'   => 'graphql/u7wQyGi6oExe8_TRWGMq4Q/UserResultByScreenNameQuery',
-        'getLatestUserTweets'   => 'graphql/3JNH4e9dq1BifLxAa3UMWg/UserWithProfileTweetsQueryV2',
-        'getTweetWithReplies'   => 'graphql/q94uRCEn65LZThakYcPT6g/TweetDetail',
+        'getUserByScreenName'               => 'graphql/u7wQyGi6oExe8_TRWGMq4Q/UserResultByScreenNameQuery',
+        'getLatestUserTweets'               => 'graphql/3JNH4e9dq1BifLxAa3UMWg/UserWithProfileTweetsQueryV2',
+        'getLatestUserTweetsAndReplies'     => 'graphql/8IS8MaO-2EN6GZZZb8jF0g/UserWithProfileTweetsAndRepliesQueryV2',
+        'getTweetWithReplies'               => 'graphql/q94uRCEn65LZThakYcPT6g/TweetDetail',
     ],
 
     'tweet_variables' => [

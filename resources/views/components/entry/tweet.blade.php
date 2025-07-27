@@ -31,7 +31,7 @@
             </div>
             <livewire:entry.menu :entry="$mainEntry" :key="$mainEntry->id" />
 
-            <div class="mt-4 mb-4 text-sm text-white" style="overflow-wrap: anywhere">
+            <div class="mt-4 mb-4 text-sm text-white relative" style="overflow-wrap: anywhere">
                 {!! $mainContent !!}
             </div>
         </div>

@@ -2,11 +2,10 @@
 
 namespace App\Domain\Core\DTO;
 
-use Illuminate\Support\Collection;
-
 /**
- * @implements Collection<MediaDTO>
+ * @implements CollectionDTO<mixed, MediaDTO>
  */
-class MediaCollectionDTO extends Collection
+class MediaCollectionDTO extends CollectionDTO
 {
+    protected static ?string $class = MediaDTO::class;
 }

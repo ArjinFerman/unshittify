@@ -2,7 +2,9 @@
 
 namespace App\Domain\Twitter\DTO;
 
-class LinkDTO
+use App\Domain\Core\DTO\BaseDTO;
+
+class LinkDTO extends BaseDTO
 {
     public function __construct(
         public string $url,

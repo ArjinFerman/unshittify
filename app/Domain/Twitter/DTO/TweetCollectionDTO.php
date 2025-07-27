@@ -2,13 +2,15 @@
 
 namespace App\Domain\Twitter\DTO;
 
-use Illuminate\Support\Collection;
+use App\Domain\Core\DTO\CollectionDTO;
 
 /**
- * @implements Collection<mixed, TweetDTO>
+ * @implements CollectionDTO<mixed, TweetDTO>
  */
-class TweetCollectionDTO extends Collection
+class TweetCollectionDTO extends CollectionDTO
 {
+    protected static ?string $class = TweetDTO::class;
+
     public function __construct(
         array $items = [],
         protected ?string $top_cursor = null,

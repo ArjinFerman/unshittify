@@ -4,7 +4,7 @@ namespace App\Domain\Core\DTO;
 
 use App\Domain\Core\Enums\MediaType;
 
-class MediaDTO
+class MediaDTO extends BaseDTO
 {
     public function __construct(
         public string $media_object_id,

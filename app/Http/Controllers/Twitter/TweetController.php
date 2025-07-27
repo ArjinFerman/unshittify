@@ -23,10 +23,13 @@ class TweetController extends Controller
     public function user(Request $request, string $screenName): View
     {
         $cursor = $request->query('cursor');
-        $tweets = $this->twitterService->getLatestUserTweets($screenName, $cursor);
+        $tweets = $this->twitterService->getLatestUserTweetsAndReplies($screenName, $cursor);
+
+        $this->twitterService->importTweets($tweets, true);
+
         $data = [
             'screenName' => $screenName,
-            'entries' => $this->twitterService->importTweets($tweets, true)->sortBy('published_at'),
+            'entries' => $tweets,
         ];
 
         if ($cursor) {
@@ -37,36 +40,30 @@ class TweetController extends Controller
             $data['loadMoreLink'] = route('twitter.user', ['screenName' => $screenName, 'cursor' => $tweets->getBottomCursor()]);
         }
 
-        $data['entries'] = $this->feedService->getFeed(
-            $data['entries']->where('title', "@$screenName")->first()->feed_id,
-            $data['entries']->last()->published_at
-        );
-
         return view('tweets', $data);
     }
 
     public function tweet(Request $request, string $screenName, string $tweetId): View
     {
         $cursor = $request->query('cursor');
-        $tweets = $this->twitterService->getTweetWithReplies($tweetId, $cursor);
         $data = [
             'screenName' => $screenName,
-            'entries' => $this->twitterService->importTweets($tweets)->sortBy('published_at'),
+            'entries' => $this->twitterService->getTweetWithReplies($tweetId, $cursor),
         ];
+
+        $this->twitterService->importTweets($data['entries']);
 
         if ($cursor) {
             $data['loadNewestLink'] = route('twitter.tweet', ['screenName' => $screenName, 'tweetId' => $tweetId]);
         }
 
-        if ($tweets->getBottomCursor()) {
+        if ($data['entries']->getBottomCursor()) {
             $data['loadMoreLink'] = route('twitter.tweet', [
                 'screenName' => $screenName,
                 'tweetId' => $tweetId,
-                'cursor' => $tweets->getBottomCursor(),
+                'cursor' => $data['entries']->getBottomCursor(),
             ]);
         }
-
-        $data['entries'] = $this->feedService->getTweetWithReplies($tweetId, $data['entries']->last()->published_at);
 
         return view('tweets', $data);
     }
