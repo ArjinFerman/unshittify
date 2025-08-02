@@ -20,7 +20,7 @@ class FeedController extends Controller
 
     public function index(Request $request): View
     {
-        $entries = $this->feedService->getSubscribedFeedEntries();
+        $entries = $this->feedService->getSubscribedFeedEntriesUnread();
 
         return view('entries', ['entries' => $entries]);
     }

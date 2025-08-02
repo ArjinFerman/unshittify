@@ -1,18 +1,18 @@
 <div class="content-box @if ($level <= 0) content-bg @endif">
-    <a href="{{ route('twitter.tweet', ['screenName' => $mainEntry->metadata['user']['screen_name'], 'tweetId' => $mainEntry->metadata['tweet_id']])  }}"
+    <a href="{{ route('twitter.tweet', ['screenName' => $displayEntry->metadata['user']['screen_name'], 'tweetId' => $displayEntry->metadata['tweet_id']])  }}"
        class="absolute top-0 left-0 h-full w-full">
     </a>
     <div class="w-full">
         <div class="flex">
             <div class="flex lg:mr-6 mt-1 mr-4 size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
-                <a href="{{ route('twitter.user', ['screenName' => $mainEntry->metadata['user']['screen_name']]) }}" class="relative">
-                    <x-media :media="$mainEntry->feed?->author?->avatar" class="rounded-full size-12 sm:size-16"/>
+                <a href="{{ route('twitter.user', ['screenName' => $displayEntry->metadata['user']['screen_name']]) }}" class="relative">
+                    <x-media :media="$displayEntry->feed?->author?->avatar" class="rounded-full size-12 sm:size-16"/>
                 </a>
             </div>
             <div class="flex lg:mt-5">
-                <a href="{{ route('twitter.user', ['screenName' => $mainEntry->metadata['user']['screen_name']]) }}" class="relative">
+                <a href="{{ route('twitter.user', ['screenName' => $displayEntry->metadata['user']['screen_name']]) }}" class="relative">
                     <h2 class="text-xl font-semibold text-black dark:text-white">
-                        {{ $mainEntry->feed?->author?->name }} ({{ "@{$mainEntry->metadata['user']['screen_name']}" }})
+                        {{ $displayEntry->feed?->author?->name }} ({{ "@{$displayEntry->metadata['user']['screen_name']}" }})
                     </h2>
                 </a>
             </div>
@@ -29,19 +29,19 @@
             <div class="mt-0 mb-2 text-xs/relaxed">
                 <span class="font-bold">{{ __('Published at') }}:</span> <span>{{ $entry->published_at->setTimezone('Europe/Paris') }}</span>
             </div>
-            <livewire:entry.menu :entry="$mainEntry" :key="$mainEntry->id" />
+            <livewire:entry.menu :entry="$entry" :key="$entry->id" />
 
             <div class="mt-4 mb-4 text-sm text-white relative" style="overflow-wrap: anywhere">
-                {!! $mainContent !!}
+                {!! $displayContent !!}
             </div>
         </div>
 
-        @if ($mainEntry->quotedTweet())
-            <x-dynamic-component :component="'entry.'.$mainEntry->getEntryType()" :entry="$mainEntry->quotedTweet()" :level="$level+1" />
+        @if ($displayEntry->quotedTweet())
+            <x-dynamic-component :component="'entry.'.$displayEntry->getEntryType()" :entry="$displayEntry->quotedTweet()" :level="$level+1" />
         @endif
     </div>
 </div>
 
-@foreach ($mainEntry->replies() as $reply)
+@foreach ($displayEntry->replies() as $reply)
     <x-dynamic-component :component="'entry.'.$reply->getEntryType()" :entry="$reply" />
 @endforeach

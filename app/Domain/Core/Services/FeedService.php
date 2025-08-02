@@ -11,12 +11,28 @@ use App\Domain\Core\Models\Tag;
 use App\Domain\Core\QueryBuilders\EntryQueryBuilder;
 use App\View\Data\EntryViewDataCollection;
 use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
 use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 class FeedService
 {
+    public function getSubscribedFeedEntriesUnread()
+    {
+        return $this->getEntriesForView(function (EntryQueryBuilder $query) {
+            return $query->where('core_feeds.status', FeedStatus::ACTIVE->value)
+                ->whereNotExists(function (Builder $tagQuery) {
+                    $tagQuery->from('core_taggables')
+                        ->join('core_tags', 'core_tags.id', '=', 'core_taggables.tag_id')
+                        ->where('taggable_type', 'App\Domain\Core\Models\Entry')
+                        ->whereColumn('taggable_id', '=', 'core_entries.id');
+                });
+        }, function (EntryQueryBuilder $query) {
+            return $query->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
+        });
+    }
+
     public function getSubscribedFeedEntries()
     {
         return $this->getEntriesForView(function (EntryQueryBuilder $query) {

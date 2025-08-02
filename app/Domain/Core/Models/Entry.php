@@ -2,6 +2,7 @@
 
 namespace App\Domain\Core\Models;
 
+use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\QueryBuilders\EntryQueryBuilder;
 use App\Support\Query\EagerLoadJoinTrait;
 use App\Domain\Core\Enums\CoreTagType;
@@ -115,6 +116,13 @@ class Entry extends Model
     public function tags(): MorphToMany
     {
         return $this->morphToMany(Tag::class, 'taggable', 'core_taggables');
+    }
+
+    public function displayEntry(): self
+    {
+        return ($this->references
+            ->where('ref_type', ReferenceType::REPOST->value)
+            ->first() ?? $this);
     }
 
     public function isRead(): bool

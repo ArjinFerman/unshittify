@@ -12,7 +12,7 @@ abstract class BaseEntry extends Component
 {
     protected function renderComponents(Entry $entry): string
     {
-        $mainContent = nl2br($entry->content);
+        $displayContent = nl2br($entry->content);
         return Str::replaceMatches('/<x-(\w+)(?:\.(\w+))?(?: (\w+)="([^"]+)")+\/>/', function ($matches) use ($entry) {
             $attr = new ComponentAttributeBag();
             $attr['entry'] = $entry;
@@ -21,6 +21,6 @@ abstract class BaseEntry extends Component
             }
 
             return Blade::render($matches[0], ['attributes' => $attr]);
-        }, $mainContent);
+        }, $displayContent);
     }
 }

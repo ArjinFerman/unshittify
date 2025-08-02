@@ -11,7 +11,7 @@ use Livewire\Component;
 
 class Menu extends Component
 {
-    public ?Entry $entry;
+    public ?Entry $entry = null;
 
     public function mount(?Entry $entry): void
     {
@@ -32,12 +32,13 @@ class Menu extends Component
 
     public function subscribe(): void
     {
+        $displayEntry = $this->entry->displayEntry();
         ChangeFeedStatusAction::make()->execute(
-            $this->entry->feed,
-            $this->entry->feed->status == FeedStatus::ACTIVE ? FeedStatus::INACTIVE : FeedStatus::ACTIVE
+            $displayEntry->feed,
+            $displayEntry->feed->status == FeedStatus::ACTIVE ? FeedStatus::INACTIVE : FeedStatus::ACTIVE
         );
 
-        $this->entry->feed->refresh();
+        $displayEntry->feed->refresh();
     }
 
     public function render()

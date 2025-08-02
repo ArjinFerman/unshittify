@@ -3,6 +3,7 @@
 namespace App\Domain\Twitter\DTO;
 
 use App\Domain\Core\DTO\CollectionDTO;
+use Illuminate\Support\Str;
 
 /**
  * @implements CollectionDTO<mixed, TweetDTO>
@@ -70,7 +71,12 @@ class TweetCollectionDTO extends CollectionDTO
                                     if(!isset($entry['content']['itemContent']['tweet_results']['result']))
                                         break;
 
-                                    $collection->add(TweetDTO::fromTweetResult($entry['content']['itemContent']['tweet_results']['result']));
+                                    $tweetResult = $entry['content']['itemContent']['tweet_results']['result'];
+                                    if (Str::contains($tweetResult['source'], 'advertiser')
+                                        || @$tweetResult['core']['user_results']['result']['professional']['professional_type'] == 'Business')
+                                        break;
+
+                                    $collection->add(TweetDTO::fromTweetResult($tweetResult));
                                     break;
                                 case 'TimelineTimelineCursor':
                                     $cursors[$entry['content']['itemContent']['cursorType']] = $entry['content']['itemContent']['value'];
@@ -84,7 +90,12 @@ class TweetCollectionDTO extends CollectionDTO
                                         if (!$threadItem['item']['itemContent']['tweet_results'])
                                             break;
 
-                                        $collection->add(TweetDTO::fromTweetResult($threadItem['item']['itemContent']['tweet_results']['result']));
+                                        $tweetResult = $threadItem['item']['itemContent']['tweet_results']['result'];
+                                        if (Str::contains($tweetResult['source'], 'advertiser')
+                                            || @$tweetResult['core']['user_results']['result']['professional']['professional_type'] == 'Business')
+                                            break;
+
+                                        $collection->add(TweetDTO::fromTweetResult($tweetResult));
                                         break;
                                     // TODO: case 'TimelineTimelineCursor':
                                 }

@@ -1,4 +1,4 @@
-<div class="mt-0 mb-4 text-xs/relaxed relative">
+<div class="mt-0 mb-4 text-xs/relaxed relative @if(!$entry) bg-gray-50/25 @endif">
     <ul>
         <li wire:click="toggleRead" class="inline-block cursor-pointer hover:text-blue-400">
             <span class="fa @if($entry?->isRead()) fa-eye-slash @else fa-eye @endif mr-1"></span><span>{{ __('Read') }}</span>

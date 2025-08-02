@@ -21,14 +21,12 @@ class Tweet extends BaseEntry
      */
     public function render(): View|Closure|string
     {
-        $reference = $this->entry->references->first();
-        $isRetweeted = ($reference?->ref_type == ReferenceType::REPOST->value);
-        $mainEntry = ($isRetweeted ? $reference : $this->entry);
+        $displayEntry = $this->entry->displayEntry();
 
         return view('components.entry.tweet', [
-            'mainEntry' => $mainEntry,
-            'mainContent' => $this->renderComponents($mainEntry),
-            'isRetweeted' => $isRetweeted,
+            'displayEntry' => $displayEntry,
+            'displayContent' => $this->renderComponents($displayEntry),
+            'isRetweeted' => ($displayEntry->id != $this->entry->id),
         ]);
     }
 }

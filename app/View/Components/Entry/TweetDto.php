@@ -21,14 +21,12 @@ class TweetDto extends Component
      */
     public function render(): View|Closure|string
     {
-        $reference = $this->entry->retweet ?? $this->entry->quoted_tweet;
-        $isRetweeted = !is_null($this->entry->retweet);
-        $mainEntry = ($isRetweeted ? $reference : $this->entry);
-        $mainEntry->media = $mainEntry->media->keyBy('media_object_id');
+        $displayEntry = $this->entry->retweet ?? $this->entry;
+        $displayEntry->media = $displayEntry->media->keyBy('media_object_id');
 
         return view('components.entry.tweet-dto', [
-            'mainEntry' => $mainEntry,
-            'isRetweeted' => $isRetweeted,
+            'displayEntry' => $displayEntry,
+            'isRetweeted' => !is_null($this->entry->retweet),
         ]);
     }
 }
