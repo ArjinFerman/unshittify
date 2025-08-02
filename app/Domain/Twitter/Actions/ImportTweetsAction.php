@@ -16,6 +16,7 @@ use App\Domain\Core\Models\Media;
 use App\Domain\Core\Models\Mediable;
 use App\Domain\Twitter\DTO\TweetDTO;
 use App\Domain\Twitter\Models\Tweet;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
@@ -39,7 +40,7 @@ class ImportTweetsAction extends BaseAction
                 $this->processReferences($keyedTweets, $references, $tweet);
             }
 
-            $tweetAuthorsFeeds = $this->importFeeds($keyedTweets);
+            $tweetAuthorsFeeds = ImportFeedsFromTweetsAction::make()->withoutTransaction()->execute($keyedTweets);
             $existingTweets = Tweet::whereIn('metadata->tweet_id', $tweetAuthorsFeeds->pluck('tweet.rest_id'))
                 ->get()->keyBy('metadata.tweet_id');
             $newTweets = $tweetAuthorsFeeds->whereNotIn('tweet.rest_id', $existingTweets->pluck('metadata.tweet_id'));
@@ -54,6 +55,8 @@ class ImportTweetsAction extends BaseAction
                     'content'           => $newTweetData['tweet']->full_text,
                     'published_at'      => $newTweetData['tweet']->created_at,
                     'metadata'          => json_encode($this->getMetadata($newTweetData['tweet'])),
+                    'created_at'        => Carbon::now(),
+                    'updated_at'        => Carbon::now(),
                 ];
             }
 
@@ -70,6 +73,9 @@ class ImportTweetsAction extends BaseAction
             $invalidReferences = new Collection();
             foreach ($references as $restId => $reference) {
                 $this->fixReplyPath($references, $allTweets, $restId, $invalidReferences);
+
+                $reference['created_at'] = Carbon::now();
+                $reference['updated_at'] = Carbon::now();
             }
 
             $references->forget($invalidReferences);
@@ -87,6 +93,8 @@ class ImportTweetsAction extends BaseAction
             foreach ($tweetAuthorsFeeds as $tweetData)
             {
                 foreach ($tweetData['media'] as $mediaItem) {
+                    $mediaItem['created_at'] = Carbon::now();
+                    $mediaItem['updated_at'] = Carbon::now();
                     $media->add($mediaItem['media_object']);
 
                     if ($mediaItem['mediable']['purpose'] == MediaPurpose::CONTENT) {
@@ -120,6 +128,8 @@ class ImportTweetsAction extends BaseAction
                 $mediable['media_id'] = $allMedia->get($mediable['media_object_id'])->id;
                 unset($mediable['media_object_id']);
 
+                $mediable['created_at'] = Carbon::now();
+                $mediable['updated_at'] = Carbon::now();
                 $mediables->put($key, $mediable);
             }
 
@@ -199,108 +209,6 @@ class ImportTweetsAction extends BaseAction
                 'ref_path'      => $path,
             ]);
         }
-    }
-
-    /**
-     * @param Collection<TweetDTO> $tweets
-     * @return Collection
-     */
-    protected function importFeeds(Collection $tweets): Collection
-    {
-        $existingAuthors = Author::query()->whereIn('name', $tweets->pluck('author.name'))->get();
-        $newAuthorsTweets = $tweets->whereNotIn('author.name', $existingAuthors->pluck('name'));
-        $newAuthors = [];
-        foreach ($newAuthorsTweets as $tweet) {
-            $newAuthors[] = [
-                'name' => $tweet->author->name,
-                'description' => $tweet->author->description,
-            ];
-        }
-
-        Author::query()->insert($newAuthors);
-        $addedAuthors = Author::query()->whereIn('name', $newAuthorsTweets->pluck('author.name'))->get();
-
-        if (count($newAuthors) != $addedAuthors->count()) {
-            Log::warning("New Author count does not match added Author count" . count($newAuthors) . " vs {$addedAuthors->count()}");
-        }
-
-        $authors = $existingAuthors->merge($addedAuthors)->keyBy('name');
-
-        $existingFeedsUrls = $tweets->map(function (TweetDTO $tweet) {
-            return config('twitter.base_url') . $tweet->author->screen_name;
-        });
-
-        $existingFeeds = Feed::query()
-            ->whereIn('url', $existingFeedsUrls)
-            ->whereType(FeedType::TWITTER)
-            ->get();
-
-        $newFeeds = [];
-        foreach ($tweets as $tweet) {
-            if ($existingFeeds->contains('url', config('twitter.base_url') . $tweet->author->screen_name))
-                continue;
-
-            $author = $authors->get($tweet->author->name);
-
-            $newFeeds[] = [
-                'name'          => $tweet->author->screen_name,
-                'url'           => config('twitter.base_url') . $tweet->author->screen_name,
-                'author_id'     => $author->id,
-                'type'          => FeedType::TWITTER,
-                'status'        => FeedStatus::PREVIEW,
-            ];
-        }
-
-        Feed::query()->insert($newFeeds);
-        $feeds = Feed::query()->whereIn('url', $existingFeedsUrls)->get()
-            ->merge($existingFeeds)->keyBy('name');
-
-        $result = new Collection();
-        foreach ($tweets as $tweet) {
-            $author = $authors->get($tweet->author->name);
-            $media = [
-                [
-                    'media_object' => [
-                        'media_object_id' => "twitter-profile-{$tweet->author->rest_id}",
-                        'type' => MediaType::IMAGE,
-                        'url' => $tweet->author->profile_image_url_https,
-                        'content_type' => mimeType($tweet->author->profile_image_url_https),
-                        'quality' => 1,
-                        'properties' => null,
-                    ],
-                    'mediable' => [
-                        'purpose' => MediaPurpose::AVATAR,
-                        'mediable_type' => Author::class,
-                        'mediable_id' => $author->id,
-                    ],
-                ],
-            ];
-
-            foreach ($tweet->media as $mediaItem) {
-                $media[] = [
-                    'media_object' => [
-                        'media_object_id' => $mediaItem->media_object_id,
-                        'type' => $mediaItem->type,
-                        'url' => $mediaItem->url,
-                        'content_type' => $mediaItem->content_type,
-                        'quality' => $mediaItem->quality,
-                        'properties' => json_encode($mediaItem->properties),
-                    ],
-                    'mediable' => [
-                        'purpose' => MediaPurpose::CONTENT
-                    ],
-                ];
-            }
-
-            $result->put($tweet->rest_id, [
-                'tweet' => $tweet,
-                'author' => $author,
-                'feed' => $feeds->get($tweet->author->screen_name),
-                'media' => $media,
-            ]);
-        }
-
-        return $result;
     }
 
     protected function getMetadata(TweetDTO $tweetData): array

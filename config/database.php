@@ -37,7 +37,7 @@ return [
             'database' => env('DB_DATABASE', database_path('database.sqlite')),
             'prefix' => '',
             'foreign_key_constraints' => env('DB_FOREIGN_KEYS', true),
-            'busy_timeout' => null,
+            'busy_timeout' => env('SQLITE_TIMEOUT', 300),
             'journal_mode' => null,
             'synchronous' => null,
         ],
@@ -112,6 +112,20 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'miniflux-pgsql' => [
+            'driver' => 'pgsql',
+            'url' => env('MINIFLUX_DB_URL'),
+            'host' => env('MINIFLUX_DB_HOST', '127.0.0.1'),
+            'port' => env('MINIFLUX_DB_PORT', '5432'),
+            'database' => env('MINIFLUX_DB_DATABASE', 'miniflux'),
+            'username' => env('MINIFLUX_DB_USERNAME', 'root'),
+            'password' => env('MINIFLUX_DB_PASSWORD', ''),
+            'charset' => env('MINIFLUX_DB_CHARSET', 'utf8'),
+            'prefix' => '',
+            'prefix_indexes' => true,
+            'search_path' => 'public',
+            'sslmode' => 'prefer',
+        ],
     ],
 
     /*
