@@ -40,7 +40,7 @@
         <li><a href="/"><strong>{{ __('Unshittify') }}</strong></a></li>
     </ul>
     <ul class="flex text-[#b6ffe0] text-lg">
-        <li class="mr-4"><a href="{{ route('core.latest') }}">{{ __('Unread') }}</a></li>
+        <li class="mr-4"><a href="{{ route('core.latest') }}">{{ __('Unread') }} @if (isset($unreadCount)) ({{ $unreadCount }}) @endif</a></li>
         <li class="mr-4"><a href="{{ route('twitter.index') }}">{{ __('Starred') }}</a></li>
         <li><a href="{{ route('core.latest') }}">{{ __('Settings') }}</a></li>
     </ul>

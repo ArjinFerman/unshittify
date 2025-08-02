@@ -29,7 +29,7 @@
             <div class="mt-0 mb-2 text-xs/relaxed">
                 <span class="font-bold">{{ __('Published at') }}:</span> <span>{{ $entry->published_at->setTimezone('Europe/Paris') }}</span>
             </div>
-            <livewire:entry.menu :entry="$entry" :key="$entry->id" />
+            <livewire:menu.entry :entry="$entry" :key="$entry->id" />
 
             <div class="mt-4 mb-4 text-sm text-white relative" style="overflow-wrap: anywhere">
                 {!! $displayContent !!}

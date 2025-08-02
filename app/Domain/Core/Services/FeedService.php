@@ -2,6 +2,7 @@
 
 namespace App\Domain\Core\Services;
 
+use App\Domain\Core\Enums\CoreTagType;
 use App\Domain\Core\Enums\FeedStatus;
 use App\Domain\Core\Enums\MediaPurpose;
 use App\Domain\Core\Enums\ReferenceType;
@@ -31,6 +32,16 @@ class FeedService
         }, function (EntryQueryBuilder $query) {
             return $query->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
         });
+    }
+
+    public function getUnreadCount(): int
+    {
+        return Entry::query()
+            ->whereHas('feed', function ($query) {
+                $query->whereStatus(FeedStatus::ACTIVE);
+            })->whereDoesntHave('tags', function ($query) {
+                $query->where('core_tags.id', CoreTagType::READ);
+            })->count();
     }
 
     public function getSubscribedFeedEntries()

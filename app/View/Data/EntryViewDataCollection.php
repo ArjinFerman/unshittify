@@ -17,6 +17,12 @@ class EntryViewDataCollection extends Collection
 
     public function __construct(Arrayable|iterable|null  $items = [])
     {
+        if (!empty($items) && (
+            (is_array($items) && !(reset($items) instanceof Entry))
+            || !($items->first() instanceof Entry)
+        ))
+            return parent::__construct($items);
+
         $this->addEntries($items);
     }
 

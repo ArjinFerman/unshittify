@@ -29,7 +29,7 @@
             <div class="mt-0 mb-2 text-xs/relaxed">
                 <span class="font-bold">{{ __('Published at') }}:</span> <span>{{ $entry->created_at->setTimezone('Europe/Paris') }}</span>
             </div>
-            <livewire:tweet-dto.menu :rest_id="$entry->rest_id" :url="$displayEntry->getTweetUrl()" :key="$entry->rest_id" />
+            <livewire:menu.tweet-dto :rest_id="$entry->rest_id" :url="$displayEntry->getTweetUrl()" :key="$entry->rest_id" />
 
             <div class="relative">
                 <div class="mt-4 mb-4 text-sm text-white relative" style="overflow-wrap: anywhere">

@@ -1,19 +1,19 @@
 <?php
 
-namespace App\Livewire\Entry;
+namespace App\Livewire\Menu;
 
 use App\Domain\Core\Actions\ChangeFeedStatusAction;
 use App\Domain\Core\Actions\ToggleEntryTagStateAction;
 use App\Domain\Core\Enums\CoreTagType;
 use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Models\Entry;
+use App\Domain\Core\Models\Entry as EntryModel;
 use Livewire\Component;
 
-class Menu extends Component
+class Entry extends Component
 {
-    public ?Entry $entry = null;
+    public ?EntryModel $entry = null;
 
-    public function mount(?Entry $entry): void
+    public function mount(?EntryModel $entry): void
     {
         $this->entry = $entry;
     }
@@ -43,6 +43,6 @@ class Menu extends Component
 
     public function render()
     {
-        return view('livewire.entry.menu');
+        return view('livewire.menu.entry');
     }
 }

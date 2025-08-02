@@ -6,6 +6,8 @@
         @foreach ($entries as $entry)
             <x-dynamic-component :component="'entry.'.$entry->getEntryType()" :entry="$entry" />
         @endforeach
+
+        <livewire:menu.entries :entryIds="$entries->pluck('id')->toArray()" />
     </div>
 </section>
 @endsection

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Livewire\TweetDto;
+namespace App\Livewire\Menu;
 
 use App\Domain\Core\Actions\ChangeFeedStatusAction;
 use App\Domain\Core\Actions\ToggleEntryTagStateAction;
@@ -10,7 +10,7 @@ use App\Domain\Core\Models\Entry;
 use App\Domain\Twitter\Models\Tweet;
 use Livewire\Component;
 
-class Menu extends Component
+class TweetDto extends Component
 {
     public ?string $rest_id = null;
     public ?string $url = null;
@@ -56,7 +56,7 @@ class Menu extends Component
 
     public function render()
     {
-        return view('livewire.tweet-dto.menu');
+        return view('livewire.menu.tweet-dto');
     }
 
     protected function getEntry(): Entry
