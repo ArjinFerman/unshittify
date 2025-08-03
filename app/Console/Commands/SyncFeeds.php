@@ -28,7 +28,7 @@ class SyncFeeds extends Command
     public function handle()
     {
         $this->output->info(__('Starting feed sync'));
-        $feeds = Feed::whereStatus(FeedStatus::ACTIVE)->cursor();
+        $feeds = Feed::whereStatus(FeedStatus::ACTIVE)->get();
 
         $this->output->info(__('Found :feedCount feeds.', ['feedCount' => $feeds->count()]));
         $this->output->progressStart($feeds->count());
@@ -38,5 +38,7 @@ class SyncFeeds extends Command
             $feed->getSyncStrategy()->sync();
             $this->output->progressAdvance();
         }
+
+        $this->output->info(__('Finished'));
     }
 }

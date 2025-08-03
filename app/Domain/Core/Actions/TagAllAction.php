@@ -1,0 +1,32 @@
+<?php
+
+namespace App\Domain\Core\Actions;
+
+use App\Domain\Core\Models\Entry;
+use Carbon\Carbon;
+use Illuminate\Database\Query\Builder;
+use Illuminate\Support\Facades\DB;
+
+class TagAllAction extends BaseAction
+{
+
+    /**
+     * @throws \Throwable
+     */
+    public function execute(int $tagId): void
+    {
+        $this->optionalTransaction(function () use ($tagId) {
+            DB::table('core_taggables')->insertOrIgnoreUsing(
+                ['tag_id', 'taggable_id', 'taggable_type', 'created_at', 'updated_at'],
+                function (Builder $query) use ($tagId) {
+                    $query->select([
+                        DB::raw("$tagId as tag_id"),
+                        'core_entries.id',
+                        DB::raw("'" . Entry::class . "' as taggable_type"),
+                        Carbon::now(),
+                        Carbon::now(),
+                    ])->from('core_entries');
+                });
+        });
+    }
+}

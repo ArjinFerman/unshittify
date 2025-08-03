@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => env('APP_NAME', 'Unshittify'),
 
     /*
     |--------------------------------------------------------------------------
@@ -123,4 +123,7 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'feeds' => [
+        'max_entries_per_sync' => env('FEEDS_MAX_ENTRIES_PER_SYNC', 20),
+    ]
 ];

@@ -9,8 +9,6 @@ use App\Domain\Twitter\Services\TwitterService;
 
 class TwitterSyncStrategy implements FeedSyncStrategy
 {
-    const MAX_IMPORT = 100;
-
     protected TwitterService $twitterService;
 
     public function __construct(protected Feed $feed)
@@ -40,7 +38,7 @@ class TwitterSyncStrategy implements FeedSyncStrategy
     protected function continueImport(int $importedCount, ?Entry $lastSyncEntry, ?Entry $lastImportedEntry): bool
     {
         return (
-            $importedCount < self::MAX_IMPORT
+            $importedCount < config('app.feeds.max_entries_per_sync')
             && (!$lastSyncEntry || !$lastImportedEntry || $lastImportedEntry->published_at >= $lastSyncEntry->published_at)
         );
     }
