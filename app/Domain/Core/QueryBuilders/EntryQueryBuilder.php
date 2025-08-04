@@ -17,7 +17,7 @@ class EntryQueryBuilder extends EagerLoadJoinBuilder
             ->withJoin('feed.author')
             ->join('core_mediables', function ($join) {
                 $join->on('core_mediables.mediable_id', '=', 'core_authors.id');
-                $join->on('core_mediables.mediable_type', '=', Author::class);
+                $join->on('core_mediables.mediable_type', '=', DB::raw(DB::escape(Author::class)));
             })
             ->join('core_media', function ($join) {
                 $join->on('core_media.id', '=', 'core_mediables.media_id');

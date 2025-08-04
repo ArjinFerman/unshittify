@@ -31,7 +31,7 @@ class TwitterService
 
     protected function loadAccounts(): void
     {
-        $handle = Storage::disk('public')->readStream('guest_accounts.jsonl');
+        $handle = Storage::disk('local')->readStream('guest_accounts.jsonl');
         while (!feof($handle)) {
             $this->accounts[] = json_decode(stream_get_line($handle, 0), true);
         }
