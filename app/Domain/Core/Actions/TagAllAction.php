@@ -22,9 +22,9 @@ class TagAllAction extends BaseAction
                     $query->select([
                         DB::raw("$tagId as tag_id"),
                         'core_entries.id',
-                        DB::raw("'" . Entry::class . "' as taggable_type"),
-                        Carbon::now(),
-                        Carbon::now(),
+                        DB::raw(DB::escape(Entry::class) . " as taggable_type"),
+                        DB::raw(DB::escape(Carbon::now()) . " as created_at"),
+                        DB::raw(DB::escape(Carbon::now()) . " as updated_at"),
                     ])->from('core_entries');
                 });
         });

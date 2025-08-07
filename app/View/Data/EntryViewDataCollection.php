@@ -7,6 +7,7 @@ use App\Domain\Core\Models\Media;
 use App\Domain\Core\Models\Tag;
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 
 /**
  * @implements Collection<mixed, Entry>
@@ -78,8 +79,15 @@ class EntryViewDataCollection extends Collection
     {
         /** @var Entry $entry */
         $entry = null;
-        foreach ($this->entryPaths[$item->$referenceProperty] as $entryId)
-            $entry = $entry?->references?->get($entryId) ?? $this->items[$entryId];
+        foreach ($this->entryPaths[$item->$referenceProperty] as $entryId) {
+            $entry = $entry?->references?->get($entryId) ?? $this->items[$entryId] ?? null;
+            if ($entry)
+                break;
+        }
+
+        if (!$entry) {
+            Log::warning("Could not find entry with reference \"{$item->$referenceProperty}\"");
+        }
 
         $entry->$itemProperty->add($item);
     }

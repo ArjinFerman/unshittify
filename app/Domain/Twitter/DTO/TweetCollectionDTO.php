@@ -3,6 +3,7 @@
 namespace App\Domain\Twitter\DTO;
 
 use App\Domain\Core\DTO\CollectionDTO;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 /**
@@ -35,6 +36,9 @@ class TweetCollectionDTO extends CollectionDTO
     {
         $collection = new self;
         $cursors = [];
+
+        if (!isset($data['data']))
+            Log::error('Timeline result has no data', $data);
 
         foreach ($data['data']['user_result']['result']['timeline_response']['timeline']['instructions'] as $instruction) {
             if ($instruction['__typename'] === 'TimelineAddEntries') {

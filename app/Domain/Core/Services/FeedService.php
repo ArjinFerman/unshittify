@@ -115,7 +115,7 @@ class FeedService
     {
         $entries = Entry::query()
             ->withViewData()
-            ->orderBy('core_entries.published_at', 'desc')
+            ->orderBy('core_entries.published_at', 'asc')
             ->limit(10)
         ;
 

@@ -26,14 +26,51 @@
             --main-font-family: system-ui, -apple-system, "Segoe UI", "Roboto", "Ubuntu", "Cantarell", "Noto Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
         }
         body {
-            background: url('/bg_fields.png') no-repeat center center fixed;
-            background-size: cover;
             color: #f0fff8;
             font-family: var(--main-font-family);
         }
+
+        #background {
+            background: url('/bg_fields.png');
+            background-repeat: no-repeat;
+            background-position: top left;
+            background-size: cover;
+            position: fixed;
+            z-index: -50;
+        }
+
+        @media (min-height: 320px) {
+            #background {
+                width: 100%;
+                height: 720px;
+            }
+        }
+
+        @media (min-height: 640px) {
+            #background {
+                width: 100%;
+                height: 960px;
+            }
+        }
+
+        @media (min-height: 880px) {
+            #background {
+                width: 100%;
+                height: 1024px;
+            }
+        }
+
+        @media (min-height: 960px) {
+            #background {
+                width: 100%;
+                height: 100%;
+            }
+        }
+
     </style>
 </head>
 <body class="min-h-screen flex flex-col">
+<div id="background"></div>
 @section('navbar')
 <nav class="bg-[var(--bg-color-element)] rounded-md p-[2rem] justify-between flex">
     <ul class="flex text-lg">
