@@ -14,7 +14,7 @@
         </div>
     </div>
     @else
-    <span class="font-semibold text-blue-600 dark:text-sky-400 underline">
+    <span class="font-semibold text-blue-600 dark:text-sky-400 underline break-all">
         {{ $url }}
     </span>
     @endif
