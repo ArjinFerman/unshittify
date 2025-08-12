@@ -45,13 +45,19 @@ class EntryViewDataCollection extends Collection
 
         if ($entry->ref_path) {
             $pathSegments = array_filter(explode('/', $entry->ref_path));
+
+            if (array_key_exists(reset($pathSegments), $this->entryPaths))
+                $pathSegments = array_merge($this->entryPaths[reset($pathSegments)], $pathSegments);
+
+            $pathSegments = array_unique($pathSegments);
             $this->entryPaths[$entry->id] = $pathSegments;
 
             foreach ($pathSegments as $id) {
                 if ($id == $entry->id)
                     break;
 
-                $parent = $parent?->references?->get($id) ?? $this->get($id);
+                $parent = $parent?->references?->get($id)
+                    ?? $this->get($id);
             }
         }
 

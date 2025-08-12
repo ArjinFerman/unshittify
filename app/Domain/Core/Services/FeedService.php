@@ -27,7 +27,8 @@ class FeedService
                     $tagQuery->from('core_taggables')
                         ->join('core_tags', 'core_tags.id', '=', 'core_taggables.tag_id')
                         ->where('taggable_type', 'App\Domain\Core\Models\Entry')
-                        ->whereColumn('taggable_id', '=', 'core_entries.id');
+                        ->whereColumn('taggable_id', '=', 'core_entries.id')
+                        ->where('tag_id', '=', CoreTagType::READ->value);
                 });
         }, function (EntryQueryBuilder $query) {
             return $query->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);

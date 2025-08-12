@@ -32,6 +32,7 @@
         }
         body {
             color: #f0fff8;
+            background-color: #022343;
             font-family: var(--main-font-family);
         }
 
