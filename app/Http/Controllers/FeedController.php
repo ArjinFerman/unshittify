@@ -25,6 +25,8 @@ class FeedController extends Controller
             'unreadCount'   => $this->feedService->getUnreadCount(),
         ];
 
+        $data['title'] = "Unread ({$data['unreadCount']})";
+
         return view('entries', $data);
     }
 }

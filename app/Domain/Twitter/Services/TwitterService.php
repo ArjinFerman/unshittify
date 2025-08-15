@@ -5,6 +5,7 @@ namespace App\Domain\Twitter\Services;
 use App\Domain\Core\Models\Entry;
 use App\Domain\Twitter\Actions\ImportTweetsAction;
 use App\Domain\Twitter\DTO\TweetCollectionDTO;
+use App\Domain\Twitter\DTO\TweetDTO;
 use Illuminate\Support\Collection;
 use Exception;
 use App\Domain\Twitter\DTO\UserDTO;
@@ -102,6 +103,10 @@ class TwitterService
             'features' => json_encode(config('twitter.gql_features')),
         ]));
 
+        $tweets = $tweets->filter(function (TweetDTO $tweet) use ($screenName) {
+            return $tweet?->author?->screen_name == $screenName;
+        });
+
         Cache::put($cacheKey, $tweets, now()->addMinute());
 
         return $tweets;
@@ -123,6 +128,11 @@ class TwitterService
             'variables' => json_encode($variables),
             'features' => json_encode(config('twitter.gql_features')),
         ]));
+
+        $firstTweet = $tweets->first();
+        $tweets = $tweets->filter(function (TweetDTO $tweet) use ($firstTweet) {
+            return $tweet?->conversation_id_str == $firstTweet?->conversation_id_str;
+        });
 
         Cache::put($cacheKey, $tweets, now()->addMinute());
 

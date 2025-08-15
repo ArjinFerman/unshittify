@@ -30,6 +30,7 @@ class TweetController extends Controller
         $data = [
             'screenName' => $screenName,
             'entries' => $tweets,
+            'title' => "@$screenName"
         ];
 
         if ($cursor) {
@@ -49,6 +50,7 @@ class TweetController extends Controller
         $data = [
             'screenName' => $screenName,
             'entries' => $this->twitterService->getTweetWithReplies($tweetId, $cursor),
+            'title' => "@$screenName - $tweetId"
         ];
 
         $this->twitterService->importTweets($data['entries']);

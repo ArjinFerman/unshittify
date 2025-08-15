@@ -7,12 +7,18 @@
     @hasSection('title')
         <title>{{ config('app.name') }} | @yield('title')</title>
     @else
-        <title>{{ config('app.name') }}</title>
+        <title>
+            {{ config('app.name') }}
+            @if (isset ($title))
+                | {{ $title }}
+            @endif
+        </title>
     @endif
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/webp" href="/favicon.webp">
 
     <!-- Styles / Scripts -->
     @if (file_exists(public_path('build/manifest.json')) || file_exists(public_path('hot')))
@@ -40,7 +46,7 @@
         #background {
             background: url('/bg_fields.png');
             background-repeat: no-repeat;
-            background-position: center center;
+            background-position: center right;
             background-size: cover;
             position: fixed;
             z-index: -50;
