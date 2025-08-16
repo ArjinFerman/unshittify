@@ -3,8 +3,8 @@
 namespace App\Domain\Twitter\DTO;
 
 use App\Domain\Core\DTO\CollectionDTO;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 /**
  * @implements CollectionDTO<mixed, TweetDTO>
@@ -76,10 +76,6 @@ class TweetCollectionDTO extends CollectionDTO
                                         break;
 
                                     $tweetResult = $entry['content']['itemContent']['tweet_results']['result'];
-                                    if (Str::contains($tweetResult['source'], 'advertiser')
-                                        || @$tweetResult['core']['user_results']['result']['professional']['professional_type'] == 'Business')
-                                        break;
-
                                     $collection->add(TweetDTO::fromTweetResult($tweetResult));
                                     break;
                                 case 'TimelineTimelineCursor':
@@ -95,10 +91,6 @@ class TweetCollectionDTO extends CollectionDTO
                                             break;
 
                                         $tweetResult = $threadItem['item']['itemContent']['tweet_results']['result'];
-                                        if (Str::contains($tweetResult['source'], 'advertiser')
-                                            || @$tweetResult['core']['user_results']['result']['professional']['professional_type'] == 'Business')
-                                            break;
-
                                         $collection->add(TweetDTO::fromTweetResult($tweetResult));
                                         break;
                                     // TODO: case 'TimelineTimelineCursor':
@@ -116,5 +108,20 @@ class TweetCollectionDTO extends CollectionDTO
         $collection->top_cursor = $cursors['Top'] ?? null;
         $collection->bottom_cursor = $cursors['Bottom'] ?? null;
         return $collection;
+    }
+
+    /**
+     * Run a filter over each of the items.
+     *
+     * @param  (callable(TweetDTO, mixed): bool)|null  $callback
+     * @return static
+     */
+    public function filter(?callable $callback = null)
+    {
+        if ($callback) {
+            return new static(Arr::where($this->items, $callback), $this->top_cursor, $this->bottom_cursor);
+        }
+
+        return new static(array_filter($this->items), $this->top_cursor, $this->bottom_cursor);
     }
 }
