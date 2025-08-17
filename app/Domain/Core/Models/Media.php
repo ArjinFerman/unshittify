@@ -33,6 +33,6 @@ class Media extends Model
 
     public function entries(): MorphToMany
     {
-        return $this->morphedByMany(Entry::class, 'mediable', 'core_mediables');
+        return $this->morphedByMany(Entry::class, 'mediable', 'core_mediables')->withTimestamps();
     }
 }

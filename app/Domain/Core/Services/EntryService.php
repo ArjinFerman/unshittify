@@ -17,7 +17,7 @@ use Illuminate\Database\Query\JoinClause;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-class FeedService
+class EntryService
 {
     public function getSubscribedFeedEntriesUnread()
     {
@@ -45,6 +45,25 @@ class FeedService
             })->count();
     }
 
+    public function getStarredEntries()
+    {
+        return $this->getEntriesForView(function (EntryQueryBuilder $query) {
+            return $query->whereHas('tags', function ($tagQuery) {
+                $tagQuery->where('core_tags.id', CoreTagType::STARRED);
+            })
+                ->orderBy('core_entries.published_at', 'desc')
+                ->limit(10);
+        });
+    }
+
+    public function getStarredCount()
+    {
+        return Entry::query()
+            ->whereHas('tags', function ($query) {
+                $query->where('core_tags.id', CoreTagType::STARRED);
+            })->count();
+    }
+
     public function getSubscribedFeedEntries()
     {
         return $this->getEntriesForView(function (EntryQueryBuilder $query) {
@@ -54,7 +73,7 @@ class FeedService
         });
     }
 
-    public function getFeed(int $id, Carbon|string|null $after = null)
+    public function getFeedEntries(int $id, Carbon|string|null $after = null)
     {
         return $this->getEntriesForView(function (EntryQueryBuilder $query) use ($id, $after) {
             if ($after)
@@ -114,13 +133,14 @@ class FeedService
      */
     protected function getEntriesForView(callable $entryQuery, callable $referenceQuery = null): EntryViewDataCollection
     {
-        $entries = Entry::query()
-            ->withViewData()
-            ->orderBy('core_entries.published_at', 'asc')
-            ->limit(10)
-        ;
+        $entries = $entryQuery(Entry::query()->withViewData());
 
-        $entries = $entryQuery($entries);
+        if (!$entries->getQuery()->orders)
+            $entries->orderBy('core_entries.published_at', 'asc');
+
+        if (!$entries->getQuery()->limit)
+            $entries->limit(10);
+
         $entries = $entries->get();
 
         /** @var Collection $entries */

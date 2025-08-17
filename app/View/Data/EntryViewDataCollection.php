@@ -87,7 +87,7 @@ class EntryViewDataCollection extends Collection
         $entry = null;
         foreach ($this->entryPaths[$item->$referenceProperty] as $entryId) {
             $entry = $entry?->references?->get($entryId) ?? $this->items[$entryId] ?? null;
-            if ($entry)
+            if ($entry?->id == $item->$referenceProperty)
                 break;
         }
 

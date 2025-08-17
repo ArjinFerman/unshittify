@@ -20,11 +20,11 @@ class Tag extends Model
 
     public function authors(): MorphToMany
     {
-        return $this->morphToMany(Author::class, 'taggable', 'core_taggables', 'taggable_id');
+        return $this->morphToMany(Author::class, 'taggable', 'core_taggables', 'taggable_id')->withTimestamps();
     }
 
     public function entries(): MorphToMany
     {
-        return $this->morphedByMany(Entry::class, 'taggable', 'core_taggables');
+        return $this->morphedByMany(Entry::class, 'taggable', 'core_taggables')->withTimestamps();
     }
 }

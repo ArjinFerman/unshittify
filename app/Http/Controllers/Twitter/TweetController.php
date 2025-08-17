@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Twitter;
 
-use App\Domain\Core\Services\FeedService;
+use App\Domain\Core\Services\EntryService;
 use App\Domain\Twitter\Services\TwitterService;
 use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 
 class TweetController extends Controller
 {
-    public function __construct(protected TwitterService $twitterService, protected FeedService $feedService)
+    public function __construct(protected TwitterService $twitterService, protected EntryService $feedService)
     {
     }
 

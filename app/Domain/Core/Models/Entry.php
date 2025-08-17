@@ -110,12 +110,12 @@ class Entry extends Model
 
     public function media(): MorphToMany
     {
-        return $this->morphToMany(Media::class, 'mediable', 'core_mediables');
+        return $this->morphToMany(Media::class, 'mediable', 'core_mediables')->withTimestamps();
     }
 
     public function tags(): MorphToMany
     {
-        return $this->morphToMany(Tag::class, 'taggable', 'core_taggables');
+        return $this->morphToMany(Tag::class, 'taggable', 'core_taggables')->withTimestamps();
     }
 
     public function displayEntry(): self
