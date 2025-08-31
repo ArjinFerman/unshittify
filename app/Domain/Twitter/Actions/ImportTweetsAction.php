@@ -121,7 +121,7 @@ class ImportTweetsAction extends BaseAction
                 })
                 ->get();
 
-            Media::query()->insert($media->whereNotIn('media_object_id', $existingMedia->pluck('media_object_id'))->toArray());
+            Media::query()->upsert($media->unique()->toArray(), ['media_object_id', 'quality']);
             $allMedia = Media::query()->whereIn('media_object_id', $media->pluck('media_object_id'))->get()->keyBy('media_object_id');
 
             foreach ($mediables as $key => $mediable) {
