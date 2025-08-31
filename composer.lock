@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "38089aee0ae9f7793a43629b74fcb898",
+    "content-hash": "e1525e3952deba986c935d670e5a1a19",
     "packages": [
         {
             "name": "ajcastro/eager-load-pivot-relations",
@@ -186,6 +186,124 @@
                 }
             ],
             "time": "2024-02-09T16:56:22+00:00"
+        },
+        {
+            "name": "cesargb/laravel-logs-rotate",
+            "version": "2.7.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cesargb/laravel-logs-rotate.git",
+                "reference": "4efc669d35c21aa9068c3b528b603c0261845e9c"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cesargb/laravel-logs-rotate/zipball/4efc669d35c21aa9068c3b528b603c0261845e9c",
+                "reference": "4efc669d35c21aa9068c3b528b603c0261845e9c",
+                "shasum": ""
+            },
+            "require": {
+                "cesargb/php-log-rotation": "^2.7",
+                "illuminate/config": "^10.0|^11.0|^12.0",
+                "illuminate/console": "^10.0|^11.0|^12.0",
+                "illuminate/log": "^10.0|^11.0|^12.0",
+                "illuminate/support": "^10.0|^11.0|^12.0",
+                "monolog/monolog": "^2.0|^3.0|^11.0",
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^3.13",
+                "larastan/larastan": "^2.0|^3.0",
+                "orchestra/testbench": "^8.0|^9.0|^10.0",
+                "phpunit/phpunit": "^10.5|^11.5.3"
+            },
+            "type": "library",
+            "extra": {
+                "laravel": {
+                    "providers": [
+                        "Cesargb\\LaravelLog\\RotateServiceProvider"
+                    ]
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Cesargb\\LaravelLog\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cesar Garcia",
+                    "email": "cesargb@gmail.com",
+                    "homepage": "https://github.com/cesargb",
+                    "role": "Developer"
+                }
+            ],
+            "description": "Rotate files log with compression",
+            "homepage": "https://github.com/cesargb/laravel-logs-rotate",
+            "keywords": [
+                "compression",
+                "laravel",
+                "logs",
+                "rotate"
+            ],
+            "support": {
+                "issues": "https://github.com/cesargb/laravel-logs-rotate/issues",
+                "source": "https://github.com/cesargb/laravel-logs-rotate/tree/2.7.0"
+            },
+            "time": "2025-04-03T10:06:17+00:00"
+        },
+        {
+            "name": "cesargb/php-log-rotation",
+            "version": "2.7.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/cesargb/php-log-rotation.git",
+                "reference": "bb54f44bba4c4d1b31f8621701595797f2d1b1cf"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/cesargb/php-log-rotation/zipball/bb54f44bba4c4d1b31f8621701595797f2d1b1cf",
+                "reference": "bb54f44bba4c4d1b31f8621701595797f2d1b1cf",
+                "shasum": ""
+            },
+            "require": {
+                "php": "^8.0"
+            },
+            "require-dev": {
+                "phpstan/phpstan": "^1.9",
+                "phpunit/phpunit": "^9.0"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "Cesargb\\Log\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Cesar Garcia",
+                    "email": "cesargb@gmail.com"
+                }
+            ],
+            "description": "PHP Class to rotate log files",
+            "homepage": "https://github.com/cesargb/php-log-rotation",
+            "keywords": [
+                "log",
+                "php",
+                "rotation"
+            ],
+            "support": {
+                "issues": "https://github.com/cesargb/php-log-rotation/issues",
+                "source": "https://github.com/cesargb/php-log-rotation/tree/2.7.1"
+            },
+            "time": "2023-01-15T14:07:52+00:00"
         },
         {
             "name": "dflydev/dot-access-data",
@@ -1509,16 +1627,16 @@
         },
         {
             "name": "league/commonmark",
-            "version": "2.6.1",
+            "version": "2.7.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/thephpleague/commonmark.git",
-                "reference": "d990688c91cedfb69753ffc2512727ec646df2ad"
+                "reference": "10732241927d3971d28e7ea7b5712721fa2296ca"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/d990688c91cedfb69753ffc2512727ec646df2ad",
-                "reference": "d990688c91cedfb69753ffc2512727ec646df2ad",
+                "url": "https://api.github.com/repos/thephpleague/commonmark/zipball/10732241927d3971d28e7ea7b5712721fa2296ca",
+                "reference": "10732241927d3971d28e7ea7b5712721fa2296ca",
                 "shasum": ""
             },
             "require": {
@@ -1547,7 +1665,7 @@
                 "symfony/process": "^5.4 | ^6.0 | ^7.0",
                 "symfony/yaml": "^2.3 | ^3.0 | ^4.0 | ^5.0 | ^6.0 | ^7.0",
                 "unleashedtech/php-coding-standard": "^3.1.1",
-                "vimeo/psalm": "^4.24.0 || ^5.0.0"
+                "vimeo/psalm": "^4.24.0 || ^5.0.0 || ^6.0.0"
             },
             "suggest": {
                 "symfony/yaml": "v2.3+ required if using the Front Matter extension"
@@ -1555,7 +1673,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-main": "2.7-dev"
+                    "dev-main": "2.8-dev"
                 }
             },
             "autoload": {
@@ -1612,7 +1730,7 @@
                     "type": "tidelift"
                 }
             ],
-            "time": "2024-12-29T14:10:59+00:00"
+            "time": "2025-07-20T12:47:49+00:00"
         },
         {
             "name": "league/config",
@@ -2149,16 +2267,16 @@
         },
         {
             "name": "livewire/livewire",
-            "version": "v3.6.3",
+            "version": "v3.6.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/livewire/livewire.git",
-                "reference": "56aa1bb63a46e06181c56fa64717a7287e19115e"
+                "reference": "ef04be759da41b14d2d129e670533180a44987dc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/livewire/livewire/zipball/56aa1bb63a46e06181c56fa64717a7287e19115e",
-                "reference": "56aa1bb63a46e06181c56fa64717a7287e19115e",
+                "url": "https://api.github.com/repos/livewire/livewire/zipball/ef04be759da41b14d2d129e670533180a44987dc",
+                "reference": "ef04be759da41b14d2d129e670533180a44987dc",
                 "shasum": ""
             },
             "require": {
@@ -2213,7 +2331,7 @@
             "description": "A front-end framework for Laravel.",
             "support": {
                 "issues": "https://github.com/livewire/livewire/issues",
-                "source": "https://github.com/livewire/livewire/tree/v3.6.3"
+                "source": "https://github.com/livewire/livewire/tree/v3.6.4"
             },
             "funding": [
                 {
@@ -2221,7 +2339,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-04-12T22:26:52+00:00"
+            "time": "2025-07-17T05:12:15+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -8912,7 +9030,8 @@
         "php": "^8.2",
         "ext-curl": "*",
         "ext-dom": "*",
-        "ext-libxml": "*"
+        "ext-libxml": "*",
+        "ext-mbstring": "*"
     },
     "platform-dev": {},
     "plugin-api-version": "2.6.0"

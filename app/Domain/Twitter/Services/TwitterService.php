@@ -103,8 +103,8 @@ class TwitterService
             'features' => json_encode(config('twitter.gql_features')),
         ]));
 
-        $tweets = $tweets->filter(function (TweetDTO $tweet) use ($screenName) {
-            return $tweet?->author?->screen_name == $screenName;
+        $tweets = $tweets->filter(function (TweetDTO $tweet) use ($user) {
+            return $tweet?->author?->rest_id == $user->rest_id;
         });
 
         Cache::put($cacheKey, $tweets, now()->addMinute());

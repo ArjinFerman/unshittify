@@ -33,7 +33,7 @@
 
             <div class="relative">
                 <div class="mt-4 mb-4 text-sm text-white relative" style="overflow-wrap: anywhere">
-                    {!! $displayEntry->full_text !!}
+                    {!! nl2br($displayEntry->full_text) !!}
                 </div>
 
                 @foreach ($entry->links ?? [] as $link)

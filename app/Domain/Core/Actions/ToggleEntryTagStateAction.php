@@ -12,20 +12,22 @@ class ToggleEntryTagStateAction extends BaseAction
     /**
      * @throws \Throwable
      */
-    public function execute(Entry $entry, int $tagId): void
+    public function execute(Entry $entry, int $tagId, bool $recursive): void
     {
-        $this->optionalTransaction(function () use ($entry, $tagId) {
-            $this->toggleTag($entry, $tagId);
+        $this->optionalTransaction(function () use ($entry, $tagId, $recursive) {
+            $this->toggleTag($entry, $tagId, $recursive);
         });
     }
 
-    protected function toggleTag(Entry $entry, int $tagId, int $level = 0): void
+    protected function toggleTag(Entry $entry, int $tagId, bool $recursive = false, int $level = 0): void
     {
         if ($level > self::MAX_LEVEL)
             return;
 
-        foreach ($entry->references as $reference) {
-            $this->toggleTag($reference, $tagId, $level + 1);
+        if ($recursive) {
+            foreach ($entry->references as $reference) {
+                $this->toggleTag($reference, $tagId, $level + 1);
+            }
         }
 
         if ($entry->hasTag($tagId))

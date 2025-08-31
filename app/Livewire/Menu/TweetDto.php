@@ -28,7 +28,7 @@ class TweetDto extends Component
         if (!$this->entry && $this->getEntry()->isRead())
             return;
 
-        ToggleEntryTagStateAction::make()->execute($this->entry, CoreTagType::READ->value);
+        ToggleEntryTagStateAction::make()->execute($this->entry, CoreTagType::READ->value, true);
         $this->entry->load('tags');
     }
 
@@ -37,7 +37,7 @@ class TweetDto extends Component
         if (!$this->entry && $this->getEntry()->isRead())
             return;
 
-        ToggleEntryTagStateAction::make()->execute($this->entry, CoreTagType::STARRED->value);
+        ToggleEntryTagStateAction::make()->execute($this->entry, CoreTagType::STARRED->value, false);
         $this->entry->load('tags');
     }
 
