@@ -53,6 +53,8 @@ class EntryService
             })
                 ->orderBy('core_entries.published_at', 'desc')
                 ->limit(10);
+        }, function (EntryQueryBuilder $query) {
+            return $query->whereRaw('0 = 1');
         });
     }
 
