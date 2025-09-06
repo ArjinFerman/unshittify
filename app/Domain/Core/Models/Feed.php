@@ -50,4 +50,9 @@ class Feed extends Model
     {
         return $this->hasMany(Entry::class, 'feed_id');
     }
+
+    public function errors(): HasMany
+    {
+        return $this->hasMany(FeedError::class, 'feed_id');
+    }
 }

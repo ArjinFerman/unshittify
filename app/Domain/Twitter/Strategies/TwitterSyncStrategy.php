@@ -6,6 +6,7 @@ use App\Domain\Core\Models\Entry;
 use App\Domain\Core\Models\Feed;
 use App\Domain\Core\Strategies\FeedSyncStrategy;
 use App\Domain\Twitter\Services\TwitterService;
+use Illuminate\Support\Facades\Log;
 
 class TwitterSyncStrategy implements FeedSyncStrategy
 {
@@ -18,6 +19,8 @@ class TwitterSyncStrategy implements FeedSyncStrategy
 
     public function sync(): void
     {
+        Log::info(__('Syncing feed: ":feed"', ['feed' => $this->feed?->name]));
+
         inTransaction(function () {
             /** @var Entry $lastSyncEntry */
             $lastSyncEntry = $this->feed->entries()->orderBy('published_at', 'desc')->first();
@@ -26,6 +29,9 @@ class TwitterSyncStrategy implements FeedSyncStrategy
             $cursor = null;
 
             while ($this->continueImport($importedCount, $lastSyncEntry, $lastImportedEntry)) {
+                Log::info(__('Cooling down before API call.'));
+                sleep(5);
+                Log::info(__('Calling API.'));
                 $tweets = $this->twitterService->getLatestUserTweets($this->feed->name, $cursor);
 
                 $lastImportedEntry = $this->twitterService->importTweets($tweets)->last();
