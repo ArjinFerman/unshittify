@@ -62,10 +62,15 @@ class TwitterService
             "screen_name" => $screenName,
         ]);
 
-        $user = UserDTO::fromUserResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . __FUNCTION__), [
+        $userData = $this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . __FUNCTION__), [
             'variables' => $variables,
             'features' => json_encode(config('twitter.gql_features')),
-        ])['data']['user_result']);
+        ]);
+
+        if (!($userData['data']['user_result'] ?? null))
+            throw new Exception(__('Could not find user by screenname: :screenName', ['screenName' => $screenName]));
+
+        $user = UserDTO::fromUserResult($userData['data']['user_result']);
 
         Cache::put("twitter:user:$screenName", $user, now()->addHours(6));
 

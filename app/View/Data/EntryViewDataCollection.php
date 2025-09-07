@@ -93,6 +93,7 @@ class EntryViewDataCollection extends Collection
 
         if (!$entry) {
             Log::warning("Could not find entry with reference \"{$item->$referenceProperty}\"");
+            return;
         }
 
         $entry->$itemProperty->add($item);

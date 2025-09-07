@@ -45,7 +45,11 @@ class TweetCollectionDTO extends CollectionDTO
                 foreach ($instruction['entries'] as $entry) {
                     switch ($entry['content']['__typename']) {
                         case 'TimelineTimelineItem':
-                            $collection->add(TweetDTO::fromTweetResult($entry['content']['content']['tweetResult']['result']));
+                            if ($result = ($entry['content']['content']['tweetResult']['result'] ?? null))
+                                $collection->add(TweetDTO::fromTweetResult($result));
+                            else
+                                Log::warning(__('TweetResut not found in entry ID: :entryId', ['entryId' => $entry['entryId'] ?? 'No ID']));
+
                             break;
                         case 'TimelineTimelineCursor':
                             $cursors[$entry['content']['cursorType']] = $entry['content']['value'];

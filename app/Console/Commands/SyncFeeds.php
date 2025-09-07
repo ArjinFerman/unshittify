@@ -6,6 +6,8 @@ use App\Domain\Core\Enums\FeedStatus;
 use App\Domain\Core\Models\Feed;
 use App\Domain\Core\Models\FeedError;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Str;
 
 class SyncFeeds extends Command
 {
@@ -42,9 +44,13 @@ class SyncFeeds extends Command
             } catch (\Throwable $th) {
                 $this->output->error(__('Error syncing feed: :error', ['error' => $th->getMessage()]));
 
-                $error = new FeedError;
-                $error->message = $th->getMessage();
-                $feed->errors()->save($error);
+                try {
+                    $error = new FeedError;
+                    $error->message = Str::substr($th->getMessage(), 0, 1024);
+                    $feed->errors()->save($error);
+                } catch (\Throwable $errTh) {
+                    Log::error("Error storing feed-error", [$errTh->getMessage()]);
+                }
             }
         }
 
