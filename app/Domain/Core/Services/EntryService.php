@@ -31,7 +31,7 @@ class EntryService
                         ->where('tag_id', '=', CoreTagType::READ->value);
                 });
         }, function (EntryQueryBuilder $query) {
-            return $query->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
+            return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
         });
     }
 
@@ -71,7 +71,7 @@ class EntryService
         return $this->getEntriesForView(function (EntryQueryBuilder $query) {
             return $query->where('core_feeds.status', FeedStatus::ACTIVE->value);
         }, function (EntryQueryBuilder $query) {
-            return $query->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
+            return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
         });
     }
 
@@ -83,7 +83,7 @@ class EntryService
 
             return $query->whereFeedId($id);
         }, function (EntryQueryBuilder $query) {
-            return $query->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
+            return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
         });
     }
 
@@ -119,7 +119,7 @@ class EntryService
                             $sub->where('ref_to_parent.ref_type', '=', ReferenceType::REPLY_TO->value);
                         })->orWhere(function ($sub) use ($entryId) {
                             $sub->where('refs_of_parent.ref_entry_id', $entryId);
-                            $sub->where('core_entry_references.ref_type', '!=', ReferenceType::REPLY_TO->value);
+                            $sub->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
                         });
                     });
                 });
@@ -145,16 +145,21 @@ class EntryService
 
         $entries = $entries->get();
 
+        $references = Entry::query()->withRecursiveReferences($entries->pluck('id'));
+
         /** @var Collection $entries */
-        $references = Entry::query()
+        $references = $references
             ->withViewData()
-            ->withReferenceData()
-            ->whereReferencesOf($entries)
-            ->orderBy('core_entry_references.ref_path')
+            ->orderBy(EntryQueryBuilder::RECUSRIVE_REF_TABLE.'.ref_path')
         ;
 
         if ($referenceQuery)
             $references = $referenceQuery($references, $entries);
+
+        $references->addSelect([
+            EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_path',
+            EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type',
+        ]);
 
         /** @var Collection<Entry> $entries */
         $references = $references->get();
