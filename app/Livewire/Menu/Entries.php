@@ -2,9 +2,7 @@
 
 namespace App\Livewire\Menu;
 
-use App\Domain\Core\Actions\BulkTagAction;
-use App\Domain\Core\Actions\TagAllAction;
-use App\Domain\Core\Enums\CoreTagType;
+use App\Domain\Core\Actions\MarkAsReadAction;
 use Livewire\Component;
 
 class Entries extends Component
@@ -23,13 +21,13 @@ class Entries extends Component
 
     public function markPageAsRead(): void
     {
-        BulkTagAction::make()->execute($this->entryIds, CoreTagType::READ->value);
+        MarkAsReadAction::make()->execute($this->entryIds);
         $this->redirectRoute('core.latest');
     }
 
     public function markAllAsRead(): void
     {
-        TagAllAction::make()->execute(CoreTagType::READ->value);
+        MarkAsReadAction::make()->execute();
         $this->redirectRoute('core.latest');
     }
 

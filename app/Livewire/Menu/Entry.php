@@ -20,8 +20,10 @@ class Entry extends Component
 
     public function toggleRead(): void
     {
-        ToggleEntryTagStateAction::make()->execute($this->entry, CoreTagType::READ->value, true);
-        $this->entry->load('tags');
+        //TODO: Handle references
+        $this->entry->is_read = !$this->entry->is_read;
+        $this->entry->save();
+        $this->entry->refresh();
     }
 
     public function toggleStarred(): void

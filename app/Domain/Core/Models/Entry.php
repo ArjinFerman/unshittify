@@ -127,7 +127,7 @@ class Entry extends Model
 
     public function isRead(): bool
     {
-        return $this->hasTag(CoreTagType::READ->value);
+        return $this->is_read;
     }
 
     public function isStarred(): bool

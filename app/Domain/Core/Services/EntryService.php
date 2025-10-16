@@ -23,13 +23,7 @@ class EntryService
     {
         return $this->getEntriesForView(function (EntryQueryBuilder $query) {
             return $query->where('core_feeds.status', FeedStatus::ACTIVE->value)
-                ->whereNotExists(function (Builder $tagQuery) {
-                    $tagQuery->from('core_taggables')
-                        ->join('core_tags', 'core_tags.id', '=', 'core_taggables.tag_id')
-                        ->where('taggable_type', 'App\Domain\Core\Models\Entry')
-                        ->whereColumn('taggable_id', '=', 'core_entries.id')
-                        ->where('tag_id', '=', CoreTagType::READ->value);
-                });
+                ->whereIsRead(false);
         }, function (EntryQueryBuilder $query) {
             return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
         });
@@ -40,9 +34,9 @@ class EntryService
         return Entry::query()
             ->whereHas('feed', function ($query) {
                 $query->whereStatus(FeedStatus::ACTIVE);
-            })->whereDoesntHave('tags', function ($query) {
-                $query->where('core_tags.id', CoreTagType::READ);
-            })->count();
+            })
+            ->whereIsRead(false)
+            ->count();
     }
 
     public function getStarredEntries()
