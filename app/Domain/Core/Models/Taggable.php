@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Taggable extends Pivot
 {
-    protected $table = 'core_taggables';
+    protected $table = 'taggables';
     public $timestamps = true;
 
     /**
@@ -18,7 +18,7 @@ class Taggable extends Pivot
      */
     public static array $pivotColumns = [
         'tag_id',
-        'taggable_id',
+        'taggable_composite_id',
         'taggable_type',
     ];
 

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class Mediable extends Pivot
 {
-    protected $table = 'core_mediables';
+    protected $table = 'mediables';
     public $timestamps = true;
 
     /**
@@ -18,7 +18,7 @@ class Mediable extends Pivot
      */
     public static array $pivotColumns = [
         'media_id',
-        'mediable_id',
+        'media_composite_id',
         'mediable_type',
     ];
 

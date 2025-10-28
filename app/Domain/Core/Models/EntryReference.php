@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class EntryReference extends Pivot
 {
-    protected $table = 'core_entry_references';
+    protected $table = 'entry_references';
 
     /**
      * The attributes that are mass assignable.

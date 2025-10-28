@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Author extends Model
 {
-    protected $table = 'core_authors';
+    protected $table = 'authors';
 
     /**
      * The attributes that are mass assignable.
@@ -21,23 +21,4 @@ class Author extends Model
         'name',
         'description',
     ];
-
-    public function media(): MorphToMany
-    {
-        return $this->morphToMany(Media::class, 'mediable', 'core_mediables');
-    }
-
-    public function avatar(): HasOneThrough
-    {
-        $q = $this->hasOneThrough(
-            Media::class,
-            Mediable::class,
-            'mediable_id',
-            'id',
-            'id',
-            'media_id'
-        )->where('mediable_type', static::class);
-
-        return $q;
-    }
 }

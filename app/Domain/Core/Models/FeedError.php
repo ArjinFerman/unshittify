@@ -13,7 +13,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FeedError extends Model
 {
-    protected $table = 'core_feed_errors';
+    protected $table = 'feed_errors';
 
     /**
      * The attributes that are mass assignable.
@@ -21,7 +21,7 @@ class FeedError extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'feed_id',
+        'feed_composite_id',
         'message',
     ];
 

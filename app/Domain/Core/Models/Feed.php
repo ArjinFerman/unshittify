@@ -13,7 +13,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Feed extends Model
 {
-    protected $table = 'core_feeds';
+    protected $table = 'feeds';
+
+    protected $primaryKey = 'composite_id';
 
     /**
      * The attributes that are mass assignable.
@@ -23,23 +25,13 @@ class Feed extends Model
     protected $fillable = [
         'author_id',
         'name',
-        'type',
         'status',
         'url',
     ];
 
     protected $casts = [
-        'type' => FeedType::class,
         'status' => FeedStatus::class,
     ];
-
-    public function getSyncStrategy(): FeedSyncStrategy
-    {
-        return match($this->type) {
-            FeedType::TWITTER => app(TwitterSyncStrategy::class, ['feed' => $this]),
-            default => null,
-        };
-    }
 
     public function author(): BelongsTo
     {
@@ -48,11 +40,11 @@ class Feed extends Model
 
     public function entries(): HasMany
     {
-        return $this->hasMany(Entry::class, 'feed_id');
+        return $this->hasMany(Entry::class, 'feed_composite_id');
     }
 
     public function errors(): HasMany
     {
-        return $this->hasMany(FeedError::class, 'feed_id');
+        return $this->hasMany(FeedError::class, 'feed_composite_id');
     }
 }

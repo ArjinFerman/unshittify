@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Tag extends Model
 {
-    protected $table = 'core_tags';
+    protected $table = 'tags';
 
     /**
      * The attributes that are mass assignable.
@@ -20,11 +20,11 @@ class Tag extends Model
 
     public function authors(): MorphToMany
     {
-        return $this->morphToMany(Author::class, 'taggable', 'core_taggables', 'taggable_id')->withTimestamps();
+        return $this->morphToMany(Author::class, 'taggable', 'taggables', 'taggable_id')->withTimestamps();
     }
 
     public function entries(): MorphToMany
     {
-        return $this->morphedByMany(Entry::class, 'taggable', 'core_taggables')->withTimestamps();
+        return $this->morphedByMany(Entry::class, 'taggable', 'taggables')->withTimestamps();
     }
 }

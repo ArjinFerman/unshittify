@@ -9,13 +9,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Media extends Model
 {
-    protected $table = 'core_media';
+    protected $table = 'media';
 
-    protected $casts = [
-        'type' => MediaType::class,
-        'quality' => 'int',
-        'properties' => 'array',
-    ];
+    protected $primaryKey = 'composite_id';
 
     /**
      * The attributes that are mass assignable.
@@ -23,16 +19,19 @@ class Media extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'media_object_id',
         'type',
         'url',
         'content_type',
-        'quality',
-        'properties',
+        'metadata',
+    ];
+
+    protected $casts = [
+        'type' => MediaType::class,
+        'metadata' => 'array',
     ];
 
     public function entries(): MorphToMany
     {
-        return $this->morphedByMany(Entry::class, 'mediable', 'core_mediables')->withTimestamps();
+        return $this->morphedByMany(Entry::class, 'mediable', 'mediables')->withTimestamps();
     }
 }

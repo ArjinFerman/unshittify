@@ -22,7 +22,7 @@ class EntryService
     public function getSubscribedFeedEntriesUnread()
     {
         return $this->getEntriesForView(function (EntryQueryBuilder $query) {
-            return $query->where('core_feeds.status', FeedStatus::ACTIVE->value)
+            return $query->where('feeds.status', FeedStatus::ACTIVE->value)
                 ->whereIsRead(false);
         }, function (EntryQueryBuilder $query) {
             return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
@@ -43,9 +43,9 @@ class EntryService
     {
         return $this->getEntriesForView(function (EntryQueryBuilder $query) {
             return $query->whereHas('tags', function ($tagQuery) {
-                $tagQuery->where('core_tags.id', CoreTagType::STARRED);
+                $tagQuery->where('tags.id', CoreTagType::STARRED);
             })
-                ->orderBy('core_entries.published_at', 'desc')
+                ->orderBy('entries.published_at', 'desc')
                 ->limit(10);
         }, function (EntryQueryBuilder $query) {
             return $query->whereRaw('0 = 1');
@@ -56,14 +56,14 @@ class EntryService
     {
         return Entry::query()
             ->whereHas('tags', function ($query) {
-                $query->where('core_tags.id', CoreTagType::STARRED);
+                $query->where('tags.id', CoreTagType::STARRED);
             })->count();
     }
 
     public function getSubscribedFeedEntries()
     {
         return $this->getEntriesForView(function (EntryQueryBuilder $query) {
-            return $query->where('core_feeds.status', FeedStatus::ACTIVE->value);
+            return $query->where('feeds.status', FeedStatus::ACTIVE->value);
         }, function (EntryQueryBuilder $query) {
             return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
         });
@@ -95,12 +95,12 @@ class EntryService
                 $query->where('published_at', '<=', $after);
 
             return $query
-                ->leftJoin('core_entry_references as ref_to_parent', function(JoinClause $join) use ($entryId) {
-                    $join->on('ref_to_parent.entry_id', '=', 'core_entries.id');
+                ->leftJoin('entry_references as ref_to_parent', function(JoinClause $join) use ($entryId) {
+                    $join->on('ref_to_parent.entry_id', '=', 'entries.id');
                     $join->on('ref_to_parent.ref_entry_id', '=', $entryId);
                 })
-                ->leftJoin('core_entry_references as refs_of_parent', function(JoinClause $join) use ($entryId) {
-                    $join->on('core_entry_references.entry_id', '=', 'refs_of_parent.entry_id');
+                ->leftJoin('entry_references as refs_of_parent', function(JoinClause $join) use ($entryId) {
+                    $join->on('entry_references.entry_id', '=', 'refs_of_parent.entry_id');
                     $join->on('refs_of_parent.ref_entry_id', '=', $entryId);
                 })
                 ->orWhere(function ($or) use ($entryId, $after) {
@@ -132,7 +132,7 @@ class EntryService
         $entries = $entryQuery(Entry::query()->withViewData());
 
         if (!$entries->getQuery()->orders)
-            $entries->orderBy('core_entries.published_at', 'asc');
+            $entries->orderBy('entries.published_at', 'asc');
 
         if (!$entries->getQuery()->limit)
             $entries->limit(10);
@@ -160,17 +160,17 @@ class EntryService
 
         $entryIds = $entries->pluck('id')->merge($references->pluck('id'));
         $media = Media::query()
-            ->join('core_mediables', 'core_media.id', '=', 'core_mediables.media_id', 'left')
-            ->whereIn('core_mediables.mediable_id', $entryIds)
-            ->where('core_mediables.mediable_type', Entry::class)
-            ->where('core_mediables.purpose', MediaPurpose::CONTENT->value)
+            ->join('mediables', 'media.id', '=', 'mediables.media_id', 'left')
+            ->whereIn('mediables.mediable_id', $entryIds)
+            ->where('mediables.mediable_type', Entry::class)
+            ->where('mediables.purpose', MediaPurpose::CONTENT->value)
             ->get()
         ;
 
         $tags = Tag::query()
-            ->join('core_taggables', 'core_tags.id', '=', 'core_taggables.tag_id', 'left')
-            ->whereIn('core_taggables.taggable_id', $entryIds)
-            ->where('core_taggables.taggable_type', Entry::class)
+            ->join('taggables', 'tags.id', '=', 'taggables.tag_id', 'left')
+            ->whereIn('taggables.taggable_id', $entryIds)
+            ->where('taggables.taggable_type', Entry::class)
             ->get()
         ;
 

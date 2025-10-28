@@ -18,7 +18,9 @@ class Entry extends Model
     use EagerLoadJoinTrait;
     use BelongsToThrough;
 
-    protected $table = 'core_entries';
+    protected $table = 'entries';
+
+    protected $primaryKey = 'composite_id';
 
     /**
      * The attributes that are mass assignable.
@@ -26,12 +28,11 @@ class Entry extends Model
      * @var list<string>
      */
     protected $fillable = [
-        'author_id',
-        'feed_id',
+        'feed_composite_id',
         'url',
         'title',
         'content',
-        'type',
+        'published_at',
         'metadata',
     ];
 
@@ -98,24 +99,24 @@ class Entry extends Model
 
     public function references(): BelongsToMany
     {
-        return $this->belongsToMany(Entry::class, 'core_entry_references', 'entry_id', 'ref_entry_id')
+        return $this->belongsToMany(Entry::class, 'entry_references', 'entry_id', 'ref_entry_id')
             ->withPivot(['ref_type', 'ref_path']);
     }
 
     public function referencedBy(): BelongsToMany
     {
-        return $this->belongsToMany(Entry::class, 'core_entry_references', 'ref_entry_id', 'entry_id')
+        return $this->belongsToMany(Entry::class, 'entry_references', 'ref_entry_id', 'entry_id')
             ->withPivot('ref_type');
     }
 
     public function media(): MorphToMany
     {
-        return $this->morphToMany(Media::class, 'mediable', 'core_mediables')->withTimestamps();
+        return $this->morphToMany(Media::class, 'mediable', 'mediables', 'media_composite_id')->withTimestamps();
     }
 
     public function tags(): MorphToMany
     {
-        return $this->morphToMany(Tag::class, 'taggable', 'core_taggables')->withTimestamps();
+        return $this->morphToMany(Tag::class, 'taggable', 'taggables', 'taggable_composite_id')->withTimestamps();
     }
 
     public function displayEntry(): self

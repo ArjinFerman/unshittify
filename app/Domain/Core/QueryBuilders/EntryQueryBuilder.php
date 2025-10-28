@@ -16,7 +16,7 @@ class EntryQueryBuilder extends EagerLoadJoinBuilder
 
     public function withRecursiveReferences(Collection $entryIds)
     {
-        $recursive = DB::table('core_entry_references')
+        $recursive = DB::table('entry_references')
             ->select([
                 'entry_id',
                 'ref_entry_id',
@@ -26,26 +26,26 @@ class EntryQueryBuilder extends EagerLoadJoinBuilder
             ])
             ->whereIn('entry_id', $entryIds)
             ->unionAll(
-                DB::table('core_entry_references')
+                DB::table('entry_references')
                     ->select([
                         self::RECUSRIVE_REF_TABLE . '.entry_id',
                         self::RECUSRIVE_REF_TABLE . '.ref_entry_id',
                         self::RECUSRIVE_REF_TABLE . '.ref_type',
-                        DB::raw("CONCAT(" . self::RECUSRIVE_REF_TABLE . '.ref_path' . ", CAST(core_entry_references.ref_entry_id AS CHAR(256)), '/') as ref_path"),
+                        DB::raw("CONCAT(" . self::RECUSRIVE_REF_TABLE . '.ref_path' . ", CAST(entry_references.ref_entry_id AS CHAR(256)), '/') as ref_path"),
                         DB::raw(self::RECUSRIVE_REF_TABLE . '.depth + 1 as depth'),
-                    ])->join(self::RECUSRIVE_REF_TABLE, self::RECUSRIVE_REF_TABLE. '.entry_id', '=', 'core_entry_references.ref_entry_id')
+                    ])->join(self::RECUSRIVE_REF_TABLE, self::RECUSRIVE_REF_TABLE. '.entry_id', '=', 'entry_references.ref_entry_id')
                     ->where('depth', '<', 3)
             );
 
         $finalQuery = new self(DB::table(self::RECUSRIVE_REF_TABLE)->withRecursiveExpression(self::RECUSRIVE_REF_TABLE, $recursive));
         $finalQuery->setModel($this->getModel());
 
-        $finalQuery->join(self::RECUSRIVE_REF_TABLE, self::RECUSRIVE_REF_TABLE . '.ref_entry_id', '=', 'core_entries.id')
+        $finalQuery->join(self::RECUSRIVE_REF_TABLE, self::RECUSRIVE_REF_TABLE . '.ref_entry_id', '=', 'entries.id')
             ->select([
                 self::RECUSRIVE_REF_TABLE . '.ref_path',
                 self::RECUSRIVE_REF_TABLE . '.ref_type',
             ])
-            ->addSelect('core_entries.*');
+            ->addSelect('entries.*');
 
         return $finalQuery;
     }
@@ -54,31 +54,31 @@ class EntryQueryBuilder extends EagerLoadJoinBuilder
     {
         return $this->withJoin('feed')
             ->withJoin('feed.author')
-            ->join('core_mediables', function ($join) {
-                $join->on('core_mediables.mediable_id', '=', 'core_authors.id');
-                $join->on('core_mediables.mediable_type', '=', DB::raw(DB::escape(Author::class)));
+            ->join('mediables', function ($join) {
+                $join->on('mediables.mediable_id', '=', 'authors.id');
+                $join->on('mediables.mediable_type', '=', DB::raw(DB::escape(Author::class)));
             })
-            ->join('core_media', function ($join) {
-                $join->on('core_media.id', '=', 'core_mediables.media_id');
+            ->join('media', function ($join) {
+                $join->on('media.id', '=', 'mediables.media_id');
             })
             ->addSelect([
-                'core_media.id AS feed.author.avatar.id',
-                'core_media.media_object_id AS feed.author.avatar.media_object_id',
-                'core_media.type AS feed.author.avatar.type',
-                'core_media.url AS feed.author.avatar.url',
-                'core_media.content_type AS feed.author.avatar.content_type',
-                'core_media.quality AS feed.author.avatar.quality',
-                'core_media.properties AS feed.author.avatar.properties',
+                'media.id AS feed.author.avatar.id',
+                'media.media_object_id AS feed.author.avatar.media_object_id',
+                'media.type AS feed.author.avatar.type',
+                'media.url AS feed.author.avatar.url',
+                'media.content_type AS feed.author.avatar.content_type',
+                'media.quality AS feed.author.avatar.quality',
+                'media.properties AS feed.author.avatar.properties',
             ]);
     }
 
     public function withReferenceData(): static
     {
         return $this
-            ->join('core_entry_references', 'core_entry_references.ref_entry_id', '=', 'core_entries.id', 'left')
+            ->join('entry_references', 'entry_references.ref_entry_id', '=', 'entries.id', 'left')
             ->addSelect([
-                'core_entry_references.ref_path',
-                'core_entry_references.ref_type',
+                'entry_references.ref_path',
+                'entry_references.ref_type',
             ]);
     }
 
@@ -90,8 +90,8 @@ class EntryQueryBuilder extends EagerLoadJoinBuilder
     {
         return $this
             ->whereExists(function (Builder $query) use ($entries) {
-                $query->from('core_entries', 'ce_ref')
-                    ->where('core_entry_references.ref_path', 'LIKE', DB::raw("CONCAT('%/', ce_ref.id, '/%')"))
+                $query->from('entries', 'ce_ref')
+                    ->where('entry_references.ref_path', 'LIKE', DB::raw("CONCAT('%/', ce_ref.id, '/%')"))
                     ->whereIn('ce_ref.id', $entries->pluck('id'));
             });
     }
