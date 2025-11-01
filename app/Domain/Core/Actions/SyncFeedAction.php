@@ -2,7 +2,7 @@
 
 namespace App\Domain\Core\Actions;
 
-use App\Domain\Core\Enums\FeedType;
+use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Models\Entry;
 use App\Domain\Core\Models\Feed;
 use App\Domain\Twitter\Services\TwitterService;
@@ -24,7 +24,7 @@ class SyncFeedAction extends BaseAction
      */
     public function execute(Feed $feed): void
     {
-        if ($feed->type != FeedType::TWITTER)
+        if ($feed->type != ExternalSourceType::TWITTER)
             return;
 
         inTransaction(function () use ($feed) {

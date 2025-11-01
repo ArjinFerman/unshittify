@@ -2,7 +2,7 @@
 
 namespace App\Domain\Core\Enums;
 
-enum FeedType: string
+enum ExternalSourceType: string
 {
     case TWITTER = 'twitter';
     case YOUTUBE = 'youtube';

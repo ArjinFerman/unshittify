@@ -3,7 +3,7 @@
 namespace App\Domain\Core\Models;
 
 use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Enums\FeedType;
+use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Strategies\FeedSyncStrategy;
 use App\Domain\Twitter\Models\TwitterFeed;
 use App\Domain\Twitter\Strategies\TwitterSyncStrategy;

@@ -1,9 +1,6 @@
 <?php
 
 use App\Domain\Core\Enums\CoreTagType;
-use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Enums\FeedType;
-use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Models\Tag;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -27,7 +24,7 @@ return new class extends Migration
 
         Schema::create('feeds', function (Blueprint $table) {
             $table->string( 'composite_id', 256)->primary();
-            $table->unsignedBigInteger('author_id');
+            $table->unsignedBigInteger('author_id')->nullable();
 
             $table->string('name');
             $table->enum('status', ['preview', 'active', 'inactive']); // FeedStatus::cases()
@@ -47,6 +44,7 @@ return new class extends Migration
             $table->string('title');
             $table->longText('content')->nullable();
             $table->timestamp('published_at')->nullable();
+            $table->boolean('is_read')->default(false);
 
             $table->json('metadata')->nullable();
 

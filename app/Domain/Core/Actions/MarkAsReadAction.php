@@ -39,7 +39,7 @@ class MarkAsReadAction extends BaseAction
             ->update(['is_read' => true]);
 
         $referenceIds = EntryReference::whereIn('entry_id', $entryIds)
-            ->whereNot('ref_type', ReferenceType::REPLY_TO)->pluck('ref_entry_id')->toArray();
+            ->whereNot('ref_type', ReferenceType::REPLY_FROM)->pluck('ref_entry_id')->toArray();
 
         if (!empty($referenceIds))
             $this->markAsEntriesAsRead($referenceIds, $level + 1);

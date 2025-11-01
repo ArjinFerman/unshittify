@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class Mediable extends Pivot
 {
     protected $table = 'mediables';
-    public $timestamps = true;
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -17,8 +17,8 @@ class Mediable extends Pivot
      * @var list<string>
      */
     public static array $pivotColumns = [
-        'media_id',
         'media_composite_id',
+        'mediable_composite_id',
         'mediable_type',
     ];
 

@@ -33,6 +33,7 @@ class Entry extends Model
         'title',
         'content',
         'published_at',
+        'is_read',
         'metadata',
     ];
 

@@ -2,39 +2,18 @@
 
 namespace App\Domain\Twitter\DTO;
 
-use App\Domain\Core\DTO\CollectionDTO;
-use Illuminate\Support\Arr;
+use App\Domain\Core\DTO\EntryCollectionDTO;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
 /**
- * @implements CollectionDTO<mixed, TweetDTO>
+ * @property Collection<int, TweetEntryDTO> $items
  */
-class TweetCollectionDTO extends CollectionDTO
+class TweetEntryCollectionDTO extends EntryCollectionDTO
 {
-    protected static ?string $class = TweetDTO::class;
-
-    public function __construct(
-        array $items = [],
-        protected ?string $top_cursor = null,
-        protected ?string $bottom_cursor = null,
-    )
+    public static function createFromTimelineResult(array $data): self
     {
-        parent::__construct($items);
-    }
-
-    public function getTopCursor(): ?string
-    {
-        return $this->top_cursor;
-    }
-
-    public function getBottomCursor(): ?string
-    {
-        return $this->bottom_cursor;
-    }
-
-    public static function fromTimelineResult(array $data): self
-    {
-        $collection = new self;
+        $collection = new Collection();
         $cursors = [];
 
         if (!isset($data['data']))
@@ -46,7 +25,7 @@ class TweetCollectionDTO extends CollectionDTO
                     switch ($entry['content']['__typename']) {
                         case 'TimelineTimelineItem':
                             if ($result = ($entry['content']['content']['tweetResult']['result'] ?? null))
-                                $collection->add(TweetDTO::fromTweetResult($result));
+                                $collection->add(TweetEntryDTO::createFromTweetResult($result));
                             else
                                 Log::warning(__('TweetResut not found in entry ID: :entryId', ['entryId' => $entry['entryId'] ?? 'No ID']));
 
@@ -59,14 +38,16 @@ class TweetCollectionDTO extends CollectionDTO
             }
         }
 
-        $collection->top_cursor = $cursors['Top'] ?? null;
-        $collection->bottom_cursor = $cursors['Bottom'] ?? null;
-        return $collection;
+        return new static(
+            items: $collection,
+            top_cursor: $cursors['Top'] ?? null,
+            bottom_cursor: $cursors['Bottom'] ?? null
+        );
     }
 
-    public static function fromConversationResult(array $data): self
+    public static function createFromConversationResult(array $data): self
     {
-        $collection = new self;
+        $collection = new Collection();
         $cursors = [];
 
         foreach ($data['data']['threaded_conversation_with_injections_v2']['instructions'] as $instruction) {
@@ -80,7 +61,7 @@ class TweetCollectionDTO extends CollectionDTO
                                         break;
 
                                     $tweetResult = $entry['content']['itemContent']['tweet_results']['result'];
-                                    $collection->add(TweetDTO::fromTweetResult($tweetResult));
+                                    $collection->add(TweetEntryDTO::createFromTweetResult($tweetResult));
                                     break;
                                 case 'TimelineTimelineCursor':
                                     $cursors[$entry['content']['itemContent']['cursorType']] = $entry['content']['itemContent']['value'];
@@ -95,7 +76,7 @@ class TweetCollectionDTO extends CollectionDTO
                                             break;
 
                                         $tweetResult = $threadItem['item']['itemContent']['tweet_results']['result'];
-                                        $collection->add(TweetDTO::fromTweetResult($tweetResult));
+                                        $collection->add(TweetEntryDTO::createFromTweetResult($tweetResult));
                                         break;
                                     // TODO: case 'TimelineTimelineCursor':
                                 }
@@ -109,23 +90,10 @@ class TweetCollectionDTO extends CollectionDTO
             }
         }
 
-        $collection->top_cursor = $cursors['Top'] ?? null;
-        $collection->bottom_cursor = $cursors['Bottom'] ?? null;
-        return $collection;
-    }
-
-    /**
-     * Run a filter over each of the items.
-     *
-     * @param  (callable(TweetDTO, mixed): bool)|null  $callback
-     * @return static
-     */
-    public function filter(?callable $callback = null)
-    {
-        if ($callback) {
-            return new static(Arr::where($this->items, $callback), $this->top_cursor, $this->bottom_cursor);
-        }
-
-        return new static(array_filter($this->items), $this->top_cursor, $this->bottom_cursor);
+        return new static(
+            items: $collection,
+            top_cursor: $cursors['Top'] ?? null,
+            bottom_cursor: $cursors['Bottom'] ?? null
+        );
     }
 }

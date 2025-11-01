@@ -4,7 +4,7 @@ namespace App\Domain\Twitter\Actions;
 
 use App\Domain\Core\Actions\BaseAction;
 use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Enums\FeedType;
+use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Enums\MediaPurpose;
 use App\Domain\Core\Enums\MediaType;
 use App\Domain\Core\Enums\ReferenceType;
@@ -14,7 +14,7 @@ use App\Domain\Core\Models\EntryReference;
 use App\Domain\Core\Models\Feed;
 use App\Domain\Core\Models\Media;
 use App\Domain\Core\Models\Mediable;
-use App\Domain\Twitter\DTO\TweetDTO;
+use App\Domain\Twitter\DTO\TweetEntryDTO;
 use App\Domain\Twitter\Models\Tweet;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
@@ -24,7 +24,7 @@ use Illuminate\Support\Facades\Log;
 class ImportFeedsFromTweetsAction extends BaseAction
 {
     /**
-     * @param Collection<TweetDTO> $tweets
+     * @param Collection<TweetEntryDTO> $tweets
      * @param string $path
      * @return Collection<Entry>
      * @throws \Throwable
@@ -53,13 +53,13 @@ class ImportFeedsFromTweetsAction extends BaseAction
 
             $authors = $existingAuthors->merge($addedAuthors)->keyBy('name');
 
-            $existingFeedsUrls = $tweets->map(function (TweetDTO $tweet) {
+            $existingFeedsUrls = $tweets->map(function (TweetEntryDTO $tweet) {
                 return config('twitter.base_url') . $tweet->author->screen_name;
             });
 
             $existingFeeds = Feed::query()
                 ->whereIn('url', $existingFeedsUrls)
-                ->whereType(FeedType::TWITTER)
+                ->whereType(ExternalSourceType::TWITTER)
                 ->get();
 
             $newFeeds = [];
@@ -74,7 +74,7 @@ class ImportFeedsFromTweetsAction extends BaseAction
                     'name' => $tweet->author->screen_name,
                     'url' => $url,
                     'author_id' => $author->id,
-                    'type' => FeedType::TWITTER,
+                    'type' => ExternalSourceType::TWITTER,
                     'status' => FeedStatus::PREVIEW,
                     'created_at' => Carbon::now(),
                     'updated_at' => Carbon::now(),

@@ -25,7 +25,7 @@ class EntryService
             return $query->where('feeds.status', FeedStatus::ACTIVE->value)
                 ->whereIsRead(false);
         }, function (EntryQueryBuilder $query) {
-            return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
+            return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_FROM->value);
         });
     }
 
@@ -65,7 +65,7 @@ class EntryService
         return $this->getEntriesForView(function (EntryQueryBuilder $query) {
             return $query->where('feeds.status', FeedStatus::ACTIVE->value);
         }, function (EntryQueryBuilder $query) {
-            return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
+            return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_FROM->value);
         });
     }
 
@@ -77,7 +77,7 @@ class EntryService
 
             return $query->whereFeedId($id);
         }, function (EntryQueryBuilder $query) {
-            return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
+            return $query->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_FROM->value);
         });
     }
 
@@ -110,10 +110,10 @@ class EntryService
                     $or->where(function ($and) use ($entryId) {
                         $and->where(function ($sub) use ($entryId) {
                             $sub->where('ref_to_parent.ref_entry_id', $entryId);
-                            $sub->where('ref_to_parent.ref_type', '=', ReferenceType::REPLY_TO->value);
+                            $sub->where('ref_to_parent.ref_type', '=', ReferenceType::REPLY_FROM->value);
                         })->orWhere(function ($sub) use ($entryId) {
                             $sub->where('refs_of_parent.ref_entry_id', $entryId);
-                            $sub->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_TO->value);
+                            $sub->where(EntryQueryBuilder::RECUSRIVE_REF_TABLE . '.ref_type', '!=', ReferenceType::REPLY_FROM->value);
                         });
                     });
                 });

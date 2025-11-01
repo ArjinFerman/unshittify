@@ -25,7 +25,7 @@ class TweetController extends Controller
         $cursor = $request->query('cursor');
         $tweets = $this->twitterService->getLatestUserTweetsAndReplies($screenName, $cursor);
 
-        $this->twitterService->importTweets($tweets, true);
+        $this->twitterService->importTweets($tweets);
 
         $data = [
             'screenName' => $screenName,
@@ -37,8 +37,8 @@ class TweetController extends Controller
             $data['loadNewestLink'] = route('twitter.user', ['screenName' => $screenName]);
         }
 
-        if ($tweets->getBottomCursor()) {
-            $data['loadMoreLink'] = route('twitter.user', ['screenName' => $screenName, 'cursor' => $tweets->getBottomCursor()]);
+        if ($tweets->bottom_cursor) {
+            $data['loadMoreLink'] = route('twitter.user', ['screenName' => $screenName, 'cursor' => $tweets->bottom_cursor]);
         }
 
         return view('tweets', $data);

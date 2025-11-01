@@ -2,20 +2,24 @@
 
 namespace App\Domain\Core\DTO;
 
-use App\Domain\Core\Enums\MediaType;
+use App\Domain\Core\Enums\FeedStatus;
+use App\Domain\Core\Traits\DTO\HasMetadata;
 use App\Support\CompositeId;
 use Spatie\LaravelData\Attributes\WithCast;
 use Spatie\LaravelData\Attributes\WithTransformer;
 use Spatie\LaravelData\Casts\UnserializeCast;
 use Spatie\LaravelData\Transformers\SerializeTransformer;
 
-class MediaDTO extends BaseDTO
+class FeedDTO extends BaseDTO
 {
+    use HasMetadata;
+
     public function __construct(
         public CompositeId $composite_id,
-        public MediaType   $type,
+        public AuthorDTO   $author,
+        public string      $name,
+        public FeedStatus  $status,
         public string      $url,
-        public string      $content_type,
         #[WithTransformer(SerializeTransformer::class)]
         #[WithCast(UnserializeCast::class)]
         public array       $metadata = [],

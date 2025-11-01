@@ -46,7 +46,7 @@ class BulkTagAction extends BaseAction
         );
 
         $referenceIds = EntryReference::whereIn('entry_id', $entryIds)
-            ->whereNot('ref_type', ReferenceType::REPLY_TO)->pluck('ref_entry_id')->toArray();
+            ->whereNot('ref_type', ReferenceType::REPLY_FROM)->pluck('ref_entry_id')->toArray();
 
         if (!empty($referenceIds))
             $this->addTagToEntries($referenceIds, $tag, $level + 1);

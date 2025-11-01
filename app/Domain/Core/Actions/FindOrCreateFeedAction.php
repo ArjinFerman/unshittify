@@ -3,7 +3,7 @@
 namespace App\Domain\Core\Actions;
 
 use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Enums\FeedType;
+use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Models\Author;
 use App\Domain\Core\Models\Feed;
 
@@ -12,7 +12,7 @@ class FindOrCreateFeedAction extends BaseAction
     /**
      * @throws \Throwable
      */
-    public function execute(string $url, FeedType $type, Author $author, string $name): Feed
+    public function execute(string $url, ExternalSourceType $type, Author $author, string $name): Feed
     {
         return $this->optionalTransaction(function () use ($url, $type, $author, $name) {
             $feed = Feed::whereUrl($url)

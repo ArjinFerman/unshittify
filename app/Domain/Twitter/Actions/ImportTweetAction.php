@@ -6,13 +6,13 @@ use App\Domain\Core\Actions\BaseAction;
 use App\Domain\Core\Actions\FindOrCreateAuthorAction;
 use App\Domain\Core\Actions\FindOrCreateFeedAction;
 use App\Domain\Core\DTO\MediaDTO;
-use App\Domain\Core\Enums\FeedType;
+use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Enums\MediaPurpose;
 use App\Domain\Core\Enums\MediaType;
 use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Models\Entry;
 use App\Domain\Core\Models\Feed;
-use App\Domain\Twitter\DTO\TweetDTO;
+use App\Domain\Twitter\DTO\TweetEntryDTO;
 use App\Domain\Twitter\Models\Tweet;
 use App\Domain\Twitter\Models\User;
 
@@ -21,7 +21,7 @@ class ImportTweetAction extends BaseAction
     /**
      * @throws \Throwable
      */
-    public function execute(TweetDTO $tweetData, bool $createFeed = false, string $path = ''): Entry
+    public function execute(TweetEntryDTO $tweetData, bool $createFeed = false, string $path = ''): Entry
     {
         return $this->optionalTransaction(function () use ($tweetData, $createFeed, $path) {
             $twitterUser = $this->findOrCreateAuthorUser($tweetData);
@@ -42,7 +42,7 @@ class ImportTweetAction extends BaseAction
 
             $feed = FindOrCreateFeedAction::make()->withoutTransaction()->execute(
                 config('twitter.base_url') . $twitterUser->screen_name,
-                FeedType::TWITTER,
+                ExternalSourceType::TWITTER,
                 $twitterUser->author,
                 $twitterUser->screen_name
             );
@@ -82,11 +82,11 @@ class ImportTweetAction extends BaseAction
                 $referenceType = ReferenceType::QUOTE;
             } else if ($tweetData->reply_to_id_str) {
                 $reference = Tweet::whereJsonContains('metadata->tweet_id', $tweetData->reply_to_id_str)->first();
-                $referenceType = ($reference ? ReferenceType::REPLY_TO : null);
+                $referenceType = ($reference ? ReferenceType::REPLY_FROM : null);
             }
 
             switch ($referenceType) {
-                case ReferenceType::REPLY_TO:
+                case ReferenceType::REPLY_FROM:
                     //Reverse the direction of the "reply" reference - since most of the time we will be fetching
                     //replies to a provided tweet on a tweet
                     $path = "/{$reference->id}$path/";
@@ -103,7 +103,7 @@ class ImportTweetAction extends BaseAction
         });
     }
 
-    protected function getMetadata(TweetDTO $tweetData, User $twitterUser): array
+    protected function getMetadata(TweetEntryDTO $tweetData, User $twitterUser): array
     {
         return [
             'twitter_user_id' => $twitterUser->id,
@@ -118,7 +118,7 @@ class ImportTweetAction extends BaseAction
         ];
     }
 
-    protected function findOrCreateAuthorUser(TweetDTO $tweetData): User
+    protected function findOrCreateAuthorUser(TweetEntryDTO $tweetData): User
     {
         $twitterUser = User::whereTwitterUserId($tweetData->author->rest_id)->first();
         if (!$twitterUser) {

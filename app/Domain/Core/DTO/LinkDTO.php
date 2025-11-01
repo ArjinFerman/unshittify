@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Domain\Twitter\DTO;
-
-use App\Domain\Core\DTO\BaseDTO;
+namespace App\Domain\Core\DTO;
 
 class LinkDTO extends BaseDTO
 {

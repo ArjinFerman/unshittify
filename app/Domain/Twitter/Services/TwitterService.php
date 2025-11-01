@@ -4,11 +4,11 @@ namespace App\Domain\Twitter\Services;
 
 use App\Domain\Core\Models\Entry;
 use App\Domain\Twitter\Actions\ImportTweetsAction;
-use App\Domain\Twitter\DTO\TweetCollectionDTO;
-use App\Domain\Twitter\DTO\TweetDTO;
+use App\Domain\Twitter\DTO\TweetEntryCollectionDTO;
+use App\Domain\Twitter\DTO\TweetEntryDTO;
 use Illuminate\Support\Collection;
 use Exception;
-use App\Domain\Twitter\DTO\UserDTO;
+use App\Domain\Twitter\DTO\TwitterUserFeedDTO;
 use App\Support\OAuth\OAuth1Client;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -41,22 +41,19 @@ class TwitterService
     }
 
     /**
-     * @param TweetCollectionDTO $tweets
-     * @return Collection<mixed, Entry>
+     * @param TweetEntryCollectionDTO $tweets
      * @throws \Throwable
      */
-    public function importTweets(TweetCollectionDTO $tweets, bool $createTweets = false): Collection
+    public function importTweets(TweetEntryCollectionDTO $tweets): void
     {
-        $entries = ImportTweetsAction::make()->execute($tweets, $createTweets);
-
-        return $entries;
+        ImportTweetsAction::make()->execute($tweets);
     }
 
-    public function getUserByScreenName(string $screenName): UserDTO
+    public function getUserByScreenName(string $screenName): TwitterUserFeedDTO
     {
         $user = Cache::get("twitter:user:$screenName");
         if ($user)
-            return $user;
+            return TwitterUserFeedDTO::from($user);
 
         $variables = json_encode([
             "screen_name" => $screenName,
@@ -70,58 +67,62 @@ class TwitterService
         if (!($userData['data']['user_result'] ?? null))
             throw new Exception(__('Could not find user by screenname: :screenName', ['screenName' => $screenName]));
 
-        $user = UserDTO::fromUserResult($userData['data']['user_result']);
+        $user = TwitterUserFeedDTO::createFromUserResult($userData['data']['user_result']);
 
-        Cache::put("twitter:user:$screenName", $user, now()->addHours(6));
+        Cache::put("twitter:user:$screenName", $user->toArray(), now()->addHours(6));
 
         return $user;
     }
 
-    public function getLatestUserTweets(string $screenName, ?string $after = null): TweetCollectionDTO
+    public function getLatestUserTweets(string $screenName, ?string $after = null): TweetEntryCollectionDTO
     {
         return $this->getLatestUserTweetsImpl(__FUNCTION__, $screenName, $after);
     }
 
-    public function getLatestUserTweetsAndReplies(string $screenName, ?string $after = null): TweetCollectionDTO
+    public function getLatestUserTweetsAndReplies(string $screenName, ?string $after = null): TweetEntryCollectionDTO
     {
         return $this->getLatestUserTweetsImpl(__FUNCTION__, $screenName, $after);
     }
 
-    protected function getLatestUserTweetsImpl(string $method, string $screenName, ?string $after = null): TweetCollectionDTO
+    protected function getLatestUserTweetsImpl(string $method, string $screenName, ?string $after = null): TweetEntryCollectionDTO
     {
         $cacheKey = "twitter:user:$screenName:$after";
         $tweets = Cache::get($cacheKey);
-        if ($tweets) return $tweets;
+        if ($tweets) {
+            $tweets = TweetEntryCollectionDTO::from($tweets);
+            return $tweets;
+        }
 
         $user = $this->getUserByScreenName($screenName);
 
         $variables = [
-            "rest_id" => $user->rest_id,
+            "rest_id" => $user->composite_id->externalId,
             "count" => 20,
         ];
 
         if ($after)
             $variables["cursor"] = $after;
 
-        $tweets = TweetCollectionDTO::fromTimelineResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . $method), [
+        $tweets = TweetEntryCollectionDTO::createFromTimelineResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . $method), [
             'variables' => json_encode($variables),
             'features' => json_encode(config('twitter.gql_features')),
         ]));
 
-        $tweets = $tweets->filter(function (TweetDTO $tweet) use ($user) {
-            return $tweet?->author?->rest_id == $user->rest_id;
+        $tweets->items = $tweets->items->filter(function (TweetEntryDTO $tweet) use ($user) {
+            return $tweet->feed->composite_id->externalId == $user->composite_id->externalId;
         });
 
-        Cache::put($cacheKey, $tweets, now()->addMinute());
+        Cache::put($cacheKey, $tweets->toArray(), now()->addMinute());
 
         return $tweets;
     }
 
-    public function getTweetWithReplies(string $id, ?string $after = null): TweetCollectionDTO
+    public function getTweetWithReplies(string $id, ?string $after = null): TweetEntryCollectionDTO
     {
         $cacheKey = "twitter:tweet:$id:$after";
         $tweets = Cache::get($cacheKey);
-        if ($tweets) return $tweets;
+        if ($tweets)
+            return TweetEntryCollectionDTO::from($tweets);
 
         $variables = config('twitter.tweet_variables');
         $variables['focalTweetId'] = $id;
@@ -129,17 +130,17 @@ class TwitterService
         if ($after)
             $variables["cursor"] = $after;
 
-        $tweets = TweetCollectionDTO::fromConversationResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . __FUNCTION__), [
+        $tweets = TweetEntryCollectionDTO::createFromConversationResult($this->fetchImpl($this->apiBaseUrl . config('twitter.endpoints.' . __FUNCTION__), [
             'variables' => json_encode($variables),
             'features' => json_encode(config('twitter.gql_features')),
         ]));
 
-        $firstTweet = $tweets->first();
-        $tweets = $tweets->filter(function (TweetDTO $tweet) use ($firstTweet) {
+        $firstTweet = $tweets->items->first();
+        $tweets->items = $tweets->items->filter(function (TweetEntryDTO $tweet) use ($firstTweet) {
             return $tweet?->conversation_id_str == $firstTweet?->conversation_id_str;
         });
 
-        Cache::put($cacheKey, $tweets, now()->addMinute());
+        Cache::put($cacheKey, $tweets->toArray(), now()->addMinute());
 
         return $tweets;
     }

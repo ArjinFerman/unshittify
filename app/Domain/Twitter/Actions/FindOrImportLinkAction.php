@@ -5,9 +5,9 @@ namespace App\Domain\Twitter\Actions;
 use App\Domain\Core\Actions\BaseAction;
 use App\Domain\Core\Actions\FindOrCreateAuthorAction;
 use App\Domain\Core\Actions\FindOrCreateFeedAction;
-use App\Domain\Core\Enums\FeedType;
+use App\Domain\Core\DTO\LinkDTO;
+use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Models\Entry;
-use App\Domain\Twitter\DTO\LinkDTO;
 use App\Domain\Web\Models\Page;
 use Illuminate\Support\Uri;
 
@@ -34,7 +34,7 @@ class FindOrImportLinkAction extends BaseAction
 
             $feed = FindOrCreateFeedAction::make()->withoutTransaction()->execute(
                 "{$linkUri->scheme()}://{$linkUri->host()}",
-                FeedType::WEB,
+                ExternalSourceType::WEB,
                 $author,
                 $linkUri->host(),
             );

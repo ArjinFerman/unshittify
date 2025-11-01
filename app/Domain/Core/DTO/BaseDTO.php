@@ -2,33 +2,25 @@
 
 namespace App\Domain\Core\DTO;
 
-class BaseDTO implements \Livewire\Wireable
+use Livewire\Wireable;
+use Spatie\LaravelData\Data;
+use Spatie\LaravelData\Support\Creation\CreationContext;
+use Spatie\LaravelData\Support\Creation\CreationContextFactory;
+
+class BaseDTO extends Data implements Wireable
 {
+    public static function factory(?CreationContext $creationContext = null): CreationContextFactory
+    {
+        return parent::factory($creationContext)->ignoreMagicalMethod('fromLivewire');
+    }
+
     public function toLivewire(): array
     {
-        $result = [];
-        foreach ($this as $key => $value) {
-            if ($value instanceof \Livewire\Wireable) {
-                $result[$key] = $value->toLivewire();
-            } else {
-                $result[$key] = $value;
-            }
-        }
-
-        return $result;
+        return $this->toArray();
     }
 
     public static function fromLivewire($value): static
     {
-        $result = new static();
-        foreach ($value as $key => $property) {
-            if (is_array($property)) {
-                $result->$key->fromLivewire($property);
-            } else {
-                $result->$key = $property;
-            }
-        }
-
-        return $result;
+        return static::from($value);
     }
 }

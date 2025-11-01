@@ -4,10 +4,10 @@ namespace App\Console\Commands;
 
 use App\Domain\Core\Actions\FindOrCreateAuthorAction;
 use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Enums\FeedType;
+use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Models\Feed;
 use App\Domain\Twitter\Actions\ImportFeedsFromTweetsAction;
-use App\Domain\Twitter\DTO\TweetCollectionDTO;
+use App\Domain\Twitter\DTO\TweetEntryCollectionDTO;
 use App\Domain\Twitter\Services\TwitterService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -61,7 +61,7 @@ class ImportFeedsFromMiniflux extends Command
                     $screenName = end($screenName);
 
                     $tweets = $twitterService->getLatestUserTweets($screenName);
-                    $tweets = (new TweetCollectionDTO([$tweets->first()]))->keyBy('rest_id');
+                    $tweets = (new TweetEntryCollectionDTO([$tweets->first()]))->keyBy('rest_id');
 
                     $tweetAuthorFeed = ImportFeedsFromTweetsAction::make()->withoutTransaction()->execute($tweets)->first();
                     /** @var Feed $feed */

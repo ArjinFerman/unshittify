@@ -2,7 +2,7 @@
 
 namespace App\View\Components\Entry;
 
-use App\Domain\Twitter\DTO\TweetDTO as APITweetDTO;
+use App\Domain\Twitter\DTO\TweetEntryDTO as APITweetDTO;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;

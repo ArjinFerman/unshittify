@@ -9,6 +9,8 @@ class EntryReference extends Pivot
 {
     protected $table = 'entry_references';
 
+    public $timestamps = false;
+
     /**
      * The attributes that are mass assignable.
      *
