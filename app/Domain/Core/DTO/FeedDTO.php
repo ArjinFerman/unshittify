@@ -2,13 +2,11 @@
 
 namespace App\Domain\Core\DTO;
 
+use App\Domain\Core\DTO\Casts\JsonCastTransformer;
 use App\Domain\Core\Enums\FeedStatus;
 use App\Domain\Core\Traits\DTO\HasMetadata;
 use App\Support\CompositeId;
-use Spatie\LaravelData\Attributes\WithCast;
-use Spatie\LaravelData\Attributes\WithTransformer;
-use Spatie\LaravelData\Casts\UnserializeCast;
-use Spatie\LaravelData\Transformers\SerializeTransformer;
+use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 
 class FeedDTO extends BaseDTO
 {
@@ -20,8 +18,7 @@ class FeedDTO extends BaseDTO
         public string      $name,
         public FeedStatus  $status,
         public string      $url,
-        #[WithTransformer(SerializeTransformer::class)]
-        #[WithCast(UnserializeCast::class)]
+        #[WithCastAndTransformer(JsonCastTransformer::class)]
         public array       $metadata = [],
     )
     {

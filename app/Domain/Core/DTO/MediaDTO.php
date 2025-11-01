@@ -2,12 +2,10 @@
 
 namespace App\Domain\Core\DTO;
 
+use App\Domain\Core\DTO\Casts\JsonCastTransformer;
 use App\Domain\Core\Enums\MediaType;
 use App\Support\CompositeId;
-use Spatie\LaravelData\Attributes\WithCast;
-use Spatie\LaravelData\Attributes\WithTransformer;
-use Spatie\LaravelData\Casts\UnserializeCast;
-use Spatie\LaravelData\Transformers\SerializeTransformer;
+use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 
 class MediaDTO extends BaseDTO
 {
@@ -16,8 +14,7 @@ class MediaDTO extends BaseDTO
         public MediaType   $type,
         public string      $url,
         public string      $content_type,
-        #[WithTransformer(SerializeTransformer::class)]
-        #[WithCast(UnserializeCast::class)]
+        #[WithCastAndTransformer(JsonCastTransformer::class)]
         public array       $metadata = [],
     )
     {

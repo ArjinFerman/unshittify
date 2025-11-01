@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Twitter;
+namespace App\Http\Controllers;
 
 use App\Domain\Core\Services\EntryService;
 use App\Domain\Twitter\Services\TwitterService;
-use App\Http\Controllers\Controller;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\Request;
 
-class TweetController extends Controller
+class TwitterController extends Controller
 {
     public function __construct(protected TwitterService $twitterService, protected EntryService $feedService)
     {

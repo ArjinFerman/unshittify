@@ -2,14 +2,12 @@
 
 namespace App\Domain\Core\DTO;
 
+use App\Domain\Core\DTO\Casts\JsonCastTransformer;
 use App\Domain\Core\Traits\DTO\HasMetadata;
 use App\Support\CompositeId;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
-use Spatie\LaravelData\Attributes\WithCast;
-use Spatie\LaravelData\Attributes\WithTransformer;
-use Spatie\LaravelData\Casts\UnserializeCast;
-use Spatie\LaravelData\Transformers\SerializeTransformer;
+use Spatie\LaravelData\Attributes\WithCastAndTransformer;
 
 /**
  * @property Collection<int, EntryReferenceDTO> $references
@@ -27,8 +25,7 @@ class EntryDTO extends BaseDTO
         public string      $title,
         public string      $content,
         public Carbon      $published_at,
-        #[WithTransformer(SerializeTransformer::class)]
-        #[WithCast(UnserializeCast::class)]
+        #[WithCastAndTransformer(JsonCastTransformer::class)]
         public array       $metadata = [],
         public ?FeedDTO    $feed = null,
         public ?Collection $references = null,
