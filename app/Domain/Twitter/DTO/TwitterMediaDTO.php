@@ -6,9 +6,7 @@ use App\Domain\Core\DTO\MediaDTO;
 use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Enums\MediaType;
 use App\Support\CompositeId;
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Str;
 
 class TwitterMediaDTO extends MediaDTO
 {

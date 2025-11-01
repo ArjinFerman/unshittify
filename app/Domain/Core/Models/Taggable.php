@@ -2,6 +2,7 @@
 
 namespace App\Domain\Core\Models;
 
+use App\Support\CompositeIdCast;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -9,7 +10,8 @@ use Illuminate\Database\Eloquent\Relations\Pivot;
 class Taggable extends Pivot
 {
     protected $table = 'taggables';
-    public $timestamps = true;
+
+    public $timestamps = false;
 
     /**
      * The attributes that are mass assignable.
@@ -20,6 +22,10 @@ class Taggable extends Pivot
         'tag_id',
         'taggable_composite_id',
         'taggable_type',
+    ];
+
+    protected $casts = [
+        'taggable_composite_id' => CompositeIdCast::class,
     ];
 
     public function tags(): BelongsTo

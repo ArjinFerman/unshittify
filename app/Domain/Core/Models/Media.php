@@ -3,15 +3,16 @@
 namespace App\Domain\Core\Models;
 
 use App\Domain\Core\Enums\MediaType;
+use App\Domain\Core\Traits\Models\HasCompositeId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 
 class Media extends Model
 {
-    protected $table = 'media';
+    use HasCompositeId;
 
-    protected $primaryKey = 'composite_id';
+    protected $table = 'media';
 
     /**
      * The attributes that are mass assignable.

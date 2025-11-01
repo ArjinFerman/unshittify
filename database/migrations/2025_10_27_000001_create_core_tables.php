@@ -81,7 +81,6 @@ return new class extends Migration
             $table->string('taggable_composite_id');
             $table->string('taggable_type');
             $table->unsignedBigInteger('tag_id');
-            $table->timestamps();
 
             $table->foreign('tag_id')->references('id')->on('tags');
         });

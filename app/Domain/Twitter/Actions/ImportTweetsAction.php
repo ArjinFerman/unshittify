@@ -40,8 +40,8 @@ class ImportTweetsAction extends BaseAction
                 }
             }
 
-            Feed::query()->upsert($feeds, ['composite_id']);
-            Entry::query()->upsert($importEntries, ['composite_id']);
+            Feed::query()->upsert($feeds, ['composite_id'], ['updated_at']);
+            Entry::query()->upsert($importEntries, ['composite_id'], ['updated_at']);
             EntryReference::query()->upsert($references, ['entry_composite_id', 'ref_entry_composite_id', 'ref_type']);
             Media::query()->upsert($media, ['composite_id']);
             Mediable::query()->upsert($mediables, ['media_composite_id', 'mediable_composite_id', 'mediable_type']);

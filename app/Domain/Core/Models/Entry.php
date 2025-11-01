@@ -3,9 +3,9 @@
 namespace App\Domain\Core\Models;
 
 use App\Domain\Core\Enums\ReferenceType;
-use App\Domain\Core\QueryBuilders\EntryQueryBuilder;
-use App\Support\Query\EagerLoadJoinTrait;
+use App\Domain\Core\Traits\Models\HasCompositeId;
 use App\Domain\Core\Enums\CoreTagType;
+use App\Support\CompositeIdCast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -15,12 +15,9 @@ use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Entry extends Model
 {
-    use EagerLoadJoinTrait;
-    use BelongsToThrough;
+    use HasCompositeId, BelongsToThrough;
 
     protected $table = 'entries';
-
-    protected $primaryKey = 'composite_id';
 
     /**
      * The attributes that are mass assignable.
@@ -38,41 +35,10 @@ class Entry extends Model
     ];
 
     protected $casts = [
+        'feed_composite_id' => CompositeIdCast::class,
         'published_at' => 'datetime',
         'metadata' => 'array',
     ];
-
-    use EagerLoadJoinTrait {
-        newFromBuilder as public fromEagerLoadJoinBuilder;
-    }
-
-    /**
-     * Create a new Eloquent query builder for the model.
-     *
-     * @param  \Illuminate\Database\Query\Builder  $query
-     * @return \Illuminate\Database\Eloquent\Builder
-     */
-    public function newEloquentBuilder($query)
-    {
-        return new EntryQueryBuilder($query);
-    }
-
-    public function newFromBuilder($attributes = [], $connection = null)
-    {
-        $modelClass = $attributes->type;
-
-        if(!$modelClass) return null;
-
-        $model = new $modelClass;
-
-        $model->setRawAttributes((array) $attributes, true);
-        $model->setConnection($connection ?: $this->connection);
-        $model->exists = true;
-
-        $model = $model->setupJoinRelations($model, $attributes = []);
-
-        return $model;
-    }
 
     public function newPivot(Model $parent, array $attributes, $table, $exists, $using = null): Pivot
     {
@@ -100,8 +66,12 @@ class Entry extends Model
 
     public function references(): BelongsToMany
     {
-        return $this->belongsToMany(Entry::class, 'entry_references', 'entry_id', 'ref_entry_id')
-            ->withPivot(['ref_type', 'ref_path']);
+        return $this->belongsToMany(
+            Entry::class,
+            'entry_references',
+            'entry_composite_id',
+            'ref_entry_composite_id'
+        )->withPivot(['ref_type']);
     }
 
     public function referencedBy(): BelongsToMany
@@ -112,12 +82,12 @@ class Entry extends Model
 
     public function media(): MorphToMany
     {
-        return $this->morphToMany(Media::class, 'mediable', 'mediables', 'media_composite_id')->withTimestamps();
+        return $this->morphToMany(Media::class, 'mediable', 'mediables', 'media_composite_id');
     }
 
     public function tags(): MorphToMany
     {
-        return $this->morphToMany(Tag::class, 'taggable', 'taggables', 'taggable_composite_id')->withTimestamps();
+        return $this->morphToMany(Tag::class, 'taggable', 'taggables', 'taggable_composite_id');
     }
 
     public function displayEntry(): self

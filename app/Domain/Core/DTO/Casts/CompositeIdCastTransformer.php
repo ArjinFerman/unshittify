@@ -2,24 +2,22 @@
 
 namespace App\Domain\Core\DTO\Casts;
 
+use App\Support\CompositeId;
 use Spatie\LaravelData\Casts\Cast;
 use Spatie\LaravelData\Support\Creation\CreationContext;
 use Spatie\LaravelData\Support\DataProperty;
 use Spatie\LaravelData\Support\Transformation\TransformationContext;
 use Spatie\LaravelData\Transformers\Transformer;
 
-class JsonCastTransformer implements Cast, Transformer
+class CompositeIdCastTransformer implements Cast, Transformer
 {
-    public function cast(DataProperty $property, mixed $value, array $properties, CreationContext $context): array
+    public function cast(DataProperty $property, mixed $value, array $properties, CreationContext $context): mixed
     {
-        if(is_array($value))
-            return $value;
-
-        return json_decode($value, true);
+        return CompositeId::fromString($value);
     }
 
     public function transform(DataProperty $property, mixed $value, TransformationContext $context): string
     {
-        return json_encode($value);
+        return (string)$value;
     }
 }

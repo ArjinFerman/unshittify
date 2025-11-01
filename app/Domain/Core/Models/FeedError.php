@@ -2,14 +2,9 @@
 
 namespace App\Domain\Core\Models;
 
-use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Enums\ExternalSourceType;
-use App\Domain\Core\Strategies\FeedSyncStrategy;
-use App\Domain\Twitter\Models\TwitterFeed;
-use App\Domain\Twitter\Strategies\TwitterSyncStrategy;
+use App\Support\CompositeIdCast;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class FeedError extends Model
 {
@@ -26,6 +21,7 @@ class FeedError extends Model
     ];
 
     protected $casts = [
+        'feed_composite_id' => CompositeIdCast::class,
     ];
 
     public function feed(): BelongsTo

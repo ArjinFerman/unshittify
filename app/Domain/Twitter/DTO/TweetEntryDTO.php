@@ -107,6 +107,7 @@ class TweetEntryDTO extends EntryDTO
             title: "@{$feed->name}",
             content: $content,
             published_at: Carbon::parse($data['legacy']['created_at']),
+            is_read: false,
             metadata: [
                 'conversation_id_str' => $data['legacy']['conversation_id_str'] ?? null,
                 'quoted_status_id_str' => $data['legacy']['quoted_status_id_str'] ?? null,

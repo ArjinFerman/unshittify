@@ -2,8 +2,6 @@
 
 namespace App\Domain\Core\DTO;
 
-use App\Domain\Core\Enums\MediaType;
-
 class TagDTO extends BaseDTO
 {
     public function __construct(

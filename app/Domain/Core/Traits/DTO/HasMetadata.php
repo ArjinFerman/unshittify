@@ -16,7 +16,7 @@ trait HasMetadata
     public function __set(string $name, $value)
     {
         if (!property_exists($this, $name)) {
-            return $this->metadata[$name] = $value;
+            $this->metadata[$name] = $value;
         }
 
         $this->{$name} = $value;

@@ -2,6 +2,7 @@
 
 namespace App\Domain\Core\Models;
 
+use App\Support\CompositeIdCast;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Database\Eloquent\Relations\Pivot;
@@ -20,6 +21,11 @@ class Mediable extends Pivot
         'media_composite_id',
         'mediable_composite_id',
         'mediable_type',
+    ];
+
+    protected $casts = [
+        'media_composite_id' => CompositeIdCast::class,
+        'mediable_composite_id' => CompositeIdCast::class,
     ];
 
     public function media(): BelongsTo

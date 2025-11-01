@@ -19,7 +19,7 @@
         "livewire/livewire": "^3.6",
         "spatie/laravel-data": "^4.18",
         "staudenmeir/belongs-to-through": "^2.17",
-        "staudenmeir/laravel-cte": "^1.0"
+        "staudenmeir/laravel-adjacency-list": "^1.0"
     },
     "require-dev": {
         "barryvdh/laravel-debugbar": "^3.15",

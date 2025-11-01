@@ -3,6 +3,7 @@
 namespace App\Domain\Core\Models;
 
 use App\Domain\Core\Enums\ReferenceType;
+use App\Support\CompositeIdCast;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 
 class EntryReference extends Pivot
@@ -11,17 +12,19 @@ class EntryReference extends Pivot
 
     public $timestamps = false;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    public static array $pivotColumns = [
+        'entry_composite_id',
+        'ref_entry_composite_id',
+        'ref_type',
+    ];
+
     protected $fillable = [
         'ref_type',
-        'ref_path',
     ];
 
     protected $casts = [
+        'entry_composite_id' => CompositeIdCast::class,
+        'ref_entry_composite_id' => CompositeIdCast::class,
         'ref_type' => ReferenceType::class,
     ];
 }

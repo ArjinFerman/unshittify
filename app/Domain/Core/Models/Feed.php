@@ -3,19 +3,16 @@
 namespace App\Domain\Core\Models;
 
 use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Enums\ExternalSourceType;
-use App\Domain\Core\Strategies\FeedSyncStrategy;
-use App\Domain\Twitter\Models\TwitterFeed;
-use App\Domain\Twitter\Strategies\TwitterSyncStrategy;
+use App\Domain\Core\Traits\Models\HasCompositeId;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Feed extends Model
 {
-    protected $table = 'feeds';
+    use HasCompositeId;
 
-    protected $primaryKey = 'composite_id';
+    protected $table = 'feeds';
 
     /**
      * The attributes that are mass assignable.
