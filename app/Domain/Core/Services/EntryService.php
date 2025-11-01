@@ -21,7 +21,7 @@ class EntryService
                 $feedQuery->where('status', '=', FeedStatus::ACTIVE->value);
             })->whereIsRead(false);
         }, function ($query) {
-            return $query->where('ref_type', '!=', ReferenceType::REPLY_FROM->value);
+            $query->where('ref_type', '!=', ReferenceType::REPLY_FROM->value);
         });
     }
 

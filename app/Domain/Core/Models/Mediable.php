@@ -24,8 +24,8 @@ class Mediable extends Pivot
     ];
 
     protected $casts = [
-        'media_composite_id' => CompositeIdCast::class,
-        'mediable_composite_id' => CompositeIdCast::class,
+//        'media_composite_id' => CompositeIdCast::class,
+//        'mediable_composite_id' => CompositeIdCast::class,
     ];
 
     public function media(): BelongsTo

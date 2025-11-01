@@ -25,7 +25,7 @@ class Taggable extends Pivot
     ];
 
     protected $casts = [
-        'taggable_composite_id' => CompositeIdCast::class,
+//        'taggable_composite_id' => CompositeIdCast::class,
     ];
 
     public function tags(): BelongsTo

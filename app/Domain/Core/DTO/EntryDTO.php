@@ -45,7 +45,7 @@ class EntryDTO extends BaseDTO
         return $this->references?->where('ref_type', ReferenceType::REPOST)?->isEmpty() ?? false;
     }
 
-    public function repost(): ?static
+    public function repost(): ?self
     {
         return $this->references?->where('ref_type', ReferenceType::REPOST)?->first()?->referenced_entry;
     }
@@ -55,7 +55,7 @@ class EntryDTO extends BaseDTO
         return $this->references?->where('ref_type', ReferenceType::QUOTE)?->isEmpty() ?? false;
     }
 
-    public function quote(): ?static
+    public function quote(): ?self
     {
         return $this->references?->where('ref_type', ReferenceType::QUOTE)?->first()?->referenced_entry;
     }

@@ -23,8 +23,8 @@ class EntryReference extends Pivot
     ];
 
     protected $casts = [
-        'entry_composite_id' => CompositeIdCast::class,
-        'ref_entry_composite_id' => CompositeIdCast::class,
+//        'entry_composite_id' => CompositeIdCast::class,
+//        'ref_entry_composite_id' => CompositeIdCast::class,
         'ref_type' => ReferenceType::class,
     ];
 }

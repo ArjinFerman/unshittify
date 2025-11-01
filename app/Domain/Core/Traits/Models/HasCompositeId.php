@@ -12,7 +12,7 @@ trait HasCompositeId
 {
     protected function initializeHasCompositeId()
     {
-        $this->casts['composite_id'] = CompositeIdCast::class;
+        //$this->casts['composite_id'] = CompositeIdCast::class;
         $this->primaryKey = 'composite_id';
         $this->keyType = 'string';
     }

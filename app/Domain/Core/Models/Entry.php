@@ -11,13 +11,35 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
+use Illuminate\Database\Eloquent\Relations\Relation;
+use Staudenmeir\LaravelAdjacencyList\Eloquent\HasGraphRelationships;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Entry extends Model
 {
-    use HasCompositeId, BelongsToThrough;
+    use HasCompositeId, BelongsToThrough, HasGraphRelationships;
 
     protected $table = 'entries';
+
+    public function getPivotTableName(): string
+    {
+        return 'entry_references';
+    }
+
+    public function getPivotColumns(): array
+    {
+        return ['ref_type'];
+    }
+
+    public function getParentKeyName(): string
+    {
+        return 'entry_composite_id';
+    }
+
+    public function getChildKeyName(): string
+    {
+        return 'ref_entry_composite_id';
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -64,20 +86,14 @@ class Entry extends Model
         return $this->belongsToThrough(Author::class, Feed::class, foreignKeyLookup: [Author::class => 'author_id']);
     }
 
-    public function references(): BelongsToMany
+    public function references(): Relation
     {
-        return $this->belongsToMany(
-            Entry::class,
-            'entry_references',
-            'entry_composite_id',
-            'ref_entry_composite_id'
-        )->withPivot(['ref_type']);
+        return $this->descendants();
     }
 
     public function referencedBy(): BelongsToMany
     {
-        return $this->belongsToMany(Entry::class, 'entry_references', 'ref_entry_id', 'entry_id')
-            ->withPivot('ref_type');
+        return $this->ancestors();
     }
 
     public function media(): MorphToMany

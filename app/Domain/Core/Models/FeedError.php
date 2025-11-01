@@ -21,7 +21,7 @@ class FeedError extends Model
     ];
 
     protected $casts = [
-        'feed_composite_id' => CompositeIdCast::class,
+//        'feed_composite_id' => CompositeIdCast::class,
     ];
 
     public function feed(): BelongsTo
