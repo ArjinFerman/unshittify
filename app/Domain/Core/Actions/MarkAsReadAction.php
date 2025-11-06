@@ -14,31 +14,31 @@ class MarkAsReadAction extends BaseAction
     /**
      * @throws \Throwable
      */
-    public function execute(array $entryIds = []): void
+    public function execute(array $compositeIds = []): void
     {
-        $this->optionalTransaction(function () use ($entryIds) {
-            if (empty($entryIds)) {
+        $this->optionalTransaction(function () use ($compositeIds) {
+            if (empty($compositeIds)) {
                 Entry::query()
                     ->whereHas('feed', function ($query) {
                         $query->whereStatus(FeedStatus::ACTIVE);
                     })
                     ->update(['is_read' => true]);
             } else {
-                $this->markAsEntriesAsRead($entryIds);
+                $this->markAsEntriesAsRead($compositeIds);
             }
         });
     }
 
-    protected function markAsEntriesAsRead(array $entryIds, int $level = 0): void
+    protected function markAsEntriesAsRead(array $compositeIds, int $level = 0): void
     {
         if ($level > self::MAX_LEVEL)
             return;
 
         Entry::query()
-            ->whereIn('id', $entryIds)
+            ->whereIn('compositeId', $compositeIds)
             ->update(['is_read' => true]);
 
-        $referenceIds = EntryReference::whereIn('entry_id', $entryIds)
+        $referenceIds = EntryReference::whereIn('entry_id', $compositeIds)
             ->whereNot('ref_type', ReferenceType::REPLY_FROM)->pluck('ref_entry_id')->toArray();
 
         if (!empty($referenceIds))

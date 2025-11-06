@@ -2,37 +2,28 @@
 
 namespace App\Domain\Core\Actions;
 
-use App\Domain\Core\Enums\CoreTagType;
+use App\Domain\Core\DTO\EntryDTO;
+use App\Domain\Core\DTO\TagDTO;
 use App\Domain\Core\Models\Entry;
+use Illuminate\Support\Collection;
 
 class ToggleEntryTagStateAction extends BaseAction
 {
-    const MAX_LEVEL = 10;
-
     /**
      * @throws \Throwable
      */
-    public function execute(Entry $entry, int $tagId, bool $recursive): void
+    public function execute(EntryDTO $entryData, int $tagId): Collection
     {
-        $this->optionalTransaction(function () use ($entry, $tagId, $recursive) {
-            $this->toggleTag($entry, $tagId, $recursive);
+        return $this->optionalTransaction(function () use ($entryData, $tagId) {
+            $entry = Entry::with('tags')->findOrFail($entryData->composite_id);
+
+            if ($entry->hasTag($tagId))
+                $entry->tags()->detach($tagId);
+            else
+                $entry->tags()->attach($tagId);
+
+            $entry->load('tags');
+            return TagDTO::collect($entry->tags);
         });
-    }
-
-    protected function toggleTag(Entry $entry, int $tagId, bool $recursive = false, int $level = 0): void
-    {
-        if ($level > self::MAX_LEVEL)
-            return;
-
-        if ($recursive) {
-            foreach ($entry->references as $reference) {
-                $this->toggleTag($reference, $tagId, $level + 1);
-            }
-        }
-
-        if ($entry->hasTag($tagId))
-            $entry->tags()->detach($tagId);
-        else
-            $entry->tags()->attach($tagId);
     }
 }

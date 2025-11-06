@@ -4,6 +4,7 @@ namespace App\Domain\Core\DTO;
 
 use App\Domain\Core\DTO\Casts\CompositeIdCastTransformer;
 use App\Domain\Core\DTO\Casts\JsonCastTransformer;
+use App\Domain\Core\Enums\CoreTagType;
 use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Traits\DTO\HasMetadata;
 use App\Support\CompositeId;
@@ -42,7 +43,7 @@ class EntryDTO extends BaseDTO
 
     public function isRepost(): bool
     {
-        return $this->references?->where('ref_type', ReferenceType::REPOST)?->isEmpty() ?? false;
+        return $this->references?->where('ref_type', ReferenceType::REPOST)?->isNotEmpty() ?? false;
     }
 
     public function repost(): ?self
@@ -50,9 +51,14 @@ class EntryDTO extends BaseDTO
         return $this->references?->where('ref_type', ReferenceType::REPOST)?->first()?->referenced_entry;
     }
 
+    public function displayEntry(): self
+    {
+        return $this->repost() ?? $this;
+    }
+
     public function hasQuote(): bool
     {
-        return $this->references?->where('ref_type', ReferenceType::QUOTE)?->isEmpty() ?? false;
+        return $this->references?->where('ref_type', ReferenceType::QUOTE)?->isNotEmpty() ?? false;
     }
 
     public function quote(): ?self
@@ -62,6 +68,6 @@ class EntryDTO extends BaseDTO
 
     public function isStarred(): bool
     {
-        return false;
+        return $this->tags?->where('id', CoreTagType::STARRED->value)?->isNotEmpty() ?? false;
     }
 }

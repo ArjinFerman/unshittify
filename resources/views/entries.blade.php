@@ -1,7 +1,11 @@
+@php
+    /** @var \App\Domain\Core\DTO\EntryCollectionDTO $entries */
+@endphp
+
 @extends('layouts.default')
 
 @section('content')
-@if ($entries->count() <= 0)
+@if ($entries->items->count() <= 0)
     <style>
         .message {
             --tw-text-opacity: 1;
@@ -31,13 +35,13 @@
 @else
 <section>
     <div class="grid gap-6 lg:grid-cols-1 lg:gap-8">
-        <livewire:menu.entries :entryIds="$entries->pluck('id')->toArray()" :showMarkAll="true" :showMarkPage="false"/>
+        <livewire:menu.entries :showMarkAll="true" :showMarkPage="false"/>
 
-        @foreach ($entries as $entry)
-            <x-dynamic-component :component="'entry.'.$entry->getEntryType()" :entry="$entry" />
+        @foreach ($entries->items as $entry)
+            <x-entry :entry="$entry" />
         @endforeach
 
-        <livewire:menu.entries :entryIds="$entries->pluck('id')->toArray()" />
+        <livewire:menu.entries :entryIds="$entries->items->map(fn($entry) => (string)$entry->composite_id)->toArray()" />
     </div>
 </section>
 @endif

@@ -3,6 +3,7 @@
 namespace App\Livewire\Menu;
 
 use App\Domain\Core\Actions\MarkAsReadAction;
+use App\Support\CompositeId;
 use Livewire\Component;
 
 class Entries extends Component
@@ -12,7 +13,7 @@ class Entries extends Component
     public bool $showMarkAll = false;
 
 
-    public function mount(array $entryIds, bool $showMarkPage = true, bool $showMarkAll = false): void
+    public function mount(array $entryIds = [], bool $showMarkPage = true, bool $showMarkAll = false): void
     {
         $this->entryIds         = $entryIds;
         $this->showMarkPage     = $showMarkPage;
