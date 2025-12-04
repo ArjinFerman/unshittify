@@ -23,11 +23,15 @@ class EntryReferenceDTO extends BaseDTO
 
     public static function fromModel(Entry $entry): self
     {
-        return new self(
-            entry_composite_id: CompositeId::fromString($entry->pivot->entry_composite_id),
-            ref_entry_composite_id: CompositeId::fromString($entry->pivot->entry_composite_id),
-            ref_type: $entry->pivot->ref_type,
-            referenced_entry: EntryDTO::from($entry),
-        );
+        $pivot = $entry->relationLoaded('pivot') ?
+            $entry->pivot->toArray() : [
+                'entry_composite_id' => $entry->pivot_entry_composite_id,
+                'ref_entry_composite_id' => $entry->pivot_ref_entry_composite_id,
+                'ref_type' => $entry->pivot_ref_type,
+            ];
+
+        $pivot['referenced_entry'] = $entry;
+
+        return self::from($pivot);
     }
 }

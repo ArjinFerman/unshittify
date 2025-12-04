@@ -16,7 +16,7 @@
             <div class="flex lg:mt-5">
                 <a href="{{ route('twitter.user', ['screenName' => $displayEntry->feed?->name]) }}" class="relative">
                     <h2 class="text-xl font-semibold text-black dark:text-white">
-                        {{ $displayEntry->feed?->author?->name }} ({{ "@{$displayEntry->feed?->name}" }})
+                        {{ $displayEntry->feed?->getDisplayName() }}
                     </h2>
                 </a>
             </div>
@@ -26,7 +26,7 @@
             @if ($isRetweeted)
                 <div class="text-sm text-blue-400">
                     <a href="{{ route('twitter.user', ['screenName' => $displayEntry->feed?->name]) }}" class="relative">
-                        <span>{{ __('twitter.retweeted', ['author' => $entry->feed?->author?->name, 'screen_name' => $displayEntry->feed?->name]) }}</span>
+                        <span>{{ __('core.reposted', ['name' => $entry->feed?->getDisplayName()]) }}</span>
                     </a>
                 </div>
             @endif

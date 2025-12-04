@@ -4,7 +4,7 @@
         <div class="pt-3 sm:pt-5">
             <div>
                 <h2 class="text-xl font-semibold text-black dark:text-white">
-                    {{ $link->feed?->author?->name }}
+                    {{ $link->feed?->getDisplayName() }}
                 </h2>
             </div>
 

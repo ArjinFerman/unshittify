@@ -35,7 +35,7 @@ class SyncFeedAction extends BaseAction
             while ($this->continueImport()) {
                 $tweets = $this->twitterService->getLatestUserTweets($feed->name, $cursor);
                 $this->lastImportedEntry = $this->twitterService->importTweets($tweets)->last();
-                $cursor = $tweets->getBottomCursor();
+                $cursor = $tweets->bottom_cursor;
             }
         });
     }

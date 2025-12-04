@@ -16,10 +16,14 @@ class EntryService
 {
     public function getSubscribedFeedEntriesUnread(): EntryCollectionDTO
     {
-        return $this->getEntriesForView(function (Builder $query) {
-            return $query->whereHas('feed', function (Builder $feedQuery) {
-                $feedQuery->where('status', '=', FeedStatus::ACTIVE->value);
-            })->whereIsRead(false);
+        return $this->getEntriesForView(function ($query) {
+            return $query
+                ->whereHas('feed', function ($feedQuery) {
+                    $feedQuery->where('status', '=', FeedStatus::ACTIVE->value);
+                })
+                ->orderBy('entries.published_at', 'asc')
+                ->whereIsRead(false)
+                ->limit(10);
         }, function ($query) {
             $query->where('ref_type', '!=', ReferenceType::REPLY_FROM->value);
         });
@@ -95,24 +99,14 @@ class EntryService
      */
     protected function getEntriesForView(callable $entryQuery, callable $referenceQuery = null): EntryCollectionDTO
     {
-        $entries = Entry::query()
+        $entries = Entry::entriesWithReferences($entryQuery, $referenceQuery)
             ->with([
                 'feed',
                 'media',
                 'tags',
-                'references' => $referenceQuery,
-                'references.feed',
-                'references.media',
-                'references.tags'
-            ])
-            ->where($entryQuery);
+            ]);
 
-        if (!$entries->getQuery()->orders)
-            $entries->orderBy('entries.published_at', 'asc');
-
-        if (!$entries->getQuery()->limit)
-            $entries->limit(10);
-
-        return new EntryCollectionDTO(EntryDTO::collect($entries->get()));
+        $entries = $entries->get()->toTree('references');
+        return new EntryCollectionDTO(EntryDTO::collect($entries));
     }
 }

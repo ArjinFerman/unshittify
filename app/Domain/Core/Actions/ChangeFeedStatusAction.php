@@ -4,6 +4,7 @@ namespace App\Domain\Core\Actions;
 
 use App\Domain\Core\DTO\FeedDTO;
 use App\Domain\Core\Enums\FeedStatus;
+use App\Domain\Core\Models\Author;
 use App\Domain\Core\Models\Feed;
 
 class ChangeFeedStatusAction extends BaseAction
@@ -16,6 +17,14 @@ class ChangeFeedStatusAction extends BaseAction
         return $this->optionalTransaction(function () use ($feedData, $status) {
             $feed = Feed::find($feedData->composite_id);
             $feed->status = $status;
+
+            if ($status == FeedStatus::ACTIVE) {
+                $author = Author::whereName($feedData->author->name)->first() ?? new Author();
+                $author->fill($feedData->author->toArray());
+                $author->save();
+                $feed->author_id = $author->id;
+            }
+
             $feed->save();
             $feed->refresh();
 

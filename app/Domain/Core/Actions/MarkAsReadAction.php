@@ -24,24 +24,24 @@ class MarkAsReadAction extends BaseAction
                     })
                     ->update(['is_read' => true]);
             } else {
-                $this->markAsEntriesAsRead($compositeIds);
+                $this->markEntriesAsRead($compositeIds);
             }
         });
     }
 
-    protected function markAsEntriesAsRead(array $compositeIds, int $level = 0): void
+    protected function markEntriesAsRead(array $compositeIds, int $level = 0): void
     {
         if ($level > self::MAX_LEVEL)
             return;
 
         Entry::query()
-            ->whereIn('compositeId', $compositeIds)
+            ->whereIn('composite_id', $compositeIds)
             ->update(['is_read' => true]);
 
         $referenceIds = EntryReference::whereIn('entry_id', $compositeIds)
             ->whereNot('ref_type', ReferenceType::REPLY_FROM)->pluck('ref_entry_id')->toArray();
 
         if (!empty($referenceIds))
-            $this->markAsEntriesAsRead($referenceIds, $level + 1);
+            $this->markEntriesAsRead($referenceIds, $level + 1);
     }
 }

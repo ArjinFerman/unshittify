@@ -3,6 +3,7 @@
 namespace App\Domain\Core\Models;
 
 use App\Domain\Core\Enums\ReferenceType;
+use App\Domain\Core\QueryBuilders\EntryQueryBuilder;
 use App\Domain\Core\Traits\Models\HasCompositeId;
 use App\Domain\Core\Enums\CoreTagType;
 use App\Support\CompositeIdCast;
@@ -13,6 +14,9 @@ use Illuminate\Database\Eloquent\Relations\MorphToMany;
 use Illuminate\Database\Eloquent\Relations\Pivot;
 use Illuminate\Database\Eloquent\Relations\Relation;
 use Staudenmeir\LaravelAdjacencyList\Eloquent\HasGraphRelationships;
+use Staudenmeir\LaravelCte\Query\FirebirdBuilder;
+use Staudenmeir\LaravelCte\Query\OracleBuilder;
+use Staudenmeir\LaravelCte\Query\SingleStoreBuilder;
 use Znck\Eloquent\Traits\BelongsToThrough;
 
 class Entry extends Model
@@ -62,6 +66,23 @@ class Entry extends Model
         'metadata' => 'array',
     ];
 
+    /**
+     * Get a new query builder instance for the connection.
+     *
+     * @return \Staudenmeir\LaravelCte\Query\Builder
+     */
+    protected function newBaseQueryBuilder()
+    {
+        $connection = $this->getConnection();
+
+        return match ($connection->getDriverName()) {
+            'oracle' => new OracleBuilder($connection),
+            'singlestore' => new SingleStoreBuilder($connection),
+            'firebird' => new FirebirdBuilder($connection),
+            default => new EntryQueryBuilder($connection),
+        };
+    }
+
     public function newPivot(Model $parent, array $attributes, $table, $exists, $using = null): Pivot
     {
         if ($parent instanceof Entry) {
@@ -98,7 +119,7 @@ class Entry extends Model
 
     public function media(): MorphToMany
     {
-        return $this->morphToMany(Media::class, 'mediable', 'mediables', 'media_composite_id');
+        return $this->morphToMany(Media::class, 'mediable', 'mediables', 'mediable_composite_id');
     }
 
     public function tags(): MorphToMany

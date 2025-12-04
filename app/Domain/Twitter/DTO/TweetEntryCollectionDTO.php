@@ -6,9 +6,6 @@ use App\Domain\Core\DTO\EntryCollectionDTO;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
-/**
- * @property Collection<int, TweetEntryDTO> $items
- */
 class TweetEntryCollectionDTO extends EntryCollectionDTO
 {
     public static function createFromTimelineResult(array $data): self

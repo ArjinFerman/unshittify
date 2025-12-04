@@ -25,4 +25,9 @@ class FeedDTO extends BaseDTO
     )
     {
     }
+
+    public function getDisplayName(): string
+    {
+        return $this->metadata['display_name'] ?? $this->name;
+    }
 }
