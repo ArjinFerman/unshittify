@@ -18,11 +18,7 @@ class MarkAsReadAction extends BaseAction
     {
         $this->optionalTransaction(function () use ($compositeIds) {
             if (empty($compositeIds)) {
-                Entry::query()
-                    ->whereHas('feed', function ($query) {
-                        $query->whereStatus(FeedStatus::ACTIVE);
-                    })
-                    ->update(['is_read' => true]);
+                Entry::query()->update(['is_read' => true]);
             } else {
                 $this->markEntriesAsRead($compositeIds);
             }

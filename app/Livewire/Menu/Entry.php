@@ -4,12 +4,10 @@ namespace App\Livewire\Menu;
 
 use App\Domain\Core\Actions\ChangeFeedStatusAction;
 use App\Domain\Core\Actions\MarkAsReadAction;
-use App\Domain\Core\Actions\ToggleEntryTagStateAction;
+use App\Domain\Core\Actions\MarkAsStarredAction;
 use App\Domain\Core\DTO\EntryDTO;
 use App\Domain\Core\DTO\EntryReferenceDTO;
-use App\Domain\Core\Enums\CoreTagType;
 use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Models\Feed;
 use Livewire\Component;
 
 class Entry extends Component
@@ -31,8 +29,9 @@ class Entry extends Component
 
     public function toggleStarred(): void
     {
-        $tags = ToggleEntryTagStateAction::make()->execute($this->entry, CoreTagType::STARRED->value, false);
-        $this->entry->tags = $tags;
+        $this->entry->is_starred = !$this->entry->is_starred;
+
+        MarkAsStarredAction::make()->execute($this->entry->composite_id);
     }
 
     public function subscribe(): void

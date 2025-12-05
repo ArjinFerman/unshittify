@@ -4,7 +4,7 @@
             <span class="fa @if($entry?->isRead()) fa-eye-slash @else fa-eye @endif mr-1"></span><span>{{ __('Read') }}</span>
         </li>
         <li wire:click="toggleStarred" class="inline-block cursor-pointer hover:text-blue-400">
-            <span class="@if($entry?->isStarred()) fa @else fa-regular @endif fa-star mr-1 ml-2"></span><span>{{ __('Star') }}</span>
+            <span class="@if($entry?->is_starred) fa @else fa-regular @endif fa-star mr-1 ml-2"></span><span>{{ __('Star') }}</span>
         </li>
         <li class="inline-block cursor-pointer hover:text-blue-400">
             <a href="{{ $url }}"><span class="fa fa-arrow-up-right-from-square mr-1 ml-2"></span><span>{{ __('External Link') }}</span></a>

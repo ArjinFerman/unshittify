@@ -57,6 +57,7 @@ class Entry extends Model
         'content',
         'published_at',
         'is_read',
+        'is_starred',
         'metadata',
     ];
 
@@ -132,16 +133,6 @@ class Entry extends Model
         return ($this->references
             ->where('ref_type', ReferenceType::REPOST->value)
             ->first() ?? $this);
-    }
-
-    public function isRead(): bool
-    {
-        return $this->is_read;
-    }
-
-    public function isStarred(): bool
-    {
-        return $this->hasTag(CoreTagType::STARRED->value);
     }
 
     public function hasTag(int $tagId): bool

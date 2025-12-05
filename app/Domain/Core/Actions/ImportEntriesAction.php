@@ -1,8 +1,7 @@
 <?php
 
-namespace App\Domain\Twitter\Actions;
+namespace App\Domain\Core\Actions;
 
-use App\Domain\Core\Actions\BaseAction;
 use App\Domain\Core\DTO\EntryCollectionDTO;
 use App\Domain\Core\DTO\EntryDTO;
 use App\Domain\Core\DTO\MediableDTO;
@@ -13,7 +12,7 @@ use App\Domain\Core\Models\Media;
 use App\Domain\Core\Models\Mediable;
 use Illuminate\Support\Collection;
 
-class ImportTweetsAction extends BaseAction
+class ImportEntriesAction extends BaseAction
 {
     /**
      * @param EntryCollectionDTO $tweets

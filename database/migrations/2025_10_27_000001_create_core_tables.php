@@ -45,6 +45,7 @@ return new class extends Migration
             $table->longText('content')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->boolean('is_read')->default(false);
+            $table->boolean('is_starred')->default(false);
 
             $table->json('metadata')->nullable();
 
@@ -96,8 +97,6 @@ return new class extends Migration
             $table->foreign('feed_composite_id')->references('composite_id')->on('feeds');
             $table->index('created_at');
         });
-
-        Tag::create(['name' => CoreTagType::STARRED->name]);
     }
 
     /**

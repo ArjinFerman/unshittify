@@ -2,14 +2,14 @@
 
 namespace App\Domain\Twitter\Services;
 
-use App\Domain\Core\Models\Entry;
-use App\Domain\Twitter\Actions\ImportTweetsAction;
+use App\Domain\Core\Actions\EnrichEntriesWithLocalStateDataAction;
+use App\Domain\Core\Actions\ImportEntriesAction;
+use App\Domain\Core\DTO\EntryStateDTO;
 use App\Domain\Twitter\DTO\TweetEntryCollectionDTO;
 use App\Domain\Twitter\DTO\TweetEntryDTO;
-use Illuminate\Support\Collection;
-use Exception;
 use App\Domain\Twitter\DTO\TwitterUserFeedDTO;
 use App\Support\OAuth\OAuth1Client;
+use Exception;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
@@ -46,7 +46,7 @@ class TwitterService
      */
     public function importTweets(TweetEntryCollectionDTO $tweets): void
     {
-        ImportTweetsAction::make()->execute($tweets);
+        ImportEntriesAction::make()->execute($tweets);
     }
 
     public function getUserByScreenName(string $screenName): TwitterUserFeedDTO
@@ -90,6 +90,7 @@ class TwitterService
         $tweets = Cache::get($cacheKey);
         if ($tweets) {
             $tweets = TweetEntryCollectionDTO::from($tweets);
+            EnrichEntriesWithLocalStateDataAction::make()->execute($tweets);
             return $tweets;
         }
 
@@ -113,6 +114,7 @@ class TwitterService
         });
 
         Cache::put($cacheKey, $tweets->toArray(), now()->addMinute());
+        EnrichEntriesWithLocalStateDataAction::make()->execute($tweets);
 
         return $tweets;
     }
@@ -121,8 +123,11 @@ class TwitterService
     {
         $cacheKey = "twitter:tweet:$id:$after";
         $tweets = Cache::get($cacheKey);
-        if ($tweets)
-            return TweetEntryCollectionDTO::from($tweets);
+        if ($tweets) {
+            $tweets = TweetEntryCollectionDTO::from($tweets);
+            EnrichEntriesWithLocalStateDataAction::make()->execute($tweets);
+            return $tweets;
+        }
 
         $variables = config('twitter.tweet_variables');
         $variables['focalTweetId'] = $id;
@@ -141,6 +146,7 @@ class TwitterService
         });
 
         Cache::put($cacheKey, $tweets->toArray(), now()->addMinute());
+        EnrichEntriesWithLocalStateDataAction::make()->execute($tweets);
 
         return $tweets;
     }

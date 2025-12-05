@@ -31,6 +31,7 @@ class EntryDTO extends BaseDTO
         public string      $content,
         public Carbon      $published_at,
         public bool        $is_read,
+        public bool        $is_starred,
         #[WithCastAndTransformer(JsonCastTransformer::class)]
         public array       $metadata = [],
         public ?FeedDTO    $feed = null,
@@ -64,10 +65,5 @@ class EntryDTO extends BaseDTO
     public function quote(): ?self
     {
         return $this->references?->where('ref_type', ReferenceType::QUOTE)?->first()?->referenced_entry;
-    }
-
-    public function isStarred(): bool
-    {
-        return $this->tags?->where('id', CoreTagType::STARRED->value)?->isNotEmpty() ?? false;
     }
 }
