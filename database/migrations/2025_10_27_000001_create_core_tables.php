@@ -34,7 +34,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('author_id')->references('id')->on('authors');
-            $table->unique(['type', 'url']);
         });
 
         Schema::create('entries', function (Blueprint $table) {

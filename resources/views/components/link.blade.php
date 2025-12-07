@@ -1,6 +1,6 @@
-@if ($link)
-<a href="{{ $link->url }}" target="_blank">
-    <div class="content-box mt-4">
+<a href="{{ $url }}" target="_blank">
+    @if ($link)
+    <div class="content-box mt-2">
         <div class="pt-3 sm:pt-5">
             <div>
                 <h2 class="text-xl font-semibold text-black dark:text-white">
@@ -10,12 +10,12 @@
 
             <div class="mt-4 mb-4 text-sm/relaxed">
                 {{ $link->title }}
-
-                <picture>
-                    <img src="{{ $link->thumbnail_url }}" alt="{{ $link->title }}" class="max-h-96 mt-4">
-                </picture>
             </div>
         </div>
     </div>
+    @else
+    <span class="font-semibold text-blue-600 dark:text-sky-400 underline break-all">
+        {{ $url }}
+    </span>
+    @endif
 </a>
-@endif

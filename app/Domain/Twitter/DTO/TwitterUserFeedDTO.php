@@ -25,9 +25,9 @@ class TwitterUserFeedDTO extends FeedDTO
             url: config('twitter.base_url') . $data['result']['legacy']['screen_name'],
             metadata: [
                 'display_name' => "$author->name (@{$data['result']['legacy']['screen_name']})",
+                'profile_image' => $data['result']['legacy']['profile_image_url_https'] ?? null,
                 'profile_background_color' => $data['result']['legacy']['profile_background_color'] ?? null,
                 'profile_banner_url' => $data['result']['legacy']['profile_banner_url'] ?? null,
-                'profile_image_url_https' => $data['result']['legacy']['profile_image_url_https'] ?? null,
                 'profile_interstitial_type' => $data['result']['legacy']['profile_interstitial_type'] ?? null,
                 'profile_link_color' => $data['result']['legacy']['profile_link_color'] ?? null,
             ],

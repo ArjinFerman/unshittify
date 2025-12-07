@@ -4,7 +4,6 @@ namespace App\Domain\Twitter\DTO;
 
 use App\Domain\Core\DTO\EntryDTO;
 use App\Domain\Core\DTO\EntryReferenceDTO;
-use App\Domain\Core\DTO\LinkDTO;
 use App\Domain\Core\DTO\TagDTO;
 use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Enums\ReferenceType;
@@ -63,9 +62,39 @@ class TweetEntryDTO extends EntryDTO
             ));
         }
 
+        $tweetCard = [];
+        if ($cardData = $data['tweet_card'] ?? $data['card'] ?? null) {
+            foreach ($cardData['legacy']['binding_values'] as $binding_value) {
+                $tweetCard[$binding_value['key']] = $binding_value['value'];
+            }
+        }
+
         $feed = TwitterUserFeedDTO::createFromUserResult($data['core']['user_result'] ?? $data['core']['user_results']);
 
         $content = e(htmlspecialchars_decode($data['note_tweet']['note_tweet_results']['result']['text'] ?? $data['legacy']['full_text']));
+
+        $entities = $data['note_tweet']['note_tweet_results']['result']['entity_set'] ?? $data['legacy']['entities'];
+        foreach ($entities['urls'] as $linkData) {
+            if ($references->where('referenced_entry.url', $linkData['url']))
+                continue;
+
+            $link = TwitterLinkEntryDTO::createFromTweetResult($linkData, $tweetCard);
+            if ($link) {
+                $references->add(new EntryReferenceDTO(
+                    entry_composite_id: $link->composite_id,
+                    ref_entry_composite_id: $compositeId,
+                    ref_type: ReferenceType::LINK,
+                    referenced_entry: $link,
+                ));
+                $content = Str::replace($linkData['url'], "<x-entry.link compositeId=\"$link->composite_id\"/>", $content);
+            }
+        }
+
+        foreach ($entities['user_mentions'] ?? [] as $mention) {
+            $mentionId = CompositeId::create(ExternalSourceType::TWITTER, $mention['id_str']);
+            $link = "<x-mention compositeId=\"$mentionId\" feedName=\"{$mention['screen_name']}\"/>";
+            $content = Str::replace("@{$mention['screen_name']}", $link, $content);
+        }
 
         $mediaCollection = new Collection();
         foreach ($data['legacy']['extended_entities']['media'] ?? [] as $media) {
@@ -74,30 +103,6 @@ class TweetEntryDTO extends EntryDTO
                 $mediaCollection->add($mediaData);
                 $content = Str::replace($media['url'], "<x-media compositeId=\"{$mediaData->composite_id}\"/>", $content);
             }
-        }
-
-        $tweetCard = [];
-        if (isset($data['tweet_card'])) {
-            foreach ($data['tweet_card']['legacy']['binding_values'] as $binding_value) {
-                $tweetCard[$binding_value['key']] = $binding_value['value'];
-            }
-        }
-
-        $entities = $data['note_tweet']['note_tweet_results']['result']['entity_set'] ?? $data['legacy']['entities'];
-        $links = [];
-        foreach ($entities['urls'] as $link) {
-            $linkDto = new LinkDTO($link['url']);
-            $linkDto->expanded_url = getCleanUrl($link['expanded_url']);
-
-            if (isset($tweetCard['vanity_url']) && isset($tweetCard['card_url']) && !isset($tweetCard['broadcast_id']) && $tweetCard['card_url']['string_value'] == $linkDto->url) {
-                $linkDto->author = $tweetCard['vanity_url']['string_value'];
-                $linkDto->title = $tweetCard['title']['string_value'];
-                $linkDto->description = $tweetCard['description']['string_value'] ?? null;
-                $linkDto->thumbnail_url = isset($tweetCard['thumbnail_image_original']) ? $tweetCard['thumbnail_image_original']['image_value']['url'] : null;
-            }
-
-            $links[] = $linkDto;
-            $content = Str::replace($link['url'], "<x-entry.link url=\"{$linkDto->expanded_url}\"/>", $content);
         }
 
         return new self(

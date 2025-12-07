@@ -10,7 +10,7 @@
         <div class="flex">
             <div class="flex lg:mr-6 mt-1 mr-4 size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">
                 <a href="{{ route('twitter.user', ['screenName' => $displayEntry->feed?->name]) }}" class="relative">
-                    <img src="{{ $displayEntry->feed?->profile_image_url_https }}" alt="{{ $displayEntry->feed?->name }}" class="max-h-96 mt-4 rounded-full size-12 sm:size-16">
+                    <img src="{{ $displayEntry->feed?->profile_image }}" alt="{{ $displayEntry->feed?->name }}" class="max-h-96 mt-4 rounded-full size-12 sm:size-16">
                 </a>
             </div>
             <div class="flex lg:mt-5">
@@ -37,16 +37,8 @@
 
             <div class="relative">
                 <div class="mt-4 mb-4 text-sm text-white relative" style="overflow-wrap: anywhere">
-                    {!! nl2br($displayEntry->content) !!}
+                    {!! $displayContent !!}
                 </div>
-
-{{--                @foreach ($entry->links ?? [] as $link)--}}
-{{--                <x-entry.link :url="$link->expanded_url" />--}}
-{{--                @endforeach--}}
-
-                @foreach ($entry->media ?? [] as $media)
-                <x-media.media-dto :media="$media" />
-                @endforeach
             </div>
         </div>
 

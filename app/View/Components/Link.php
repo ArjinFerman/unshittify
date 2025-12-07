@@ -1,18 +1,18 @@
 <?php
 
-namespace App\View\Components\Media;
+namespace App\View\Components;
 
 use App\Domain\Core\DTO\EntryDTO;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
 
-class Media extends Component
+class Link extends Component
 {
     /**
      * Create a new component instance.
      */
-    public function __construct(public ?EntryDTO $entry, public string $compositeId)
+    public function __construct(public ?EntryDTO $entry, public string $url)
     {
     }
 
@@ -21,7 +21,9 @@ class Media extends Component
      */
     public function render(): View|Closure|string
     {
-        $media = $this->entry->media->get($this->compositeId);
-        return view('components.media.' . $media->type->value, ['media' => $media]);
+        $link = $this->entry?->references
+            ?->where('url', '=', $this->url)?->first();
+
+        return view('components.link', ['link' => $link, 'url' => $this->url]);
     }
 }

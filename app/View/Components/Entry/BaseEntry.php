@@ -2,7 +2,7 @@
 
 namespace App\View\Components\Entry;
 
-use App\Domain\Core\Models\Entry;
+use App\Domain\Core\DTO\EntryDTO;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\Str;
 use Illuminate\View\Component;
@@ -10,7 +10,7 @@ use Illuminate\View\ComponentAttributeBag;
 
 abstract class BaseEntry extends Component
 {
-    protected function renderComponents(Entry $entry): string
+    protected function renderComponents(EntryDTO $entry): string
     {
         $displayContent = nl2br($entry->content);
         return Str::replaceMatches('/<x-(\w+)(?:\.(\w+))?(?: (\w+)="([^"]+)")+\/>/', function ($matches) use ($entry) {

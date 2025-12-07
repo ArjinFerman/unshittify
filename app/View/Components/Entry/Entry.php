@@ -5,9 +5,8 @@ namespace App\View\Components\Entry;
 use App\Domain\Core\DTO\EntryDTO;
 use Closure;
 use Illuminate\Contracts\View\View;
-use Illuminate\View\Component;
 
-class Entry extends Component
+class Entry extends BaseEntry
 {
     /**
      * Create a new component instance.
@@ -23,9 +22,11 @@ class Entry extends Component
     {
         $displayEntry = $this->entry->repost() ?? $this->entry;
         $displayEntry->media = $displayEntry->media->keyBy('composite_id');
+        $displayContent = $this->renderComponents($displayEntry);
 
         return view('components.entry.entry', [
             'displayEntry' => $displayEntry,
+            'displayContent' => $displayContent,
             'isRetweeted' => $this->entry->isRepost(),
         ]);
     }

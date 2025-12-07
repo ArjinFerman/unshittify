@@ -31,16 +31,19 @@ class ImportEntriesAction extends BaseAction
             foreach ($flatEntries as $entry) {
                 $importEntries[] = $entry->except('feed', 'references', 'media', 'tags')->toArray();
                 $feeds[] = $entry->feed->except('author')->toArray();
-                $references = array_merge($entry->references->map(fn($reference) => $reference->except('referenced_entry'))->toArray(), $references);
+                $references = array_merge(
+                    $entry->references?->map(fn($reference) => $reference->except('referenced_entry'))?->toArray() ?? [],
+                    $references
+                );
 
-                foreach ($entry->media as $mediaEntry) {
+                foreach ($entry->media ?? [] as $mediaEntry) {
                     $media[] = $mediaEntry->toArray();
                     $mediables[] = (new MediableDTO($mediaEntry->composite_id, $entry->composite_id, Entry::class))->toArray();
                 }
             }
 
             Feed::query()->upsert($feeds, ['composite_id'], ['updated_at']);
-            Entry::query()->upsert($importEntries, ['composite_id'], ['updated_at']);
+            Entry::query()->upsert($importEntries, ['composite_id'], ['title', 'content', 'published_at', 'metadata', 'updated_at']);
             EntryReference::query()->upsert($references, ['entry_composite_id', 'ref_entry_composite_id', 'ref_type']);
             Media::query()->upsert($media, ['composite_id']);
             Mediable::query()->upsert($mediables, ['media_composite_id', 'mediable_composite_id', 'mediable_type']);

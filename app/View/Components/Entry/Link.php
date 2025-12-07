@@ -2,8 +2,7 @@
 
 namespace App\View\Components\Entry;
 
-use App\Domain\Core\Models\Entry;
-use App\Domain\Web\Models\Page;
+use App\Domain\Core\DTO\EntryDTO;
 use Closure;
 use Illuminate\Contracts\View\View;
 use Illuminate\View\Component;
@@ -13,7 +12,7 @@ class Link extends Component
     /**
      * Create a new component instance.
      */
-    public function __construct(public ?Entry $entry, public string $url)
+    public function __construct(public ?EntryDTO $entry, public string $compositeId)
     {
     }
 
@@ -22,9 +21,9 @@ class Link extends Component
      */
     public function render(): View|Closure|string
     {
-        $link = $this->entry->references
-            ->where('url', '=', $this->url)->first();
+        $link = $this->entry?->references
+            ?->where('entry_composite_id', '=', $this->compositeId)?->first();
 
-        return view('components.entry.link', ['link' => $link]);
+        return view('components.entry.link', ['link' => $link?->referenced_entry]);
     }
 }
