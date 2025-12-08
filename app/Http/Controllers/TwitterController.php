@@ -13,47 +13,47 @@ class TwitterController extends Controller
     {
     }
 
-    public function user(Request $request, string $screenName): View
+    public function feed(Request $request, string $feedName): View
     {
         $cursor = $request->query('cursor');
-        $tweets = $this->twitterService->getLatestUserTweetsAndReplies($screenName, $cursor);
+        $tweets = $this->twitterService->getLatestUserTweetsAndReplies($feedName, $cursor);
 
         $this->twitterService->importTweets($tweets);
 
         $data = [
             'isAPI' => true,
-            'screenName' => $screenName,
+            'entryName' => $feedName,
             'entries' => $tweets,
-            'title' => "@$screenName"
+            'title' => "@$feedName"
         ];
 
         if ($cursor) {
-            $data['loadNewestLink'] = route('twitter.user', ['screenName' => $screenName]);
+            $data['loadNewestLink'] = route('twitter.feed', ['feedName' => $feedName]);
         }
 
         if ($tweets->bottom_cursor) {
-            $data['loadMoreLink'] = route('twitter.user', ['screenName' => $screenName, 'cursor' => $tweets->bottom_cursor]);
+            $data['loadMoreLink'] = route('twitter.feed', ['feedName' => $feedName, 'cursor' => $tweets->bottom_cursor]);
         }
 
         return view('entries', $data);
     }
 
-    public function tweet(Request $request, string $screenName, string $tweetId): View
+    public function entry(Request $request, string $feedName, string $entryId): View
     {
         $cursor = $request->query('cursor');
         $data = [
-            'screenName' => $screenName,
-            'entries' => $this->twitterService->getTweetWithReplies($tweetId, $cursor),
-            'title' => "@$screenName - $tweetId",
-            'loadNewestLink' => route('twitter.tweet', ['screenName' => $screenName, 'tweetId' => $tweetId])
+            'feedName' => $feedName,
+            'entries' => $this->twitterService->getTweetWithReplies($entryId, $cursor),
+            'title' => "@$feedName - $entryId",
+            'loadNewestLink' => route('twitter.entry', ['feedName' => $feedName, 'entryId' => $entryId])
         ];
 
         $this->twitterService->importTweets($data['entries']);
 
         if ($data['entries']->bottom_cursor) {
-            $data['loadMoreLink'] = route('twitter.tweet', [
-                'screenName' => $screenName,
-                'tweetId' => $tweetId,
+            $data['loadMoreLink'] = route('twitter.entry', [
+                'feedName' => $feedName,
+                'entryId' => $entryId,
                 'cursor' => $data['entries']->bottom_cursor,
             ]);
         }

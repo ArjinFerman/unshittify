@@ -20,7 +20,7 @@
             @endif
         </li>
         <li class="inline-block cursor-pointer hover:text-blue-400">
-            <a href="{{ route('twitter.tweet', ['screenName' => $entry->feed?->name, 'tweetId' => $entry->composite_id->externalId]) }}">
+            <a href="{{ route("{$entry->composite_id->source->value}.entry", ['feedName' => $entry->feed->name, 'entryId' => $entry->composite_id->externalId]) }}">
                 <span class="fa fa-wifi mr-1 ml-2"></span><span>{{ __('API View') }}</span>
             </a>
         </li>

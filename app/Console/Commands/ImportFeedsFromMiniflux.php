@@ -57,10 +57,10 @@ class ImportFeedsFromMiniflux extends Command
                 $feed = Feed::whereUrl($feedUrl)->first();
 
                 if (!$feed) {
-                    $screenName = explode('/', Str::replace('/with_replies', '', $minifluxFeed->site_url));
-                    $screenName = end($screenName);
+                    $feedName = explode('/', Str::replace('/with_replies', '', $minifluxFeed->site_url));
+                    $feedName = end($feedName);
 
-                    $tweets = $twitterService->getLatestUserTweets($screenName);
+                    $tweets = $twitterService->getLatestUserTweets($feedName);
                     $tweets = (new TweetEntryCollectionDTO([$tweets->first()]))->keyBy('rest_id');
 
                     $tweetAuthorFeed = ImportFeedsFromTweetsAction::make()->withoutTransaction()->execute($tweets)->first();
