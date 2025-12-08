@@ -3,21 +3,22 @@
 namespace App\Livewire\Menu;
 
 use App\Domain\Core\Actions\MarkAsReadAction;
-use App\Support\CompositeId;
 use Livewire\Component;
 
 class Entries extends Component
 {
-    public array $entryIds = [];
-    public bool $showMarkPage = true;
-    public bool $showMarkAll = false;
+    public array $entryIds;
+    public bool $isTop = false;
+    public ?string $loadNewestLink = null;
+    public ?string $loadMoreLink = null;
 
 
-    public function mount(array $entryIds = [], bool $showMarkPage = true, bool $showMarkAll = false): void
+    public function mount(array $entryIds = [], bool $isTop = false, ?string $loadNewestLink = '', ?string $loadMoreLink = ''): void
     {
         $this->entryIds         = $entryIds;
-        $this->showMarkPage     = $showMarkPage;
-        $this->showMarkAll      = $showMarkAll;
+        $this->isTop            = $isTop;
+        $this->loadNewestLink   = $loadNewestLink;
+        $this->loadMoreLink     = $loadMoreLink;
     }
 
     public function markPageAsRead(): void

@@ -3,9 +3,6 @@
     /** @var \App\Domain\Core\DTO\EntryDTO $displayEntry */
 @endphp
 <div class="content-box @if ($level <= 0) content-bg @endif @if ($displayEntry->reply_to_id_str) ml-6 @endif">
-    <a href="{{ route('twitter.tweet', ['screenName' => $displayEntry->feed?->name, 'tweetId' => $displayEntry->composite_id->externalId])  }}"
-       class="absolute top-0 left-0 h-full w-full">
-    </a>
     <div class="w-full">
         <div class="flex">
             <div class="flex lg:mr-6 mt-1 mr-4 size-12 shrink-0 items-center justify-center rounded-full bg-[#FF2D20]/10 sm:size-16">

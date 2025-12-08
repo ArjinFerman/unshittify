@@ -101,7 +101,11 @@ class TweetEntryDTO extends EntryDTO
             $mediaData = TwitterMediaDTO::createFromMedia($media);
             if($mediaData) {
                 $mediaCollection->add($mediaData);
-                $content = Str::replace($media['url'], "<x-media compositeId=\"{$mediaData->composite_id}\"/>", $content);
+
+                if (Str::contains($content, $media['url']))
+                    $content = Str::replace($media['url'], "<x-media compositeId=\"{$mediaData->composite_id}\"/>", $content);
+                else
+                    $content .= "\n<x-media compositeId=\"{$mediaData->composite_id}\"/>";
             }
         }
 

@@ -13,12 +13,6 @@ class TwitterController extends Controller
     {
     }
 
-
-    public function index(Request $request): View
-    {
-        return view('welcome', []);
-    }
-
     public function user(Request $request, string $screenName): View
     {
         $cursor = $request->query('cursor');
@@ -27,6 +21,7 @@ class TwitterController extends Controller
         $this->twitterService->importTweets($tweets);
 
         $data = [
+            'isAPI' => true,
             'screenName' => $screenName,
             'entries' => $tweets,
             'title' => "@$screenName"
@@ -49,14 +44,11 @@ class TwitterController extends Controller
         $data = [
             'screenName' => $screenName,
             'entries' => $this->twitterService->getTweetWithReplies($tweetId, $cursor),
-            'title' => "@$screenName - $tweetId"
+            'title' => "@$screenName - $tweetId",
+            'loadNewestLink' => route('twitter.tweet', ['screenName' => $screenName, 'tweetId' => $tweetId])
         ];
 
         $this->twitterService->importTweets($data['entries']);
-
-        if ($cursor) {
-            $data['loadNewestLink'] = route('twitter.tweet', ['screenName' => $screenName, 'tweetId' => $tweetId]);
-        }
 
         if ($data['entries']->bottom_cursor) {
             $data['loadMoreLink'] = route('twitter.tweet', [

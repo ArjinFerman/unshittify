@@ -35,13 +35,14 @@
 @else
 <section>
     <div class="grid gap-6 lg:grid-cols-1 lg:gap-8">
-        <livewire:menu.entries :showMarkAll="true" :showMarkPage="false"/>
+        <livewire:menu.entries :isTop="true" :loadNewestLink="$loadNewestLink ?? null"/>
 
         @foreach ($entries->items as $entry)
             <x-entry :entry="$entry" />
         @endforeach
 
-        <livewire:menu.entries :entryIds="$entries->items->map(fn($entry) => (string)$entry->composite_id)->toArray()" />
+        <livewire:menu.entries :loadMoreLink="$loadMoreLink ?? null"
+                               :entryIds="($loadMoreLink ?? null) ? [] : $entries->items->map(fn($entry) => (string)$entry->composite_id)->toArray()" />
     </div>
 </section>
 @endif
