@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Domain\Core\Actions\FindOrCreateAuthorAction;
+use App\Domain\Core\Actions\ImportEntriesAction;
 use App\Domain\Core\Enums\FeedStatus;
 use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Models\Feed;
@@ -61,11 +62,10 @@ class ImportFeedsFromMiniflux extends Command
                     $feedName = end($feedName);
 
                     $tweets = $twitterService->getLatestUserTweets($feedName);
-                    $tweets = (new TweetEntryCollectionDTO([$tweets->first()]))->keyBy('rest_id');
+                    ImportEntriesAction::make()->withoutTransaction()->execute($tweets);
 
-                    $tweetAuthorFeed = ImportFeedsFromTweetsAction::make()->withoutTransaction()->execute($tweets)->first();
                     /** @var Feed $feed */
-                    $feed = $tweetAuthorFeed['feed'];
+                    $feed = Feed::whereCompositeId($tweets->items->first()->composite_id)->first();
                 }
 
                 $feed->status = FeedStatus::ACTIVE;

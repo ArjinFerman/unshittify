@@ -2,6 +2,7 @@
 
 namespace App\Domain\Twitter\Strategies;
 
+use App\Domain\Core\Actions\ImportEntriesAction;
 use App\Domain\Core\Models\Entry;
 use App\Domain\Core\Models\Feed;
 use App\Domain\Core\Strategies\FeedSyncStrategy;
@@ -34,9 +35,16 @@ class TwitterSyncStrategy implements FeedSyncStrategy
                 Log::info(__('Calling API.'));
                 $tweets = $this->twitterService->getLatestUserTweets($this->feed->name, $cursor);
 
-                $lastImportedEntry = $this->twitterService->importTweets($tweets)->last();
-                $cursor = $tweets->getBottomCursor();
-                $importedCount += $tweets->count();
+                ImportEntriesAction::make()->withoutTransaction()->execute($tweets);
+                $importedTweets = Entry::whereIn('composite_id', $tweets->items->pluck('composite_id'))->get();
+
+                if ($importedTweets->count() != $tweets->items->count()) {
+                    Log::warning(__('Imported tweet count doesn\'t match the API tweet count.')
+                        . $importedTweets->count() . ' vs ' . $tweets->items->count());
+                }
+
+                $cursor = $tweets->bottom_cursor;
+                $importedCount += $importedTweets->count();
             }
         });
     }
