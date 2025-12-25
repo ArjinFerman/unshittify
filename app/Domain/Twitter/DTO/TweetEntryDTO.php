@@ -75,7 +75,7 @@ class TweetEntryDTO extends EntryDTO
 
         $entities = $data['note_tweet']['note_tweet_results']['result']['entity_set'] ?? $data['legacy']['entities'];
         foreach ($entities['urls'] as $linkData) {
-            if ($references->where('referenced_entry.url', $linkData['url']))
+            if ($references->where('referenced_entry.url', $linkData['url'])->count() > 0)
                 continue;
 
             $link = TwitterLinkEntryDTO::createFromTweetResult($linkData, $tweetCard);

@@ -103,11 +103,6 @@ class Entry extends Model
         return $this->belongsTo(Feed::class);
     }
 
-    public function author(): \Znck\Eloquent\Relations\BelongsToThrough
-    {
-        return $this->belongsToThrough(Author::class, Feed::class, foreignKeyLookup: [Author::class => 'author_id']);
-    }
-
     public function references(): Relation
     {
         return $this->descendants();

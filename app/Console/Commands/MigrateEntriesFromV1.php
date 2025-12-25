@@ -2,26 +2,13 @@
 
 namespace App\Console\Commands;
 
-use App\Domain\Core\Actions\FindOrCreateAuthorAction;
 use App\Domain\Core\Actions\ImportEntriesAction;
-use App\Domain\Core\DTO\AuthorDTO;
-use App\Domain\Core\Enums\FeedStatus;
-use App\Domain\Core\Enums\ExternalSourceType;
-use App\Domain\Core\Enums\MediaType;
-use App\Domain\Core\Models\Feed;
 use App\Domain\Legacy\V1\DTO\LegacyEntryCollectionDTO;
-use App\Domain\Legacy\V1\DTO\LegacyEntryDTO;
-use App\Domain\Twitter\DTO\TweetEntryCollectionDTO;
-use App\Domain\Twitter\DTO\TwitterMediaDTO;
-use App\Domain\Twitter\DTO\TwitterUserFeedDTO;
-use App\Domain\Twitter\Services\TwitterService;
-use App\Support\CompositeId;
 use Illuminate\Console\Command;
 use Illuminate\Database\Connection;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use stdClass;
 
 class MigrateEntriesFromV1 extends Command
@@ -50,9 +37,7 @@ class MigrateEntriesFromV1 extends Command
         $this->output->info(__('Starting feed import from Miniflux'));
 
         $batchSize = $this->argument('batchSize');
-        /** @var TwitterService $twitterService */
-        $twitterService = app(TwitterService::class);
-        $this->conn = DB::connection(env('V1_DB_CONNECTION'));
+        $this->conn = DB::connection(config('database.v1-migration'));
         $this->conn->reconnect();
 
         $lastImported = Cache::get('v1-last-import-id') ?? 0;
@@ -62,7 +47,7 @@ class MigrateEntriesFromV1 extends Command
         $this->output->progressStart($totalEntryCount);
         $this->output->progressAdvance($lastImported);
 
-        while ($v1Entries = $this->getEntries($lastImported, $batchSize)) {
+        while (($v1Entries = $this->getEntries($lastImported, $batchSize))->isNotEmpty()) {
             $entryData = $this->getEntryData($v1Entries);
             $parsedEntries = LegacyEntryCollectionDTO::createFromRawDB(
                 $v1Entries,

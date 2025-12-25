@@ -80,7 +80,7 @@ class LegacyEntryCollectionDTO extends EntryCollectionDTO
                 content: $content,
                 published_at: Carbon::parse($v1Entry->published_at),
                 is_read: $v1Entry->is_read,
-                is_starred: $tags->where('name', 'STARRED')->count() > 0,
+                is_starred: $tags?->where('name', 'STARRED')?->count() > 0,
                 metadata: $metadata,
                 feed: $entryFeed,
                 references: $entryReferences,

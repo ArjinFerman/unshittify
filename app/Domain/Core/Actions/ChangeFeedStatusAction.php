@@ -18,13 +18,6 @@ class ChangeFeedStatusAction extends BaseAction
             $feed = Feed::find($feedData->composite_id);
             $feed->status = $status;
 
-            if ($status == FeedStatus::ACTIVE) {
-                $author = Author::whereName($feedData->author->name)->first() ?? new Author();
-                $author->fill($feedData->author->toArray());
-                $author->save();
-                $feed->author_id = $author->id;
-            }
-
             $feed->save();
             $feed->refresh();
 

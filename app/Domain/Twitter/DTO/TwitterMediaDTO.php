@@ -52,11 +52,12 @@ class TwitterMediaDTO extends MediaDTO
     {
         switch ($variant['content_type']) {
             case 'application/x-mpegURL':
-                return [
-                    'quality' => 0,
-                ];
+                break;
             case 'video/mp4':
                 preg_match('/\/(\d+)x(\d+)\//', $variant['url'], $matches);
+                if(!$matches)
+                    break;
+
                 return [
                     'quality' => (int)round($variant['bitrate'] / 432000.0),
                     'custom' => [
@@ -74,6 +75,7 @@ class TwitterMediaDTO extends MediaDTO
     {
         return match ($media['type']) {
             'video' => MediaType::VIDEO,
+            'animated_gif' => MediaType::VIDEO,
             'photo' => MediaType::IMAGE,
             default => null,
         };

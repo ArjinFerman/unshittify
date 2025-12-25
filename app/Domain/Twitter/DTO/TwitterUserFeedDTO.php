@@ -12,19 +12,14 @@ class TwitterUserFeedDTO extends FeedDTO
 {
     public static function createFromUserResult(array $data): self
     {
-        $author = new AuthorDTO(
-            name: $data['result']['legacy']['name'],
-            description: $data['result']['legacy']['description'],
-        );
-
         return new self(
             composite_id: CompositeId::create(ExternalSourceType::TWITTER, $data['result']['rest_id']),
-            author: $author,
-            name: $data['result']['legacy']['screen_name'],
+            handle: $data['result']['legacy']['screen_name'],
+            name: $data['result']['legacy']['name'],
             status: FeedStatus::PREVIEW,
             url: config('twitter.base_url') . $data['result']['legacy']['screen_name'],
             metadata: [
-                'display_name' => "$author->name (@{$data['result']['legacy']['screen_name']})",
+                'description' => $data['result']['legacy']['description'],
                 'profile_image' => $data['result']['legacy']['profile_image_url_https'] ?? null,
                 'profile_background_color' => $data['result']['legacy']['profile_background_color'] ?? null,
                 'profile_banner_url' => $data['result']['legacy']['profile_banner_url'] ?? null,

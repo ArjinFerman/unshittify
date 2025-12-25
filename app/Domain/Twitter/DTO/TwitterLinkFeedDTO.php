@@ -16,12 +16,11 @@ class TwitterLinkFeedDTO extends FeedDTO
 
         return new self(
             composite_id: CompositeId::create(ExternalSourceType::WEB, $host),
-            author: null,
-            name: $host,
+            handle: $host,
+            name: $tweetCard['app_name']['string_value'] ?? null,
             status: FeedStatus::PREVIEW,
             url: "https://$host",
             metadata: [
-                'display_name' => $tweetCard['app_name']['string_value'] ?? null,
                 'profile_image' => null,
             ],
         );

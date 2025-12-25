@@ -45,11 +45,6 @@ class Feed extends Model
         };
     }
 
-    public function author(): BelongsTo
-    {
-        return $this->belongsTo(Author::class);
-    }
-
     public function entries(): HasMany
     {
         return $this->hasMany(Entry::class, 'feed_composite_id');

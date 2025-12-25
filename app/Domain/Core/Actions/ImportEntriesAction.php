@@ -15,13 +15,13 @@ use Illuminate\Support\Collection;
 class ImportEntriesAction extends BaseAction
 {
     /**
-     * @param EntryCollectionDTO $tweets
+     * @param EntryCollectionDTO $entries
      * @throws \Throwable
      */
-    public function execute(EntryCollectionDTO $tweets): void
+    public function execute(EntryCollectionDTO $entries): void
     {
-        $this->withoutTransaction()->optionalTransaction(function () use ($tweets) {
-            $flatEntries = $this->flattenEntries($tweets->items);
+        $this->withoutTransaction()->optionalTransaction(function () use ($entries) {
+            $flatEntries = $this->flattenEntries($entries->items);
             $importEntries = [];
             $feeds = [];
             $references = [];

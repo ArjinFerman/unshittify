@@ -10,7 +10,11 @@ use App\Domain\Core\Traits\DTO\HasMetadata;
 use App\Support\CompositeId;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
+use Spatie\LaravelData\Attributes\WithCast;
 use Spatie\LaravelData\Attributes\WithCastAndTransformer;
+use Spatie\LaravelData\Attributes\WithTransformer;
+use Spatie\LaravelData\Casts\DateTimeInterfaceCast;
+use Spatie\LaravelData\Transformers\DateTimeInterfaceTransformer;
 
 /**
  * @property Collection<int, EntryReferenceDTO> $references
@@ -27,8 +31,10 @@ class EntryDTO extends BaseDTO
         #[WithCastAndTransformer(CompositeIdCastTransformer::class)]
         public CompositeId $feed_composite_id,
         public string      $url,
-        public string      $title,
-        public string      $content,
+        public ?string     $title,
+        public ?string     $content,
+        #[WithCast(DateTimeInterfaceCast::class, format: 'Y-m-d H:i:s')]
+        #[WithTransformer(DateTimeInterfaceTransformer::class, format: 'Y-m-d H:i:s')]
         public Carbon      $published_at,
         public bool        $is_read,
         public bool        $is_starred,
