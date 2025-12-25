@@ -64,7 +64,7 @@ return new class extends Migration
             $table->enum('ref_type', ['link', 'quote', 'repost', 'reply_from']); // ReferenceType::cases()
 
             $table->primary(['entry_composite_id', 'ref_entry_composite_id', 'ref_type']);
-            $table->foreign('ref_entry_composite_id')->references('composite_id')->on('entries');
+            //$table->foreign('ref_entry_composite_id')->references('composite_id')->on('entries');
             $table->index('ref_type');
         });
 
