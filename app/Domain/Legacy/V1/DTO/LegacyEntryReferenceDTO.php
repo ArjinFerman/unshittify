@@ -7,6 +7,7 @@ use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Enums\ReferenceType;
 use App\Support\CompositeId;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 use stdClass;
 
 class LegacyEntryReferenceDTO extends EntryReferenceDTO
@@ -16,7 +17,7 @@ class LegacyEntryReferenceDTO extends EntryReferenceDTO
      * @param Collection<int, stdClass> $v1EntriesReferences
      * @return Collection<int, LegacyEntryDTO>
      */
-    public static function collectFromRawDB(stdClass $v1MainEntry, Collection $v1EntriesReferences): Collection
+    public static function collectFromRawDB(stdClass $v1MainEntry, Collection $v1EntriesReferences, string &$content): Collection
     {
         $result = new Collection();
         $v1EntryReferences = $v1EntriesReferences->get($v1MainEntry->id);
@@ -26,7 +27,7 @@ class LegacyEntryReferenceDTO extends EntryReferenceDTO
 
             switch ($v1EntryReference->ref_type) {
                 case 'reply_to':
-                    $result->add(new EntryReferenceDTO(
+                    $result->add(new self(
                         entry_composite_id: CompositeId::create(ExternalSourceType::TWITTER, $metadata->tweet_id),
                         ref_entry_composite_id: CompositeId::create(ExternalSourceType::TWITTER, $v1MainEntry->metadata->tweet_id),
                         ref_type: ReferenceType::REPLY_FROM,
@@ -34,13 +35,29 @@ class LegacyEntryReferenceDTO extends EntryReferenceDTO
                     ));
                     break;
                 default:
-                    $result->add(new EntryReferenceDTO(
+                    $result->add(new self(
                         entry_composite_id: CompositeId::create(ExternalSourceType::TWITTER, $v1MainEntry->metadata->tweet_id),
                         ref_entry_composite_id: CompositeId::create(ExternalSourceType::TWITTER, $metadata->tweet_id),
                         ref_type: ReferenceType::from($v1EntryReference->ref_type),
                         referenced_entry: null, // We just need the reference itself, the referenced entry will be imported independently
                     ));
             }
+        }
+
+        preg_match('/x-entry\.link url="([^\"]+)"/', $content, $matches);
+        foreach ($matches ?? [] as $match) {
+            if ($match == $matches[0])
+                continue;
+
+            $compositeId = CompositeId::create(ExternalSourceType::WEB, $match);
+            $result->add(new self(
+                entry_composite_id: CompositeId::create(ExternalSourceType::TWITTER, $v1MainEntry->metadata->tweet_id),
+                ref_entry_composite_id: $compositeId,
+                ref_type: ReferenceType::LINK,
+                referenced_entry: LegacyEntryDTO::createFromLinkData($match)
+            ));
+
+            $content = Str::replace("url=\"$match\"", "compositeId=\"$compositeId\"", $content);
         }
 
         return $result;

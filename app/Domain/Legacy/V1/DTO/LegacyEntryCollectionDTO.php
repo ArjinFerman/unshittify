@@ -22,6 +22,7 @@ class LegacyEntryCollectionDTO extends EntryCollectionDTO
      * @param Collection<int, stdClass> $v1FeedAuthors
      * @param Collection<int, stdClass> $v1FeedAvatars
      * @param Collection<int, stdClass> $v1EntryMedia
+     * @param Collection<int, stdClass> $v1EntryTags
      * @param Collection<int, stdClass> $v1EntryReferences
      * @return self
      */
@@ -31,6 +32,7 @@ class LegacyEntryCollectionDTO extends EntryCollectionDTO
         Collection $v1FeedAuthors,
         Collection $v1FeedAvatars,
         Collection $v1EntryMedia,
+        Collection $v1EntryTags,
         Collection $v1EntryReferences,
     ): self
     {
@@ -38,6 +40,7 @@ class LegacyEntryCollectionDTO extends EntryCollectionDTO
         $v1FeedAuthors = $v1FeedAuthors->keyBy('id');
         $v1FeedAvatars = $v1FeedAvatars->keyBy('mediable_id');
         $v1EntryMedia = $v1EntryMedia->groupBy('mediable_id');
+        $v1EntryTags = $v1EntryTags->groupBy('taggable_id');
         $v1EntryReferences = $v1EntryReferences->groupBy('entry_id');
 
         $entries = new Collection();
@@ -55,7 +58,7 @@ class LegacyEntryCollectionDTO extends EntryCollectionDTO
             $content = $v1Entry->content;
 
             $entryMedia = LegacyMediaDTO::collectFromRawDB($v1Entry, $v1EntryMedia, $content);
-            $entryReferences = LegacyEntryReferenceDTO::collectFromRawDB($v1Entry, $v1EntryReferences);
+            $entryReferences = LegacyEntryReferenceDTO::collectFromRawDB($v1Entry, $v1EntryReferences, $content);
 
             $metadata = (array)$v1Entry->metadata;
             $metadata['conversation_id_str'] = $metadata['conversation_id'];
@@ -68,6 +71,7 @@ class LegacyEntryCollectionDTO extends EntryCollectionDTO
             unset($metadata['reply_to_id']);
             unset($metadata['retweet_id']);
 
+            $tags = $v1EntryTags->get($v1Entry->id);
             $entries->add(new EntryDTO(
                 composite_id: CompositeId::create(ExternalSourceType::TWITTER, $v1Entry->metadata->tweet_id),
                 feed_composite_id: $entryFeed->composite_id,
@@ -75,8 +79,8 @@ class LegacyEntryCollectionDTO extends EntryCollectionDTO
                 title: "@{$entryFeed->name}",
                 content: $content,
                 published_at: Carbon::parse($v1Entry->published_at),
-                is_read: false,
-                is_starred: false,
+                is_read: $v1Entry->is_read,
+                is_starred: $tags->where('name', 'STARRED')->count() > 0,
                 metadata: $metadata,
                 feed: $entryFeed,
                 references: $entryReferences,

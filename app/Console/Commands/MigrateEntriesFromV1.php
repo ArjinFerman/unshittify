@@ -60,6 +60,7 @@ class MigrateEntriesFromV1 extends Command
 
         $this->output->info(__('Found :count entries.', ['count' => $totalEntryCount]));
         $this->output->progressStart($totalEntryCount);
+        $this->output->progressAdvance($lastImported);
 
         while ($v1Entries = $this->getEntries($lastImported, $batchSize)) {
             $entryData = $this->getEntryData($v1Entries);
@@ -69,6 +70,7 @@ class MigrateEntriesFromV1 extends Command
                 $entryData['authors'],
                 $entryData['avatars'],
                 $entryData['media'],
+                $entryData['tags'],
                 $entryData['references']
             );
 
@@ -122,6 +124,13 @@ class MigrateEntriesFromV1 extends Command
             ->join('core_media', 'core_media.id', '=', 'core_mediables.media_id')
             ->whereIn('mediable_id', $v1Entries->pluck('id'))
             ->where('mediable_type', '=', 'App\\Domain\\Twitter\\Models\\Tweet')
+            ->get();
+
+        $result['tags'] = $this->conn->query()
+            ->from('core_taggables')
+            ->join('core_tags', 'core_tags.id', '=', 'core_taggables.tag_id')
+            ->whereIn('taggable_id', $v1Entries->pluck('id'))
+            ->where('taggable_type', '=', 'App\\Domain\\Core\\Models\\Entry')
             ->get();
 
         $result['references'] = $this->conn->query()

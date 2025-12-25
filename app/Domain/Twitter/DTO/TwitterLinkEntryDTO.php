@@ -18,7 +18,7 @@ class TwitterLinkEntryDTO extends EntryDTO
         $url = getCleanUrl($linkData['expanded_url']);
         $feed = TwitterLinkFeedDTO::createFromTweetResult($linkData, $tweetCard);
 
-        $linkDto = new EntryDTO(
+        $linkDto = new self(
             composite_id: CompositeId::create(ExternalSourceType::WEB, $url),
             feed_composite_id: $feed->composite_id,
             url: $url,

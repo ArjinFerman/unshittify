@@ -42,9 +42,7 @@ class EntryService
     public function getStarredEntries(): EntryCollectionDTO
     {
         return $this->getEntriesForView(function (Builder $query) {
-            return $query->whereHas('tags', function ($tagQuery) {
-                $tagQuery->where('tags.id', CoreTagType::STARRED);
-            })
+            return $query->whereIsStarred(true)
                 ->orderBy('entries.published_at', 'desc')
                 ->limit(10);
         }, function ($query) {
@@ -54,10 +52,7 @@ class EntryService
 
     public function getStarredCount(): int
     {
-        return Entry::query()
-            ->whereHas('tags', function ($query) {
-                $query->where('tags.id', CoreTagType::STARRED);
-            })->count();
+        return Entry::query()->whereIsStarred(true)->count();
     }
 
     public function getSubscribedFeedEntries(): EntryCollectionDTO

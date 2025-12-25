@@ -49,4 +49,21 @@ class LegacyFeedDTO extends CoreFeedDTO
 
         return $result;
     }
+
+    public static function createFromLinkData(string $url): self
+    {
+        $host = parse_url($url, PHP_URL_HOST);
+
+        return new self(
+            composite_id: CompositeId::create(ExternalSourceType::WEB, $host),
+            author: null,
+            name: $host,
+            status: FeedStatus::PREVIEW,
+            url: "https://$host",
+            metadata: [
+                'display_name' => $host ?? null,
+                'profile_image' => null,
+            ],
+        );
+    }
 }
