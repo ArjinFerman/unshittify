@@ -17,6 +17,7 @@ return [
     */
 
     'default' => env('DB_CONNECTION', 'sqlite'),
+    'v1-migration' => env('V1_DB_CONNECTION', 'v1-mariadb'),
 
     /*
     |--------------------------------------------------------------------------

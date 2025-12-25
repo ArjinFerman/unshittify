@@ -22,25 +22,33 @@ return new class extends Migration
             $table->index('name');
         });
 
+        Schema::create('authorables', function (Blueprint $table) {
+            $table->primary(['authorable_composite_id', 'authorable_type', 'author_id']);
+            $table->string('authorable_composite_id');
+            $table->string('authorable_type');
+            $table->unsignedBigInteger('author_id');
+
+            $table->foreign('author_id')->references('id')->on('authors');
+            $table->index(['authorable_composite_id', 'authorable_type']);
+        });
+
         Schema::create('feeds', function (Blueprint $table) {
             $table->string( 'composite_id', 256)->primary();
-            $table->unsignedBigInteger('author_id')->nullable();
 
-            $table->string('name');
+            $table->string('handle');
+            $table->string('name')->nullable();
             $table->enum('status', ['preview', 'active', 'inactive']); // FeedStatus::cases()
             $table->string('url');
             $table->json('metadata')->nullable();
 
             $table->timestamps();
-
-            $table->foreign('author_id')->references('id')->on('authors');
         });
 
         Schema::create('entries', function (Blueprint $table) {
             $table->string( 'composite_id', 256)->primary();
             $table->string( 'feed_composite_id', 256);
             $table->string('url');
-            $table->string('title');
+            $table->string('title')->nullable();
             $table->longText('content')->nullable();
             $table->timestamp('published_at')->nullable();
             $table->boolean('is_read')->default(false);
@@ -51,7 +59,6 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('feed_composite_id')->references('composite_id')->on('feeds');
-            $table->index('type');
             $table->index('url');
             $table->index('title');
             $table->index('created_at');

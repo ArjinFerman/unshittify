@@ -16,8 +16,8 @@ class FeedDTO extends BaseDTO
     public function __construct(
         #[WithCastAndTransformer(CompositeIdCastTransformer::class)]
         public CompositeId $composite_id,
-        public ?AuthorDTO  $author,
-        public string      $name,
+        public string      $handle,
+        public ?string     $name,
         public FeedStatus  $status,
         public string      $url,
         #[WithCastAndTransformer(JsonCastTransformer::class)]
@@ -28,6 +28,6 @@ class FeedDTO extends BaseDTO
 
     public function getDisplayName(): string
     {
-        return $this->metadata['display_name'] ?? $this->name;
+        return $this->name;
     }
 }

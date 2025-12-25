@@ -11,9 +11,9 @@
                 </a>
             </div>
             <div class="flex lg:mt-5">
-                <a href="{{ route("{$entry->composite_id->source->value}.feed", ['feedName' => $displayEntry->feed?->name]) }}" class="relative">
+                <a href="{{ route("{$entry->composite_id->source->value}.feed", ['feedName' => $displayEntry->feed?->handle]) }}" class="relative">
                     <h2 class="text-xl font-semibold text-black dark:text-white">
-                        {{ $displayEntry->feed?->getDisplayName() }}
+                        {{ "{$displayEntry->feed?->name} (@{$displayEntry->feed?->handle})" }}
                     </h2>
                 </a>
             </div>
@@ -23,7 +23,7 @@
             @if ($isRetweeted)
                 <div class="text-sm text-blue-400">
                     <a href="{{ route("{$entry->composite_id->source->value}.feed", ['feedName' => $displayEntry->feed?->name]) }}" class="relative">
-                        <span>{{ __('core.reposted', ['name' => $entry->feed?->getDisplayName()]) }}</span>
+                        <span>{{ __('core.reposted', ['name' => "{$entry->feed?->name} (@{$entry->feed?->handle})"]) }}</span>
                     </a>
                 </div>
             @endif

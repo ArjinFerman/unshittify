@@ -27,8 +27,8 @@ class EntryDTO extends BaseDTO
         #[WithCastAndTransformer(CompositeIdCastTransformer::class)]
         public CompositeId $feed_composite_id,
         public string      $url,
-        public string      $title,
-        public string      $content,
+        public ?string     $title,
+        public ?string     $content,
         public Carbon      $published_at,
         public bool        $is_read,
         public bool        $is_starred,

@@ -3,16 +3,14 @@
 namespace App\Domain\Legacy\V1\DTO;
 
 use App\Domain\Core\DTO\AuthorDTO;
-use App\Domain\Core\DTO\FeedDTO as CoreFeedDTO;
+use App\Domain\Core\DTO\FeedDTO;
 use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Enums\FeedStatus;
 use App\Domain\Core\Traits\DTO\HasMetadata;
-use App\Domain\Twitter\DTO\TwitterUserFeedDTO;
 use App\Support\CompositeId;
-use Illuminate\Support\Collection;
 use stdClass;
 
-class LegacyFeedDTO extends CoreFeedDTO
+class LegacyFeedDTO extends FeedDTO
 {
     use HasMetadata;
 
@@ -32,8 +30,8 @@ class LegacyFeedDTO extends CoreFeedDTO
     {
         $result = new self(
             composite_id: CompositeId::create(ExternalSourceType::TWITTER, $v1Entry->metadata->twitter_user_id),
-            author: null,
-            name: $v1Feed->name,
+            handle: $v1Feed->name,
+            name: $v1FeedAuthor->name,
             status: FeedStatus::from($v1Feed->status),
             url: $v1Feed->url,
             metadata: [
@@ -56,7 +54,7 @@ class LegacyFeedDTO extends CoreFeedDTO
 
         return new self(
             composite_id: CompositeId::create(ExternalSourceType::WEB, $host),
-            author: null,
+            handle: $host,
             name: $host,
             status: FeedStatus::PREVIEW,
             url: "https://$host",
