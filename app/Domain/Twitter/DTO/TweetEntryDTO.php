@@ -81,8 +81,8 @@ class TweetEntryDTO extends EntryDTO
             $link = TwitterLinkEntryDTO::createFromTweetResult($linkData, $tweetCard);
             if ($link) {
                 $references->add(new EntryReferenceDTO(
-                    entry_composite_id: $link->composite_id,
-                    ref_entry_composite_id: $compositeId,
+                    entry_composite_id: $compositeId,
+                    ref_entry_composite_id: $link->composite_id,
                     ref_type: ReferenceType::LINK,
                     referenced_entry: $link,
                 ));
@@ -112,8 +112,8 @@ class TweetEntryDTO extends EntryDTO
         return new self(
             composite_id: $compositeId,
             feed_composite_id: $feed->composite_id,
-            url: config('twitter.base_url') . "{$feed->name}/status/{$data['rest_id']}",
-            title: "@{$feed->name}",
+            url: config('twitter.base_url') . "{$feed->handle}/status/{$data['rest_id']}",
+            title: "@{$feed->handle}",
             content: $content,
             published_at: Carbon::parse($data['legacy']['created_at']),
             is_read: false,

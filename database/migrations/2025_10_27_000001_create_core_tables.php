@@ -33,7 +33,7 @@ return new class extends Migration
         });
 
         Schema::create('feeds', function (Blueprint $table) {
-            $table->string( 'composite_id', 256)->primary();
+            $table->string( 'composite_id', 255)->primary();
 
             $table->string('handle');
             $table->string('name')->nullable();
@@ -45,9 +45,9 @@ return new class extends Migration
         });
 
         Schema::create('entries', function (Blueprint $table) {
-            $table->string( 'composite_id', 256)->primary();
-            $table->string( 'feed_composite_id', 256);
-            $table->string('url');
+            $table->string( 'composite_id', 255)->primary();
+            $table->string( 'feed_composite_id', 255);
+            $table->string('url', 2048);
             $table->string('title')->nullable();
             $table->longText('content')->nullable();
             $table->timestamp('published_at')->nullable();
@@ -63,16 +63,18 @@ return new class extends Migration
             $table->index('title');
             $table->index('created_at');
             $table->index('published_at');
+            $table->index(['is_read', 'feed_composite_id', 'published_at']);
+            $table->index(['is_starred', 'feed_composite_id', 'published_at']);
         });
 
         Schema::create('entry_references', function (Blueprint $table) {
-            $table->string( 'entry_composite_id', 256);
-            $table->string( 'ref_entry_composite_id', 256);
+            $table->string( 'entry_composite_id', 255);
+            $table->string( 'ref_entry_composite_id', 255);
             $table->enum('ref_type', ['link', 'quote', 'repost', 'reply_from']); // ReferenceType::cases()
 
-            $table->primary(['entry_composite_id', 'ref_entry_composite_id', 'ref_type']);
+            $table->primary(['entry_composite_id', 'ref_type', 'ref_entry_composite_id']);
             //$table->foreign('ref_entry_composite_id')->references('composite_id')->on('entries');
-            $table->index('ref_type');
+            $table->index(['ref_entry_composite_id', 'ref_type']);
         });
 
         Schema::create('tags', function (Blueprint $table) {

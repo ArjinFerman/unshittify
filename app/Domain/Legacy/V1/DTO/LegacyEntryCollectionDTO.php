@@ -76,7 +76,7 @@ class LegacyEntryCollectionDTO extends EntryCollectionDTO
                 composite_id: CompositeId::create(ExternalSourceType::TWITTER, $v1Entry->metadata->tweet_id),
                 feed_composite_id: $entryFeed->composite_id,
                 url: $v1Entry->url,
-                title: "@{$entryFeed->name}",
+                title: "@{$entryFeed->handle}",
                 content: $content,
                 published_at: Carbon::parse($v1Entry->published_at),
                 is_read: $v1Entry->is_read,

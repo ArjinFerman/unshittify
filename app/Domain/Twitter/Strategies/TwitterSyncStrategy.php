@@ -33,7 +33,7 @@ class TwitterSyncStrategy implements FeedSyncStrategy
                 Log::info(__('Cooling down before API call.'));
                 sleep(5);
                 Log::info(__('Calling API.'));
-                $tweets = $this->twitterService->getLatestUserTweets($this->feed->name, $cursor);
+                $tweets = $this->twitterService->getLatestUserTweets($this->feed->handle, $cursor);
 
                 ImportEntriesAction::make()->withoutTransaction()->execute($tweets);
                 $importedTweets = Entry::whereIn('composite_id', $tweets->items->pluck('composite_id'))->get();

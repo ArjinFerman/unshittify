@@ -29,6 +29,7 @@ return new class extends Migration
             $table->timestamps();
 
             $table->foreign('media_composite_id')->references('composite_id')->on('media');
+            $table->index(['mediable_composite_id', 'mediable_type']);
         });
     }
 

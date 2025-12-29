@@ -4,13 +4,14 @@ namespace App\Domain\Core\Services;
 
 use App\Domain\Core\DTO\EntryCollectionDTO;
 use App\Domain\Core\DTO\EntryDTO;
-use App\Domain\Core\Enums\CoreTagType;
 use App\Domain\Core\Enums\FeedStatus;
 use App\Domain\Core\Enums\ReferenceType;
 use App\Domain\Core\Models\Entry;
+use App\Domain\Core\Models\Feed;
 use App\Support\CompositeId;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 
 class EntryService
 {
@@ -18,9 +19,7 @@ class EntryService
     {
         return $this->getEntriesForView(function ($query) {
             return $query
-                ->whereHas('feed', function ($feedQuery) {
-                    $feedQuery->where('status', '=', FeedStatus::ACTIVE->value);
-                })
+                ->whereIn('feed_composite_id', $this->getFeedIds())
                 ->orderBy('entries.published_at', 'asc')
                 ->whereIsRead(false)
                 ->limit(10);
@@ -58,9 +57,7 @@ class EntryService
     public function getSubscribedFeedEntries(): EntryCollectionDTO
     {
         return $this->getEntriesForView(function (Builder $query) {
-            return $query->whereHas('feed', function (Builder $feedQuery) {
-                $feedQuery->where('status', '=', FeedStatus::ACTIVE->value);
-            });
+            return $query->whereIn('feed_composite_id', $this->getFeedIds());
         }, function ($query) {
             return $query->where('ref_type', '!=', ReferenceType::REPLY_FROM->value);
         });
@@ -103,5 +100,13 @@ class EntryService
 
         $entries = $entries->get()->toTree('references');
         return new EntryCollectionDTO(EntryDTO::collect($entries));
+    }
+
+    protected function getFeedIds(): Collection
+    {
+        return $feedIDs = Feed::query()
+                ->select('composite_id')
+                ->whereStatus(FeedStatus::ACTIVE)
+                ->get();
     }
 }

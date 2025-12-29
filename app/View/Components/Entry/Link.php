@@ -22,7 +22,7 @@ class Link extends Component
     public function render(): View|Closure|string
     {
         $link = $this->entry?->references
-            ?->where('entry_composite_id', '=', $this->compositeId)?->first();
+            ?->where('ref_entry_composite_id', '=', $this->compositeId)?->first();
 
         return view('components.entry.link', ['link' => $link?->referenced_entry]);
     }

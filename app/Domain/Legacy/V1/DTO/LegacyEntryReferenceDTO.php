@@ -7,6 +7,7 @@ use App\Domain\Core\Enums\ExternalSourceType;
 use App\Domain\Core\Enums\ReferenceType;
 use App\Support\CompositeId;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use stdClass;
 
@@ -49,15 +50,17 @@ class LegacyEntryReferenceDTO extends EntryReferenceDTO
             if ($match == $matches[0])
                 continue;
 
-            $compositeId = CompositeId::create(ExternalSourceType::WEB, $match);
+            $url = (parse_url($match, PHP_URL_SCHEME) ?: 'http') . '://' . parse_url($match, PHP_URL_HOST) . (parse_url($match, PHP_URL_PATH) ?: '/');
+
+            $link = LegacyEntryDTO::createFromLinkData($url);
             $result->add(new self(
                 entry_composite_id: CompositeId::create(ExternalSourceType::TWITTER, $v1MainEntry->metadata->tweet_id),
-                ref_entry_composite_id: $compositeId,
+                ref_entry_composite_id: $link->composite_id,
                 ref_type: ReferenceType::LINK,
-                referenced_entry: LegacyEntryDTO::createFromLinkData($match)
+                referenced_entry: $link
             ));
 
-            $content = Str::replace("url=\"$match\"", "compositeId=\"$compositeId\"", $content);
+            $content = Str::replace("url=\"$match\"", "compositeId=\"$link->composite_id\"", $content);
         }
 
         return $result;

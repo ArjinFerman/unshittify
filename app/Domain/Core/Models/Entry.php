@@ -25,6 +25,11 @@ class Entry extends Model
 
     protected $table = 'entries';
 
+    public function getPathSeparator(): string
+    {
+        return '>';
+    }
+
     public function getPivotTableName(): string
     {
         return 'entry_references';
